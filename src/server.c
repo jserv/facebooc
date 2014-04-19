@@ -64,46 +64,65 @@ static Response *staticHandler(Request *req) {
     ROUTE(req, "/static/");
 
     // 404 ON SHENANIGANS
-    if (strstr(req->uri, "../") != NULL)
+    if (strstr(req->uri, "../") != NULL) {
         return NULL;
+    }
 
-    FILE *file = fopen(req->uri + 1, "r");
-
-    // 404 ON NOT FOUND
-    if (file == NULL)
-        return NULL;
-
-    Response *response = responseNew();
-    char *buffer, lengthBuffer[25];
-    size_t length;
-    struct stat statBuffer;
+    char *filename = req->uri + 1;
 
     // 404 ON DIRS
-    stat(req->uri + 1, &statBuffer);
+    struct stat statBuffer;
+
+    stat(filename, &statBuffer);
 
     if (S_ISDIR(statBuffer.st_mode)) {
-        fclose(file);
-        responseDel(response);
+        return NULL;
+    }
+
+    FILE *file = fopen(filename, "r");
+
+    // 404 ON NOT FOUND
+    if (file == NULL) {
         return NULL;
     }
 
     // GET LENGTH
+    char *buff;
+    char  lenBuff[25];
+    size_t len;
+
     fseek(file, 0, SEEK_END);
-    length = ftell(file);
-    sprintf(lengthBuffer, "%ld", length);
+    len = ftell(file);
+    sprintf(lenBuff, "%ld", len);
     rewind(file);
 
     // SET BODY
-    buffer = malloc(sizeof(char) * length);
-    fread(buffer, sizeof(char), length, file);
-    responseSetBody(response, bsNewLen(buffer, length));
+    Response *response = responseNew();
+
+    buff = malloc(sizeof(char) * len);
+    fread(buff, sizeof(char), len, file);
+    responseSetBody(response, bsNewLen(buff, len));
     fclose(file);
-    free(buffer);
+    free(buff);
+
+    // MIME TYPE
+    char *mimeType = "text/plain";
+
+    len = bsGetLen(req->uri);
+
+    if      (strncmp(req->uri + len - 4, "html", 4) == 0) mimeType = "text/html";
+    else if (strncmp(req->uri + len - 4, "json", 4) == 0) mimeType = "application/json";
+    else if (strncmp(req->uri + len - 4, "jpeg", 4) == 0) mimeType = "image/jpeg";
+    else if (strncmp(req->uri + len - 3,  "jpg", 3) == 0) mimeType = "image/jpeg";
+    else if (strncmp(req->uri + len - 3,  "gif", 3) == 0) mimeType = "image/gif";
+    else if (strncmp(req->uri + len - 3,  "png", 3) == 0) mimeType = "image/png";
+    else if (strncmp(req->uri + len - 3,  "css", 3) == 0) mimeType = "text/css";
+    else if (strncmp(req->uri + len - 2,   "js", 2) == 0) mimeType = "application/javascript";
 
     // RESPOND
     responseSetStatus(response, OK);
-    responseAddHeader(response, "Content-Type", "text/plain");
-    responseAddHeader(response, "Content-Length", lengthBuffer);
+    responseAddHeader(response, "Content-Type", mimeType);
+    responseAddHeader(response, "Content-Length", lenBuff);
     return response;
 }
 
