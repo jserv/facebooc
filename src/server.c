@@ -97,8 +97,8 @@ static Response *staticHandler(Request *req) {
     buffer = malloc(sizeof(char) * length);
     fread(buffer, sizeof(char), length, file);
     responseSetBody(response, bsNewLen(buffer, length));
-    free(buffer);
     fclose(file);
+    free(buffer);
 
     // RESPOND
     responseSetStatus(response, OK);

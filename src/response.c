@@ -57,7 +57,7 @@ void responseWrite(Response *response, int fd) {
                 ((KV *)header->value)->key,
                 ((KV *)header->value)->value);
 
-        buffer = listCons(sbuffer, sizeof(char) * strlen(sbuffer), buffer);
+        buffer = listCons(sbuffer, sizeof(char) * (strlen(sbuffer) + 1), buffer);
         header = header->next;
     }
 
@@ -66,7 +66,7 @@ void responseWrite(Response *response, int fd) {
             response->status,
             STATUSES[response->status / 100 - 1][response->status % 100]);
 
-    buffer = listCons(sbuffer, sizeof(char) * strlen(sbuffer), buffer);
+    buffer = listCons(sbuffer, sizeof(char) * (strlen(sbuffer) + 1), buffer);
 
     // OUTPUT
     while (buffer != NULL) {
