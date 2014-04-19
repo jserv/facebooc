@@ -7,7 +7,7 @@ C lib. This is the result.
 
 # Building and running
 
-This will not work on Windows and it's only been teste on OS X
+This will not work on Windows and it's only been tested on OS X
 Mavericks.
 
     git clone https://github.com/Bogdanp/facebooc.git
