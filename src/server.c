@@ -63,37 +63,35 @@ void serverAddHandler(Server *server, Handler handler) {
 static Response *staticHandler(Request *req) {
     ROUTE(req, "/static/");
 
-    // 404 ON SHENANIGANS
+    // EXIT ON SHENANIGANS
     if (strstr(req->uri, "../") != NULL) {
         return NULL;
     }
 
     char *filename = req->uri + 1;
 
-    // 404 ON DIRS
-    struct stat statBuffer;
+    // EXIT ON DIRS
+    struct stat sbuff;
 
-    stat(filename, &statBuffer);
-
-    if (S_ISDIR(statBuffer.st_mode)) {
+    if (stat(filename, &sbuff) < 0 || S_ISDIR(sbuff.st_mode)) {
         return NULL;
     }
 
+    // EXIT ON NOT FOUND
     FILE *file = fopen(filename, "r");
 
-    // 404 ON NOT FOUND
     if (file == NULL) {
         return NULL;
     }
 
     // GET LENGTH
     char *buff;
-    char  lenBuff[25];
+    char  lens[25];
     size_t len;
 
     fseek(file, 0, SEEK_END);
     len = ftell(file);
-    sprintf(lenBuff, "%ld", len);
+    sprintf(lens, "%ld", len);
     rewind(file);
 
     // SET BODY
@@ -122,7 +120,7 @@ static Response *staticHandler(Request *req) {
     // RESPOND
     responseSetStatus(response, OK);
     responseAddHeader(response, "Content-Type", mimeType);
-    responseAddHeader(response, "Content-Length", lenBuff);
+    responseAddHeader(response, "Content-Length", lens);
     return response;
 }
 
