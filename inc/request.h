@@ -28,4 +28,10 @@ void     requestDel(Request *);
         return NULL;                                      \
 }
 
+#define ROUTE(req, routeString) {                     \
+    char *route = routeString;                        \
+    if (strncmp(req->uri, route, strlen(route)) != 0) \
+        return NULL;                                  \
+}
+
 #endif

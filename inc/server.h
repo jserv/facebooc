@@ -17,6 +17,7 @@ typedef Response *(**HandlerP)(Request *);
 Server *serverNew(unsigned int);
 void    serverDel(Server *);
 void    serverAddHandler(Server *, Handler);
+void    serverAddStaticHandler(Server *);
 void    serverServe(Server *);
 
 #endif

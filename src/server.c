@@ -4,10 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
 
+#include "bs.h"
 #include "server.h"
 
 #define log400(addr) {                            \
@@ -56,6 +58,57 @@ void serverAddHandler(Server *server, Handler handler) {
     HandlerP handlerP = &handler;
 
     server->handlers = listCons(handlerP, sizeof(HandlerP), server->handlers);
+}
+
+static Response *staticHandler(Request *req) {
+    ROUTE(req, "/static/");
+
+    // 404 ON SHENANIGANS
+    if (strstr(req->uri, "../") != NULL)
+        return NULL;
+
+    FILE *file = fopen(req->uri + 1, "r");
+
+    // 404 ON NOT FOUND
+    if (file == NULL)
+        return NULL;
+
+    Response *response = responseNew();
+    char *buffer, lengthBuffer[25];
+    size_t length;
+    struct stat statBuffer;
+
+    // 404 ON DIRS
+    stat(req->uri + 1, &statBuffer);
+
+    if (S_ISDIR(statBuffer.st_mode)) {
+        fclose(file);
+        responseDel(response);
+        return NULL;
+    }
+
+    // GET LENGTH
+    fseek(file, 0, SEEK_END);
+    length = ftell(file);
+    sprintf(lengthBuffer, "%ld", length);
+    rewind(file);
+
+    // SET BODY
+    buffer = malloc(sizeof(char) * length);
+    fread(buffer, sizeof(char), length, file);
+    responseSetBody(response, bsNewLen(buffer, length));
+    free(buffer);
+    fclose(file);
+
+    // RESPOND
+    responseSetStatus(response, OK);
+    responseAddHeader(response, "Content-Type", "text/plain");
+    responseAddHeader(response, "Content-Length", lengthBuffer);
+    return response;
+}
+
+void serverAddStaticHandler(Server *server) {
+    serverAddHandler(server, staticHandler);
 }
 
 static inline int makeSocket(unsigned int port) {

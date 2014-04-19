@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "bs.h"
 #include "server.h"
 
@@ -12,6 +14,7 @@ Response *hello(Request *req) {
 
 int main(void) {
     Server *server = serverNew(8091);
+    serverAddStaticHandler(server);
     serverAddHandler(server, hello);
     serverServe(server);
     serverDel(server);
