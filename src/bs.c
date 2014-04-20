@@ -9,7 +9,7 @@ char *bsNew(const char *str) {
 
     char *bs = BS_HEADER_LEN +
         malloc(sizeof(char) * BS_HEADER_LEN +
-               sizeof(char) * len + 1);
+               sizeof(char) * (len + 1));
 
     strcpy(bs, str);
 
@@ -21,7 +21,7 @@ char *bsNew(const char *str) {
 char *bsNewLen(char *buf, size_t len) {
     char *bs = BS_HEADER_LEN +
         malloc(sizeof(char) * BS_HEADER_LEN +
-               sizeof(char) * len + 1);
+               sizeof(char) * (len + 1));
 
     memcpy(bs, buf, len);
 
@@ -37,7 +37,7 @@ char *bsCat(char *bs1, char *bs2) {
 
     char *bs = BS_HEADER_LEN +
         malloc(sizeof(char) * BS_HEADER_LEN +
-               sizeof(char) * len + 1);
+               sizeof(char) * (len + 1));
 
     strcpy(bs, bs1);
     strcpy(bs + len1, bs2);
@@ -56,7 +56,7 @@ void bsLCat(char **orig, char *s) {
         (char *)realloc(
             *orig - BS_HEADER_LEN,
             sizeof(char) * BS_HEADER_LEN +
-            sizeof(char) * len + 1);
+            sizeof(char) * (len + 1));
 
     strcpy(*orig + lenO, s);
 
@@ -74,11 +74,37 @@ char *bsSubstr(char *orig, uint32_t beginning, int32_t end) {
 
     char *bs = BS_HEADER_LEN +
         malloc(sizeof(char) * BS_HEADER_LEN +
-               sizeof(char) * newLen + 1);
+               sizeof(char) * (newLen + 1));
 
     memcpy(bs, orig + beginning, newLen);
 
     bsSetLen(bs, newLen);
+
+    return bs;
+}
+
+char *bsRandom(uint32_t len, char *suffix) {
+    char table[62] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+                      'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+                      'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D',
+                      'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+                      'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+                      'Y', 'Z'};
+
+    char *bs = BS_HEADER_LEN +
+        malloc(sizeof(char) * BS_HEADER_LEN +
+               sizeof(char) * (len + 1));
+
+    bsSetLen(bs, len);
+
+    for (uint32_t i = 0; i < len; i++) {
+        bs[i] = table[rand() % sizeof(table)];
+    }
+
+    if (suffix != NULL) {
+        bsLCat(&bs, suffix);
+    }
 
     return bs;
 }
