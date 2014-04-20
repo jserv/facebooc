@@ -14,5 +14,6 @@ KV   *kvNew(char *, char *);
 void  kvDel(KV *);
 void  kvDelList(ListCell *);
 void  kvPrintList(ListCell *);
+char *kvFindList(ListCell *, char *);
 
 #endif

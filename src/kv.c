@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "bs.h"
 #include "kv.h"
@@ -42,4 +43,16 @@ static bool kvPrintEach(void *kv) {
 
 void kvPrintList(ListCell *list) {
     listForEach(list, kvPrintEach);
+}
+
+char *kvFindList(ListCell *cell, char *key) {
+    while (cell != NULL) {
+        if (strcmp(((KV *)cell->value)->key, key) == 0) {
+            return ((KV *)cell->value)->value;
+        }
+
+        cell = cell->next;
+    }
+
+    return NULL;
 }
