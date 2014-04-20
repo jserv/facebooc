@@ -92,7 +92,7 @@ void bsSetLen(char *bs, uint32_t len) {
     *(bs + 1 - BS_HEADER_LEN) = len >> 16 & 0xFF;
     *(bs + 2 - BS_HEADER_LEN) = len >>  8 & 0xFF;
     *(bs + 3 - BS_HEADER_LEN) = len       & 0xFF;
-    *(bs + len + 1) = '\0';
+    *(bs + len) = '\0';
 }
 
 uint32_t bsGetLen(char *bs) {
