@@ -12,7 +12,6 @@ body {
 
 .header {
   border-bottom: 1px solid #e5e5e5;
-  margin-bottom: 30px;
 }
 .header h3 {
   padding-bottom: 19px;
@@ -37,6 +36,7 @@ body {
 }
 
 .jumbotron {
+  margin-top: 30px;
   text-align: center;
   border-bottom: 1px solid #e5e5e5;
 }
@@ -55,6 +55,6 @@ body {
   margin-top: 28px;
 }
 h4.not-found {
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   margin-left: 10px;
 }

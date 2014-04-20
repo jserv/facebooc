@@ -70,8 +70,11 @@ static void initDB() {
 }
 
 static Response *home(Request *);
+static Response *dashboard(Request *);
 static Response *login(Request *);
 static Response *logout(Request *);
+static Response *signup(Request *);
+static Response *about(Request *);
 static Response *notFound(Request *);
 
 int main(void) {
@@ -88,8 +91,11 @@ int main(void) {
     Server *server = serverNew(8091);
     serverAddHandler(server, notFound);
     serverAddStaticHandler(server);
+    serverAddHandler(server, about);
+    serverAddHandler(server, signup);
     serverAddHandler(server, logout);
     serverAddHandler(server, login);
+    serverAddHandler(server, dashboard);
     serverAddHandler(server, home);
     serverServe(server);
 
@@ -112,6 +118,19 @@ static Response *home(Request *req) {
     return response;
 }
 
+static Response *dashboard(Request *req) {
+    EXACT_ROUTE(req, "/");
+
+    Response *response = responseNew();
+    Template *template = templateNew("templates/index.html");
+    responseSetStatus(response, OK);
+    templateSet(template, "subtitle", "Dashboard");
+    templateSet(template, "username", "Bogdan");
+    responseSetBody(response, templateRender(template));
+    templateDel(template);
+    return response;
+}
+
 static Response *login(Request *req) {
     EXACT_ROUTE(req, "/login/");
 
@@ -119,6 +138,18 @@ static Response *login(Request *req) {
     Template *template = templateNew("templates/login.html");
     responseSetStatus(response, OK);
     templateSet(template, "subtitle", "Login");
+
+    if (req->method == POST) {
+        char *username = kvFindList(req->postBody, "username");
+        char *password = kvFindList(req->postBody, "password");
+
+        printf("%s\n", username);
+        printf("%s\n", password);
+
+        if (username == NULL) templateSet(template, "usernameError", "Username missing!");
+        if (password == NULL) templateSet(template, "passwordError", "Password missing!");
+    }
+
     responseSetBody(response, templateRender(template));
     templateDel(template);
     return response;
@@ -131,6 +162,30 @@ static Response *logout(Request *req) {
     responseSetStatus(response, FOUND);
     responseAddCookie(response, "sid", "", NULL, NULL, -1);
     responseAddHeader(response, "Location", "/");
+    return response;
+}
+
+static Response *signup(Request *req) {
+    EXACT_ROUTE(req, "/signup/");
+
+    Response *response = responseNew();
+    Template *template = templateNew("templates/signup.html");
+    templateSet(template, "subtitle", "Sign Up");
+    responseSetStatus(response, OK);
+    responseSetBody(response, templateRender(template));
+    templateDel(template);
+    return response;
+}
+
+static Response *about(Request *req) {
+    EXACT_ROUTE(req, "/about/");
+
+    Response *response = responseNew();
+    Template *template = templateNew("templates/about.html");
+    templateSet(template, "subtitle", "About");
+    responseSetStatus(response, OK);
+    responseSetBody(response, templateRender(template));
+    templateDel(template);
     return response;
 }
 

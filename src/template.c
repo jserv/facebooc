@@ -68,12 +68,9 @@ char *templateRender(Template *template) {
             segment += 1;
             val      = kvFindList(template->context, segment);
 
-            if (val == NULL) {
-                fprintf(stderr, "error: unbound var '%s'\n", segment);
-                exit(1);
+            if (val != NULL) {
+                bsLCat(&res, val);
             }
-
-            bsLCat(&res, val);
         } else if (*segment == '%') {
             rep      = true;
             segment += 1;
