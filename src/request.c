@@ -46,6 +46,7 @@ static inline ListCell *parseQS(char *path) {
         else   {segment = strtok(NULL, "=");}
 
         if (segment == NULL) break; 
+        if (*(segment + strlen(segment) + 1) == '&') continue;
 
         key     = segment;
         segment = strtok(NULL, "&\0");
@@ -146,9 +147,6 @@ Request *requestNew(char *buff) {
             goto fail;
 
         request->postBody = parseQS(segment);
-
-        if (request->postBody == NULL)
-            goto fail;
     }
 
     // QUERYSTRING
