@@ -20,6 +20,7 @@ typedef struct Response {
 } Response;
 
 Response *responseNew();
+Response *responseNewRedirect(char *);
 void      responseSetStatus(Response *, Status);
 void      responseSetBody(Response *, char *);
 void      responseAddCookie(Response *, char *, char *, char *, char *, int);

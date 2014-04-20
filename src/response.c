@@ -25,6 +25,15 @@ Response *responseNew() {
     return response;
 }
 
+Response *responseNewRedirect(char *location) {
+    Response *response = responseNew();
+
+    responseSetStatus(response, FOUND);
+    responseAddHeader(response, "Location", location);
+
+    return response;
+}
+
 void responseSetStatus(Response *response, Status status) {
     response->status = status;
 }
@@ -49,6 +58,8 @@ void responseAddCookie(Response *response, char *key, char *value, char *domain,
     if (path != NULL) {
         sprintf(sbuff, "; Path=%s", path);
         strcat(cbuff, sbuff);
+    } else {
+        strcat(cbuff, "; Path=/");
     }
 
     responseAddHeader(response, "Set-Cookie", cbuff);

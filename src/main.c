@@ -187,10 +187,8 @@ static Response *login(Request *req) {
 static Response *logout(Request *req) {
     EXACT_ROUTE(req, "/logout/");
 
-    Response *response = responseNew();
-    responseSetStatus(response, FOUND);
+    Response *response = responseNewRedirect("/");
     responseAddCookie(response, "sid", "", NULL, NULL, -1);
-    responseAddHeader(response, "Location", "/");
     return response;
 }
 
