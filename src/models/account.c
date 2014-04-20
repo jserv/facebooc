@@ -48,7 +48,7 @@ Account *accountGetByEmail(sqlite3 *DB, char *email) {
     if (email == NULL)
         return NULL;
 
-    Account *account;
+    Account *account = NULL;
     sqlite3_stmt *statement;
 
     if (sqlite3_prepare_v2(DB,
@@ -68,13 +68,9 @@ Account *accountGetByEmail(sqlite3 *DB, char *email) {
                          (char *)sqlite3_column_text(statement, 3),
                          (char *)sqlite3_column_text(statement, 4));
 
-    sqlite3_finalize(statement);
-
-    return account;
-
 fail:
     sqlite3_finalize(statement);
-    return NULL;
+    return account;
 }
 
 Account *accountGetBySId(sqlite3 *DB, char *sid) {
@@ -111,6 +107,47 @@ fail:
     sessionDel(session);
     sqlite3_finalize(statement);
     return account;
+}
+
+ListCell *accountSearch(sqlite3 *DB, char *query, int page) {
+    if (query == NULL)
+        return NULL;
+
+    int rc;
+    Account *account = NULL;
+    ListCell *accounts = NULL;
+    sqlite3_stmt *statement;
+
+    rc = sqlite3_prepare_v2(
+        DB,
+        "SELECT id, createdAt, name, username, email"
+        "  FROM accounts"
+        " WHERE name     LIKE '%' || ? || '%'"
+        "    OR email    LIKE '%' || ? || '%'"
+        "    OR username LIKE '%' || ? || '%'"
+        " ORDER BY createdAt DESC"
+        " LIMIT 10 "
+        "OFFSET ?",
+        -1, &statement, NULL);
+
+    if (rc != SQLITE_OK) return NULL;
+    if (sqlite3_bind_text(statement, 1, query, -1, NULL) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 2, query, -1, NULL) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 3, query, -1, NULL) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 4, page * 10)        != SQLITE_OK) goto fail;
+
+    while (sqlite3_step(statement) == SQLITE_ROW) {
+        account = accountNew(sqlite3_column_int(statement, 0),
+                             sqlite3_column_int(statement, 1),
+                             (char *)sqlite3_column_text(statement, 2),
+                             (char *)sqlite3_column_text(statement, 3),
+                             (char *)sqlite3_column_text(statement, 4));
+        accounts = listCons(account, sizeof(Account), accounts);
+    }
+
+fail:
+    sqlite3_finalize(statement);
+    return accounts;
 }
 
 bool accountCheckUsername(sqlite3 *DB, char *username) {
