@@ -15,7 +15,6 @@ typedef struct Response {
     Status status;
 
     ListCell *headers;
-    ListCell *cookies;
 
     char *body;
 } Response;
