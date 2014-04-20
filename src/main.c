@@ -57,18 +57,26 @@ static void initDB() {
              ", session   TEXT"
              ")");
 
+    createDB("CREATE TABLE IF NOT EXISTS connections ("
+             "  id        INTEGER PRIMARY KEY ASC"
+             ", createdAt INTEGER"
+             ", account1  INTEGER"
+             ", account2  INTEGER"
+             ")");
+
     createDB("CREATE TABLE IF NOT EXISTS posts ("
              "  id        INTEGER PRIMARY KEY ASC"
              ", createdAt INTEGER"
              ", author    INTEGER"
-             ", title     TEXT"
              ", body      TEXT"
              ")");
 
     createDB("CREATE TABLE IF NOT EXISTS likes ("
-             "  id     INTEGER PRIMARY KEY ASC"
-             ", author INTEGER"
-             ", post   INTEGER"
+             "  id        INTEGER PRIMARY KEY ASC"
+             ", createdAt INTEGER"
+             ", account   INTEGER"
+             ", author    INTEGER"
+             ", post      INTEGER"
              ")");
 }
 
