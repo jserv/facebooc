@@ -43,10 +43,12 @@ char *templateRender(Template *template) {
     len = ftell(file);
     rewind(file);
 
-    buff = malloc(sizeof(char) * (len + 1));
-    buff[0] = ' ';
+    buff = malloc(sizeof(char) * (len + 2));
     fread(buff + 1, sizeof(char), len, file);
     fclose(file);
+
+    buff[0] = ' ';
+    buff[len + 1] = '\0';
 
     // VARIABLES
     segment = strtok_r(buff, "{\0", &pos);
@@ -57,8 +59,9 @@ char *templateRender(Template *template) {
     for (;;) {
         segment = strtok_r(NULL, "}\0", &pos);
 
-        if (segment == NULL)
+        if (segment == NULL) {
             break;
+        }
 
         if (*segment == '{') {
             rep      = true;
@@ -76,10 +79,10 @@ char *templateRender(Template *template) {
             segment += 1;
 
             if (strncmp(segment, "include", 7) == 0) {
-                segment[strlen(segment) - 1] = '\0'; // Drop the final %
                 segment += 8;
+                segment[strlen(segment) - 1] = '\0';
 
-                inc = templateNew(segment);
+                inc  = templateNew(segment);
                 inc->context = template->context;
                 incBs = templateRender(inc);
                 bsLCat(&res, incBs);
@@ -97,8 +100,9 @@ char *templateRender(Template *template) {
 
         segment = strtok_r(NULL, "{\0", &pos);
 
-        if (segment == NULL)
+        if (segment == NULL) {
             break;
+        }
 
         if (rep) {
             rep      = false;
