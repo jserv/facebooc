@@ -12,20 +12,21 @@
 #include "bs.h"
 #include "server.h"
 
-#define log400(addr) {                            \
+#define GET_TIME                                  \
     time_t t = time(NULL);                        \
     char timebuff[100];                           \
     strftime(timebuff, 100, "%c", localtime(&t)); \
+
+#define LOG_400(addr) {                           \
+    GET_TIME;                                     \
     fprintf(stdout,                               \
             "%s %s 400\n",                        \
             timebuff,                             \
             inet_ntoa(addr->sin_addr));           \
 }
 
-#define logRequest(addr, method, path, status) {  \
-    time_t t = time(NULL);                        \
-    char timebuff[100];                           \
-    strftime(timebuff, 100, "%c", localtime(&t)); \
+#define LOG_REQUEST(addr, method, path, status) { \
+    GET_TIME;                                     \
     fprintf(stdout,                               \
             "%s %s %s %s %d\n",                   \
             timebuff,                             \
@@ -167,7 +168,7 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
         if (req == NULL) {
             write(fd, "HTTP/1.0 400 Bad Request\r\n\r\nBad Request", 39);
 
-            log400(addr);
+            LOG_400(addr);
         } else {
             ListCell *handler  = server->handlers;
             Response *response = NULL;
@@ -180,9 +181,9 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
             if (response == NULL) {
                 write(fd, "HTTP/1.0 404 Not Found\r\n\r\nNot Found!", 36);
 
-                logRequest(addr, METHODS[req->method], req->path, 404);
+                LOG_REQUEST(addr, METHODS[req->method], req->path, 404);
             } else {
-                logRequest(addr, METHODS[req->method], req->path, response->status);
+                LOG_REQUEST(addr, METHODS[req->method], req->path, response->status);
 
                 responseWrite(response, fd);
                 responseDel(response);
