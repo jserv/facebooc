@@ -77,6 +77,8 @@ static Response *signup(Request *);
 static Response *about(Request *);
 static Response *notFound(Request *);
 
+static bool createAccount(char *, char *, char *, char *);
+
 int main(void) {
     if (signal(SIGINT,  sig) == SIG_ERR ||
         signal(SIGTERM, sig) == SIG_ERR) {
@@ -102,8 +104,83 @@ int main(void) {
     return 0;
 }
 
+// MODEL
+// =====
+static bool checkUsername(char *username) {
+    bool res;
+    sqlite3_stmt *statement;
+
+    if (sqlite3_prepare_v2(DB, "SELECT id FROM accounts WHERE username = ?", -1, &statement, NULL) != SQLITE_OK) {
+        return false;
+    }
+
+    if (sqlite3_bind_text(statement, 1, username, -1, NULL) != SQLITE_OK) {
+        sqlite3_finalize(statement);
+        return false;
+    }
+
+    res = sqlite3_step(statement) != SQLITE_ROW;
+
+    sqlite3_finalize(statement);
+
+    return res;
+}
+
+static bool checkEmail(char *email) {
+    bool res;
+    sqlite3_stmt *statement;
+
+    if (sqlite3_prepare_v2(DB, "SELECT id FROM accounts WHERE email = ?", -1, &statement, NULL) != SQLITE_OK) {
+        return false;
+    }
+
+    if (sqlite3_bind_text(statement, 1, email, -1, NULL) != SQLITE_OK) {
+        sqlite3_finalize(statement);
+        return false;
+    }
+
+    res = sqlite3_step(statement) != SQLITE_ROW;
+
+    sqlite3_finalize(statement);
+
+    return res;
+}
+
+static bool createAccount(char *name, char *email, char *username, char *password) {
+    bool res;
+    int rc;
+    sqlite3_stmt *statement;
+
+    rc = sqlite3_prepare_v2(DB,
+                            "INSERT INTO accounts(createdAt, name, email, username, password)"
+                            "     VALUES         (        ?,    ?,     ?,        ?,        ?)",
+                            -1, &statement, NULL);
+
+    if (rc != SQLITE_OK) return false;
+    if (sqlite3_bind_int(statement, 1, time(NULL))          != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 2, name, -1, NULL)     != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 3, email, -1, NULL)    != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 4, username, -1, NULL) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 5, password, -1, NULL) != SQLITE_OK) goto fail;
+
+    res = sqlite3_step(statement) == SQLITE_DONE;
+
+    sqlite3_finalize(statement);
+    
+    return res;
+
+fail:
+    sqlite3_finalize(statement);
+    return false;
+}
+
 // HANDLERS
 // ========
+
+#define invalid(k, v) {          \
+    templateSet(template, k, v); \
+    valid = false;               \
+}
 
 static Response *home(Request *req) {
     EXACT_ROUTE(req, "/");
@@ -178,54 +255,64 @@ static Response *signup(Request *req) {
     responseSetStatus(response, OK);
 
     if (req->method == POST) {
+        bool valid = true;
         char *name = kvFindList(req->postBody, "name");
         char *email = kvFindList(req->postBody, "email");
         char *username = kvFindList(req->postBody, "username");
         char *password = kvFindList(req->postBody, "password");
         char *confirmPassword = kvFindList(req->postBody, "confirm-password");
 
-        printf("%s\n", name);
-        printf("%s\n", email);
-        printf("%s\n", username);
-        printf("%s\n", password);
-        printf("%s\n", confirmPassword);
-
         if (name == NULL) {
-            templateSet(template, "nameError", "You must enter your name!");
+            invalid("nameError", "You must enter your name!");
         } else if (strlen(name) < 5 || strlen(name) > 50) {
-            templateSet(template, "nameError", "Your name must be between 5 and 50 characters long.");
+            invalid("nameError", "Your name must be between 5 and 50 characters long.");
         } else {
             templateSet(template, "formName", name);
         }
 
         if (email == NULL) {
-            templateSet(template, "emailError", "You must enter an email!");
+            invalid("emailError", "You must enter an email!");
         } else if (strchr(email, '@') == NULL) {
-            templateSet(template, "emailError", "Invalid email.");
+            invalid("emailError", "Invalid email.");
         } else if (strlen(email) < 3 || strlen(email) > 50) {
-            templateSet(template, "emailError", "Your email must be between 3 and 50 characters long.");
+            invalid("emailError", "Your email must be between 3 and 50 characters long.");
+        } else if (!checkEmail(email)) {
+            invalid("emailError", "This email is taken.");
         } else {
             templateSet(template, "formEmail", email);
         }
 
         if (username == NULL) {
-            templateSet(template, "usernameError", "You must enter a username!");
+            invalid("usernameError", "You must enter a username!");
         } else if (strlen(username) < 3 || strlen(username) > 50) {
-            templateSet(template, "usernameError", "Your username must be between 3 and 50 characters long.");
+            invalid("usernameError", "Your username must be between 3 and 50 characters long.");
+        } else if (!checkUsername(username)) {
+            invalid("usernameError", "This username is taken.");
         } else {
             templateSet(template, "formUsername", username);
         }
 
         if (password == NULL) {
-            templateSet(template, "passwordError", "You must enter a password!");
+            invalid("passwordError", "You must enter a password!");
         } else if (strlen(password) < 8) {
-            templateSet(template, "passwordError", "Your password must be at least 8 characters long!");
+            invalid("passwordError", "Your password must be at least 8 characters long!");
         }
 
         if (confirmPassword == NULL) {
-            templateSet(template, "confirmPasswordError", "You must confirm your password.");
+            invalid("confirmPasswordError", "You must confirm your password.");
         } else if (strcmp(password, confirmPassword) != 0) {
-            templateSet(template, "confirmPasswordError", "The two passwords must be the same.");
+            invalid("confirmPasswordError", "The two passwords must be the same.");
+        }
+
+        if (valid) {
+            if (createAccount(name, email, username, password)) {
+                responseSetStatus(response, FOUND);
+                responseAddHeader(response, "Location", "/login/");
+                templateDel(template);
+                return response;
+            } else {
+                invalid("nameError", "Unexpected error. Please try again later.");
+            }
         }
     }
 

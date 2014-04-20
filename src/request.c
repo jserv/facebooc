@@ -6,9 +6,9 @@
 
 // TODO: Make this less shitty.
 static inline char *urldecode(char *segment) {
-    char *cc = segment;
-    char *bs = bsNew("");
-    char c[2] = { '\0', '\0' };
+    char *cc  = segment;
+    char *bs  = bsNew("");
+    char c[2] = "\0\0";
 
     while (*cc != '\0') {
         if (*cc == '+') *cc = ' ';
