@@ -1,8 +1,10 @@
 #include <signal.h>
 #include <sqlite3.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "bs.h"
+#include "kv.h"
 #include "server.h"
 #include "template.h"
 
@@ -67,7 +69,10 @@ static void initDB() {
              ")");
 }
 
-static Response *hello(Request *);
+static Response *home(Request *);
+static Response *login(Request *);
+static Response *logout(Request *);
+static Response *notFound(Request *);
 
 int main(void) {
     if (signal(SIGINT,  sig) == SIG_ERR ||
@@ -76,11 +81,16 @@ int main(void) {
         return 1;
     }
 
+    srand(time(NULL));
+
     initDB();
 
     Server *server = serverNew(8091);
+    serverAddHandler(server, notFound);
     serverAddStaticHandler(server);
-    serverAddHandler(server, hello);
+    serverAddHandler(server, logout);
+    serverAddHandler(server, login);
+    serverAddHandler(server, home);
     serverServe(server);
 
     return 0;
@@ -89,14 +99,46 @@ int main(void) {
 // HANDLERS
 // ========
 
-static Response *hello(Request *req) {
+static Response *home(Request *req) {
     EXACT_ROUTE(req, "/");
 
     Response *response = responseNew();
     Template *template = templateNew("templates/index.html");
     responseSetStatus(response, OK);
-    templateSet(template, "title", "Home");
+    templateSet(template, "subtitle", "Dashboard");
     templateSet(template, "username", "Bogdan");
+    responseSetBody(response, templateRender(template));
+    templateDel(template);
+    return response;
+}
+
+static Response *login(Request *req) {
+    EXACT_ROUTE(req, "/login/");
+
+    Response *response = responseNew();
+    Template *template = templateNew("templates/login.html");
+    responseSetStatus(response, OK);
+    templateSet(template, "subtitle", "Login");
+    responseSetBody(response, templateRender(template));
+    templateDel(template);
+    return response;
+}
+
+static Response *logout(Request *req) {
+    EXACT_ROUTE(req, "/logout/");
+
+    Response *response = responseNew();
+    responseSetStatus(response, FOUND);
+    responseAddCookie(response, "sid", "", NULL, NULL, -1);
+    responseAddHeader(response, "Location", "/");
+    return response;
+}
+
+static Response *notFound(Request *req) {
+    Response *response = responseNew();
+    Template *template = templateNew("templates/404.html");
+    templateSet(template, "subtitle", "404 Not Found");
+    responseSetStatus(response, NOT_FOUND);
     responseSetBody(response, templateRender(template));
     templateDel(template);
     return response;

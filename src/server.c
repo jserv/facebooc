@@ -122,6 +122,7 @@ static Response *staticHandler(Request *req) {
     responseSetStatus(response, OK);
     responseAddHeader(response, "Content-Type", mimeType);
     responseAddHeader(response, "Content-Length", lens);
+    responseAddHeader(response, "Cache-Control", "max-age=2592000");
     return response;
 }
 
@@ -166,7 +167,7 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
         Request *req = requestNew(buff);
 
         if (req == NULL) {
-            write(fd, "HTTP/1.0 400 Bad Request\r\n\r\nBad Request", 39);
+            write(fd, "HTTP/1.1 400 Bad Request\r\n\r\nBad Request", 39);
 
             LOG_400(addr);
         } else {
@@ -179,7 +180,7 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
             }
 
             if (response == NULL) {
-                write(fd, "HTTP/1.0 404 Not Found\r\n\r\nNot Found!", 36);
+                write(fd, "HTTP/1.1 404 Not Found\r\n\r\nNot Found!", 36);
 
                 LOG_REQUEST(addr, METHODS[req->method], req->path, 404);
             } else {
