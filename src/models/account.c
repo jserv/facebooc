@@ -28,7 +28,7 @@ Account *accountCreate(sqlite3 *DB, char *name, char *email, char *username, cha
         "     VALUES         (        ?,    ?,     ?,        ?,        ?)",
         -1, &statement, NULL);
 
-    if (rc != SQLITE_OK) return false;
+    if (rc != SQLITE_OK) return NULL;
     if (sqlite3_bind_int(statement, 1, time(NULL))          != SQLITE_OK) goto fail;
     if (sqlite3_bind_text(statement, 2, name, -1, NULL)     != SQLITE_OK) goto fail;
     if (sqlite3_bind_text(statement, 3, email, -1, NULL)    != SQLITE_OK) goto fail;
@@ -39,13 +39,9 @@ Account *accountCreate(sqlite3 *DB, char *name, char *email, char *username, cha
         account = accountGetByEmail(DB, email);
     }
 
-    sqlite3_finalize(statement);
-
-    return account;
-
 fail:
     sqlite3_finalize(statement);
-    return NULL;
+    return account;
 }
 
 Account *accountGetByEmail(sqlite3 *DB, char *email) {

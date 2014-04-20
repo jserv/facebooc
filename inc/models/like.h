@@ -6,9 +6,9 @@
 typedef struct Like {
     int id;
     int createdAt;
-    int account;
-    int author;
-    int post;
+    int accountId;
+    int authorId;
+    int postId;
 } Like;
 
 Like *likeNew(int, int, int, int, int);

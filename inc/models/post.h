@@ -6,7 +6,7 @@
 typedef struct Post {
     int id;
     int createdAt;
-    int author;
+    int authorId;
 
     char *body;
 } Post;

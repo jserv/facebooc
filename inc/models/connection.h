@@ -6,8 +6,8 @@
 typedef struct Connection {
     int id;
     int createdAt;
-    int account1;
-    int account2;
+    int account1Id;
+    int account2Id;
 } Connection;
 
 Connection *connectionNew(int, int, int, int);
