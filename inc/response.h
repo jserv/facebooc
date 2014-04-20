@@ -13,14 +13,18 @@ typedef enum Status {
 
 typedef struct Response {
     Status status;
+
     ListCell *headers;
+    ListCell *cookies;
+
     char *body;
 } Response;
 
 Response *responseNew();
 void      responseSetStatus(Response *, Status);
-void      responseAddHeader(Response *, char *, char *);
 void      responseSetBody(Response *, char *);
+void      responseAddCookie(Response *, char *, char *, char *, char *, int);
+void      responseAddHeader(Response *, char *, char *);
 void      responseDel(Response *);
 void      responseWrite(Response *, int);
 

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "bs.h"
@@ -28,12 +29,33 @@ void responseSetStatus(Response *response, Status status) {
     response->status = status;
 }
 
-void responseAddHeader(Response *response, char *key, char *value) {
-    response->headers = listCons(kvNew(key, value), sizeof(KV), response->headers);
-}
-
 void responseSetBody(Response *response, char *body) {
     response->body = body;
+}
+
+void responseAddCookie(Response *response, char *key, char *value, char *domain, char *path, int duration) {
+    char cbuff[512];
+    char sbuff[100];
+    time_t t = time(NULL) + duration;
+
+    strftime(sbuff, 100, "%c GMT", gmtime(&t));
+    sprintf(cbuff, "%s=%s; Expires=%s", key, value, sbuff);
+
+    if (domain != NULL) {
+        sprintf(sbuff, "; Domain=%s", domain);
+        strcat(cbuff, sbuff);
+    }
+
+    if (path != NULL) {
+        sprintf(sbuff, "; Path=%s", path);
+        strcat(cbuff, sbuff);
+    }
+
+    responseAddHeader(response, "Set-Cookie", cbuff);
+}
+
+void responseAddHeader(Response *response, char *key, char *value) {
+    response->headers = listCons(kvNew(key, value), sizeof(KV), response->headers);
 }
 
 void responseDel(Response *response) {
