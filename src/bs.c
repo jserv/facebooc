@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "bs.h"
 
@@ -44,6 +45,22 @@ char *bsCat(char *bs1, char *bs2) {
     bsSetLen(bs, len);
 
     return bs;
+}
+
+void bsLCat(char **orig, char *s) {
+    size_t lenO = bsGetLen(*orig);
+    size_t lenS = strlen(s);
+    size_t len  = lenO + lenS;
+
+    *orig = BS_HEADER_LEN +
+        (char *)realloc(
+            *orig - BS_HEADER_LEN,
+            sizeof(char) * BS_HEADER_LEN +
+            sizeof(char) * len + 1);
+
+    strcpy(*orig + lenO, s);
+
+    bsSetLen(*orig, len);
 }
 
 char *bsSubstr(char *orig, uint32_t beginning, int32_t end) {
