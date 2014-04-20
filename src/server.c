@@ -164,6 +164,8 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
     if ((nread = read(fd, buff, sizeof(buff))) < 0) {
         fprintf(stderr, "error: read failed\n");
     } else if (nread > 0) {
+        buff[nread] = '\0';
+
         Request *req = requestNew(buff);
 
         if (req == NULL) {
