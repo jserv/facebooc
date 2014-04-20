@@ -65,10 +65,10 @@ static inline ListCell *parseHeaders(char *segment) {
 
     char *header;
 
-    while (*segment != '\r' && segment != NULL) {
-        segment = strtok(NULL, ":");
+    while (segment != NULL) {
+        segment = strtok(NULL, ":\n");
 
-        if (segment == NULL)
+        if (segment == NULL || *segment == '\r')
             break;
 
         header  = segment;
@@ -94,12 +94,13 @@ static inline ListCell *parseHeaders(char *segment) {
 Request *requestNew(char *buff) {
     Request *request = malloc(sizeof(Request));
 
-    char *segment;
+    char *segment, *bs;
 
     request->method      = UNKNOWN_METHOD;
     request->path        = NULL;
     request->uri         = NULL;
     request->queryString = NULL;
+    request->postBody    = NULL;
     request->headers     = NULL;
     request->cookies     = NULL;
 
@@ -135,7 +136,20 @@ Request *requestNew(char *buff) {
     // HEADERS
     request->headers = parseHeaders(segment);
 
-    // TODO: BODY
+    // BODY
+    bs = kvFindList(request->headers, "Content-Type");
+
+    if (bs != NULL && strncmp(bs, "application/x-www-form-urlencoded", 33) == 0) {
+        segment = strtok(NULL, "\0");
+
+        if (segment == NULL)
+            goto fail;
+
+        request->postBody = parseQS(segment);
+
+        if (request->postBody == NULL)
+            goto fail;
+    }
 
     // QUERYSTRING
     segment = strchr(request->path, '?');
@@ -170,6 +184,7 @@ void requestDel(Request *req) {
     if (req->path        != NULL) bsDel(req->path);
     if (req->uri         != NULL) bsDel(req->uri);
     if (req->queryString != NULL) kvDelList(req->queryString);
+    if (req->postBody    != NULL) kvDelList(req->postBody);
     if (req->headers     != NULL) kvDelList(req->headers);
     if (req->cookies     != NULL) kvDelList(req->cookies);
 
