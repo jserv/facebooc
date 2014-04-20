@@ -2,13 +2,18 @@
 
 #include "bs.h"
 #include "server.h"
+#include "template.h"
 
 Response *hello(Request *req) {
     EXACT_ROUTE(req, "/");
 
     Response *response = responseNew();
+    Template *template = templateNew("templates/index.html");
     responseSetStatus(response, OK);
-    responseSetBody(response, bsNew("Hello, World!\r\n"));
+    templateSet(template, "title", "Home");
+    templateSet(template, "username", "Bogdan");
+    responseSetBody(response, templateRender(template));
+    templateDel(template);
     return response;
 }
 
