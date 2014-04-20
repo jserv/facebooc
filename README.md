@@ -3,7 +3,7 @@
 I bet a friend that a semi-competent dev. could write a basic
 Facebook clone in C in a couple of days. To make things a bit more
 interesting I decided not to use anything other than the standard GNU
-C lib. This is the result.
+C lib and SQLite3. This is the result.
 
 # Building and running
 

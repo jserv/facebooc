@@ -47,7 +47,7 @@ char *templateRender(Template *template) {
     fread(buff + 1, sizeof(char), len, file);
     fclose(file);
 
-    buff[0] = ' ';
+    buff[0]       =  ' ';
     buff[len + 1] = '\0';
 
     // VARIABLES
@@ -82,9 +82,10 @@ char *templateRender(Template *template) {
                 segment += 8;
                 segment[strlen(segment) - 1] = '\0';
 
-                inc  = templateNew(segment);
+                inc          = templateNew(segment);
                 inc->context = template->context;
-                incBs = templateRender(inc);
+                incBs        = templateRender(inc);
+
                 bsLCat(&res, incBs);
                 bsDel(incBs);
                 free(inc);
