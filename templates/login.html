@@ -1,7 +1,9 @@
 {%include templates/header.html%}
 <form action="" method="POST">
     <label for="username">Username: </label>
-    <input type="text" id="username" name="username" />
+    <input type="text" id="username"
+           name="username"
+           value="{{formUsername}}" />
     <label for="username" class="error">{{usernameError}}</label>
 
     <br/>

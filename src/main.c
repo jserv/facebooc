@@ -143,11 +143,15 @@ static Response *login(Request *req) {
         char *username = kvFindList(req->postBody, "username");
         char *password = kvFindList(req->postBody, "password");
 
-        printf("%s\n", username);
-        printf("%s\n", password);
+        if (username == NULL) {
+            templateSet(template, "usernameError", "Username missing!");
+        } else {
+            templateSet(template, "formUsername", username);
+        }
 
-        if (username == NULL) templateSet(template, "usernameError", "Username missing!");
-        if (password == NULL) templateSet(template, "passwordError", "Password missing!");
+        if (password == NULL) {
+            templateSet(template, "passwordError", "Password missing!");
+        }
     }
 
     responseSetBody(response, templateRender(template));
@@ -172,6 +176,59 @@ static Response *signup(Request *req) {
     Template *template = templateNew("templates/signup.html");
     templateSet(template, "subtitle", "Sign Up");
     responseSetStatus(response, OK);
+
+    if (req->method == POST) {
+        char *name = kvFindList(req->postBody, "name");
+        char *email = kvFindList(req->postBody, "email");
+        char *username = kvFindList(req->postBody, "username");
+        char *password = kvFindList(req->postBody, "password");
+        char *confirmPassword = kvFindList(req->postBody, "confirm-password");
+
+        printf("%s\n", name);
+        printf("%s\n", email);
+        printf("%s\n", username);
+        printf("%s\n", password);
+        printf("%s\n", confirmPassword);
+
+        if (name == NULL) {
+            templateSet(template, "nameError", "You must enter your name!");
+        } else if (strlen(name) < 5 || strlen(name) > 50) {
+            templateSet(template, "nameError", "Your name must be between 5 and 50 characters long.");
+        } else {
+            templateSet(template, "formName", name);
+        }
+
+        if (email == NULL) {
+            templateSet(template, "emailError", "You must enter an email!");
+        } else if (strchr(email, '@') == NULL) {
+            templateSet(template, "emailError", "Invalid email.");
+        } else if (strlen(email) < 3 || strlen(email) > 50) {
+            templateSet(template, "emailError", "Your email must be between 3 and 50 characters long.");
+        } else {
+            templateSet(template, "formEmail", email);
+        }
+
+        if (username == NULL) {
+            templateSet(template, "usernameError", "You must enter a username!");
+        } else if (strlen(username) < 3 || strlen(username) > 50) {
+            templateSet(template, "usernameError", "Your username must be between 3 and 50 characters long.");
+        } else {
+            templateSet(template, "formUsername", username);
+        }
+
+        if (password == NULL) {
+            templateSet(template, "passwordError", "You must enter a password!");
+        } else if (strlen(password) < 8) {
+            templateSet(template, "passwordError", "Your password must be at least 8 characters long!");
+        }
+
+        if (confirmPassword == NULL) {
+            templateSet(template, "confirmPasswordError", "You must confirm your password.");
+        } else if (strcmp(password, confirmPassword) != 0) {
+            templateSet(template, "confirmPasswordError", "The two passwords must be the same.");
+        }
+    }
+
     responseSetBody(response, templateRender(template));
     templateDel(template);
     return response;

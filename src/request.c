@@ -4,6 +4,33 @@
 #include "kv.h"
 #include "request.h"
 
+// TODO: Make this less shitty.
+static inline char *urldecode(char *segment) {
+    char *cc = segment;
+    char *bs = bsNew("");
+    char c[2] = { '\0', '\0' };
+
+    while (*cc != '\0') {
+        if (*cc == '+') *cc = ' ';
+        if (*cc == '%') {
+            *cc = '\0';
+
+            bsLCat(&bs, segment);
+
+            c[0] = (char)strtol(cc + 1, &segment, 16);
+            cc   = segment;
+
+            bsLCat(&bs, c);
+        }
+
+        cc++;
+    }
+
+    bsLCat(&bs, segment);
+
+    return bs;
+}
+
 static inline ListCell *parseCookies(char *header) {
     ListCell *cookies = NULL;
 
@@ -37,7 +64,7 @@ static inline ListCell *parseQS(char *path) {
     ListCell *qs = NULL;
 
     char *copy = bsNew(path);
-    char *segment, *key;
+    char *segment, *key, *value;
 
     bool s = true;
 
@@ -53,7 +80,12 @@ static inline ListCell *parseQS(char *path) {
 
         if (segment == NULL) break;
 
-        qs = listCons(kvNew(key, segment), sizeof(KV), qs);
+        key   = urldecode(key);
+        value = urldecode(segment);
+        qs    = listCons(kvNew(key, value), sizeof(KV), qs);
+
+        bsDel(key);
+        bsDel(value);
     }
 
     bsDel(copy);

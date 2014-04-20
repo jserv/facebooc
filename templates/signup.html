@@ -1,2 +1,40 @@
 {%include templates/header.html%}
+<form action="" method="POST">
+    <label for="username">Name: </label>
+    <input type="text" id="name"
+           name="name"
+           value="{{formName}}" />
+    <label for="name" class="error">{{nameError}}</label>
+
+    <br/>
+
+    <label for="username">Username: </label>
+    <input type="text" id="username"
+           name="username"
+           value="{{formUsername}}" />
+    <label for="username" class="error">{{usernameError}}</label>
+
+    <br/>
+
+    <label for="email">Email: </label>
+    <input type="text" id="email"
+           name="email"
+           value="{{formEmail}}" />
+    <label for="email" class="error">{{emailError}}</label>
+
+    <br/>
+    <label for="password">Password: </label>
+    <input type="password" id="password" name="password" />
+    <label for="password" class="error">{{passwordError}}</label>
+
+    <br/>
+
+    <label for="confirm-password">Confirm password: </label>
+    <input type="password" id="confirm-password" name="confirm-password" />
+    <label for="confirm-password" class="error">{{confirmPasswordError}}</label>
+
+    <br/>
+
+    <input type="submit" />
+</form>
 {%include templates/footer.html%}
