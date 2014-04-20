@@ -83,6 +83,7 @@ static void initDB() {
 static Response *session(Request *);
 static Response *home(Request *);
 static Response *dashboard(Request *);
+static Response *search(Request *);
 static Response *login(Request *);
 static Response *logout(Request *);
 static Response *signup(Request *);
@@ -107,6 +108,7 @@ int main(void) {
     serverAddHandler(server, signup);
     serverAddHandler(server, logout);
     serverAddHandler(server, login);
+    serverAddHandler(server, search);
     serverAddHandler(server, dashboard);
     serverAddHandler(server, home);
     serverAddHandler(server, session);
@@ -162,6 +164,66 @@ static Response *dashboard(Request *req) {
     templateSet(template, "loggedIn", "t");
     templateSet(template, "subtitle", "Dashboard");
     templateSet(template, "accountName", req->account->name);
+    responseSetBody(response, templateRender(template));
+    templateDel(template);
+    return response;
+}
+
+static Response *search(Request *req) {
+    EXACT_ROUTE(req, "/search/");
+
+    if (req->account == NULL)
+        return responseNewRedirect("/login/");
+
+    char *query = kvFindList(req->queryString, "q");
+
+    if (query == NULL)
+        return NULL;
+
+    char *res = NULL;
+    char  sbuff[1024];
+    Account *account       = NULL;
+    ListCell *accountPCell = NULL;
+    ListCell *accountCell  = accountSearch(DB, query, 0);
+
+    if (accountCell != NULL) {
+        res = bsNew("<ul id=\"search-results\">");
+    }
+
+    while (accountCell != NULL) {
+        account = (Account *)accountCell->value;
+
+        sprintf(sbuff,
+                "<li><a href=\"/profile/%d/\">%s</a> (<span>%s</span>)</li>\n",
+                account->id, account->name, account->email);
+        bsLCat(&res, sbuff);
+
+        accountDel(account);
+        accountPCell = accountCell;
+        accountCell  = accountCell->next;
+
+        free(accountPCell);
+    }
+
+    if (res != NULL) {
+        bsLCat(&res, "</ul>");
+    }
+
+    Response *response = responseNew();
+    Template *template = templateNew("templates/search.html");
+    responseSetStatus(response, OK);
+
+    if (res == NULL) {
+        templateSet(template, "results", "<h4 class=\"not-found\">There were no results for your query.</h4>");
+    } else {
+        templateSet(template, "results", res);
+        bsDel(res);
+    }
+
+    templateSet(template, "searchQuery", query);
+    templateSet(template, "active", "search");
+    templateSet(template, "loggedIn", "t");
+    templateSet(template, "subtitle", "Search");
     responseSetBody(response, templateRender(template));
     templateDel(template);
     return response;
@@ -315,6 +377,7 @@ static Response *about(Request *req) {
     Response *response = responseNew();
     Template *template = templateNew("templates/about.html");
     templateSet(template, "active", "about");
+    templateSet(template, "loggedIn", (req->account != NULL) ? "t" : "");
     templateSet(template, "subtitle", "About");
     responseSetStatus(response, OK);
     responseSetBody(response, templateRender(template));
@@ -325,6 +388,7 @@ static Response *about(Request *req) {
 static Response *notFound(Request *req) {
     Response *response = responseNew();
     Template *template = templateNew("templates/404.html");
+    templateSet(template, "loggedIn", (req->account != NULL) ? "t" : "");
     templateSet(template, "subtitle", "404 Not Found");
     responseSetStatus(response, NOT_FOUND);
     responseSetBody(response, templateRender(template));

@@ -26,6 +26,17 @@
                 <li class="visible {%when active about active%} {%when loggedIn t hidden%} ">
                     <a href="/about/">About</a>
                 </li>
+                <li class="{%when loggedIn t visible%} ">
+                    <form action="/search/" method="GET">
+                        <div class="form-group">
+                            <input type="text"
+                                   class="form-control search"
+                                   placeholder="Search for people..."
+                                   name="q"
+                                   value="{{searchQuery}}" />
+                        </div>
+                    </form>
+                </li>
                 <li class="{%when active dashboard active%}  {%when loggedIn t visible%} ">
                     <a href="/dashboard/">Dashboard</a>
                 </li>

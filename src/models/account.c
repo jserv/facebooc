@@ -52,7 +52,7 @@ Account *accountGetByEmail(sqlite3 *DB, char *email) {
     sqlite3_stmt *statement;
 
     if (sqlite3_prepare_v2(DB,
-                           "SELECT id, createdAt, name, username, email"
+                           "SELECT id, createdAt, name, email, username"
                            "  FROM accounts"
                            " WHERE email = ?",
                            -1, &statement, NULL) != SQLITE_OK) {
@@ -86,7 +86,7 @@ Account *accountGetBySId(sqlite3 *DB, char *sid) {
     sqlite3_stmt *statement;
 
     if (sqlite3_prepare_v2(DB,
-                           "SELECT id, createdAt, name, username, email"
+                           "SELECT id, createdAt, name, email, username"
                            "  FROM accounts"
                            " WHERE id = ?",
                            -1, &statement, NULL) != SQLITE_OK) {
@@ -120,7 +120,7 @@ ListCell *accountSearch(sqlite3 *DB, char *query, int page) {
 
     rc = sqlite3_prepare_v2(
         DB,
-        "SELECT id, createdAt, name, username, email"
+        "SELECT id, createdAt, name, email, username"
         "  FROM accounts"
         " WHERE name     LIKE '%' || ? || '%'"
         "    OR email    LIKE '%' || ? || '%'"

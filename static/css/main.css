@@ -64,3 +64,11 @@ h4.not-found {
 .container .header .nav li.visible {
     display: block;
 }
+.container .header .nav .form-group {
+    margin-top: 4px;
+    margin-right: 5px;
+}
+ul#search-results {
+    list-style-type: none;
+    margin-top: 10px;
+}
