@@ -14,10 +14,24 @@
     <div class="container">
         <div class="header">
             <ul class="nav nav-pills pull-right">
-                <li class="active"><a href="/">Home</a></li>
-                <li><a href="/login/">Login</a></li>
-                <li><a href="/signup/">Sign Up</a></li>
-                <li><a href="/about/">About</a></li>
+                <li class="visible {%when active home active%} {%when loggedIn t hidden%} ">
+                    <a href="/">Home</a>
+                </li>
+                <li class="visible {%when active login active%} {%when loggedIn t hidden%} ">
+                    <a href="/login/">Login</a>
+                </li>
+                <li class="visible {%when active signup active%} {%when loggedIn t hidden%} ">
+                    <a href="/signup/">Sign Up</a>
+                </li>
+                <li class="visible {%when active about active%} {%when loggedIn t hidden%} ">
+                    <a href="/about/">About</a>
+                </li>
+                <li class="{%when active dashboard active%}  {%when loggedIn t visible%} ">
+                    <a href="/dashboard/">Dashboard</a>
+                </li>
+                <li class="{%when loggedIn t visible%} ">
+                    <a href="/logout/">Logout</a>
+                </li>
             </ul>
 
             <h3 class="text-muted">Facebooc</h3>

@@ -58,3 +58,9 @@ h4.not-found {
   margin-bottom: 15px;
   margin-left: 10px;
 }
+.container .header .nav li {
+    display: none;
+}
+.container .header .nav li.visible {
+    display: block;
+}

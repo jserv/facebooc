@@ -134,6 +134,7 @@ static Response *home(Request *req) {
     Response *response = responseNew();
     Template *template = templateNew("templates/index.html");
     responseSetStatus(response, OK);
+    templateSet(template, "active", "home");
     templateSet(template, "subtitle", "Home");
     responseSetBody(response, templateRender(template));
     templateDel(template);
@@ -149,6 +150,8 @@ static Response *dashboard(Request *req) {
     Response *response = responseNew();
     Template *template = templateNew("templates/dashboard.html");
     responseSetStatus(response, OK);
+    templateSet(template, "active", "dashboard");
+    templateSet(template, "loggedIn", "t");
     templateSet(template, "subtitle", "Dashboard");
     templateSet(template, "accountName", req->account->name);
     responseSetBody(response, templateRender(template));
@@ -165,6 +168,7 @@ static Response *login(Request *req) {
     Response *response = responseNew();
     Template *template = templateNew("templates/login.html");
     responseSetStatus(response, OK);
+    templateSet(template, "active", "login");
     templateSet(template, "subtitle", "Login");
 
     if (req->method == POST) {
@@ -223,6 +227,7 @@ static Response *signup(Request *req) {
 
     Response *response = responseNew();
     Template *template = templateNew("templates/signup.html");
+    templateSet(template, "active", "signup");
     templateSet(template, "subtitle", "Sign Up");
     responseSetStatus(response, OK);
 
@@ -301,6 +306,7 @@ static Response *about(Request *req) {
 
     Response *response = responseNew();
     Template *template = templateNew("templates/about.html");
+    templateSet(template, "active", "about");
     templateSet(template, "subtitle", "About");
     responseSetStatus(response, OK);
     responseSetBody(response, templateRender(template));

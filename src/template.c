@@ -86,7 +86,27 @@ char *templateRender(Template *template) {
                 bsLCat(&res, incBs);
                 bsDel(incBs);
                 free(inc);
-            } else{
+            } else if (strncmp(segment, "when", 4) == 0) {
+                char *spc;
+
+                segment += 5;
+                spc      = strchr(segment, ' ');
+                *spc     = '\0';
+                incBs    = kvFindList(template->context, segment);
+
+                if (incBs != NULL) {
+                    segment = spc + 1;
+                    spc     = strchr(segment, ' ');
+                    *spc    = '\0';
+
+                    if (strcmp(incBs, segment) == 0) {
+                        segment = spc + 1;
+                        segment[strlen(segment) - 1] = '\0';
+
+                        bsLCat(&res, segment);
+                    }
+                }
+            } else {
                 fprintf(stderr, "error: unknown exp {%%%s} in '%s'\n", segment, template->filename);
                 exit(1);
             }
