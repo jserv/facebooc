@@ -8,6 +8,9 @@
 #include "server.h"
 #include "template.h"
 
+#include "models/account.h"
+#include "models/session.h"
+
 // INITIALIZATION
 // ==============
 
@@ -77,8 +80,6 @@ static Response *signup(Request *);
 static Response *about(Request *);
 static Response *notFound(Request *);
 
-static bool createAccount(char *, char *, char *, char *);
-
 int main(void) {
     if (signal(SIGINT,  sig) == SIG_ERR ||
         signal(SIGTERM, sig) == SIG_ERR) {
@@ -102,76 +103,6 @@ int main(void) {
     serverServe(server);
 
     return 0;
-}
-
-// MODEL
-// =====
-static bool checkUsername(char *username) {
-    bool res;
-    sqlite3_stmt *statement;
-
-    if (sqlite3_prepare_v2(DB, "SELECT id FROM accounts WHERE username = ?", -1, &statement, NULL) != SQLITE_OK) {
-        return false;
-    }
-
-    if (sqlite3_bind_text(statement, 1, username, -1, NULL) != SQLITE_OK) {
-        sqlite3_finalize(statement);
-        return false;
-    }
-
-    res = sqlite3_step(statement) != SQLITE_ROW;
-
-    sqlite3_finalize(statement);
-
-    return res;
-}
-
-static bool checkEmail(char *email) {
-    bool res;
-    sqlite3_stmt *statement;
-
-    if (sqlite3_prepare_v2(DB, "SELECT id FROM accounts WHERE email = ?", -1, &statement, NULL) != SQLITE_OK) {
-        return false;
-    }
-
-    if (sqlite3_bind_text(statement, 1, email, -1, NULL) != SQLITE_OK) {
-        sqlite3_finalize(statement);
-        return false;
-    }
-
-    res = sqlite3_step(statement) != SQLITE_ROW;
-
-    sqlite3_finalize(statement);
-
-    return res;
-}
-
-static bool createAccount(char *name, char *email, char *username, char *password) {
-    bool res;
-    int rc;
-    sqlite3_stmt *statement;
-
-    rc = sqlite3_prepare_v2(DB,
-                            "INSERT INTO accounts(createdAt, name, email, username, password)"
-                            "     VALUES         (        ?,    ?,     ?,        ?,        ?)",
-                            -1, &statement, NULL);
-
-    if (rc != SQLITE_OK) return false;
-    if (sqlite3_bind_int(statement, 1, time(NULL))          != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 2, name, -1, NULL)     != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 3, email, -1, NULL)    != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 4, username, -1, NULL) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 5, password, -1, NULL) != SQLITE_OK) goto fail;
-
-    res = sqlite3_step(statement) == SQLITE_DONE;
-
-    sqlite3_finalize(statement);
-    
-    return res;
-
-fail:
-    sqlite3_finalize(statement);
-    return false;
 }
 
 // HANDLERS
@@ -217,17 +148,34 @@ static Response *login(Request *req) {
     templateSet(template, "subtitle", "Login");
 
     if (req->method == POST) {
+        bool valid = true;
+
         char *username = kvFindList(req->postBody, "username");
         char *password = kvFindList(req->postBody, "password");
 
         if (username == NULL) {
-            templateSet(template, "usernameError", "Username missing!");
+            invalid("usernameError", "Username missing!");
         } else {
             templateSet(template, "formUsername", username);
         }
 
         if (password == NULL) {
-            templateSet(template, "passwordError", "Password missing!");
+            invalid("passwordError", "Password missing!");
+        }
+
+        if (valid) {
+            Session *session = sessionCreate(DB, username, password);
+
+            if (session != NULL) {
+                responseSetStatus(response, FOUND);
+                responseAddCookie(response, "sid", session->sessionId, NULL, NULL, 3600 * 24 * 30);
+                responseAddHeader(response, "Location", "/dashboard/");
+                templateDel(template);
+                sessionDel(session);
+                return response;
+            } else {
+                invalid("usernameError", "Invalid username or password.");
+            }
         }
     }
 
@@ -276,7 +224,7 @@ static Response *signup(Request *req) {
             invalid("emailError", "Invalid email.");
         } else if (strlen(email) < 3 || strlen(email) > 50) {
             invalid("emailError", "Your email must be between 3 and 50 characters long.");
-        } else if (!checkEmail(email)) {
+        } else if (!accountCheckEmail(DB, email)) {
             invalid("emailError", "This email is taken.");
         } else {
             templateSet(template, "formEmail", email);
@@ -286,7 +234,7 @@ static Response *signup(Request *req) {
             invalid("usernameError", "You must enter a username!");
         } else if (strlen(username) < 3 || strlen(username) > 50) {
             invalid("usernameError", "Your username must be between 3 and 50 characters long.");
-        } else if (!checkUsername(username)) {
+        } else if (!accountCheckUsername(DB, username)) {
             invalid("usernameError", "This username is taken.");
         } else {
             templateSet(template, "formUsername", username);
@@ -305,10 +253,13 @@ static Response *signup(Request *req) {
         }
 
         if (valid) {
-            if (createAccount(name, email, username, password)) {
+            Account *account = accountCreate(DB, name, email, username, password);
+
+            if (account != NULL) {
                 responseSetStatus(response, FOUND);
                 responseAddHeader(response, "Location", "/login/");
                 templateDel(template);
+                accountDel(account);
                 return response;
             } else {
                 invalid("nameError", "Unexpected error. Please try again later.");
