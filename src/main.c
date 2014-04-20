@@ -72,6 +72,7 @@ static void initDB() {
              ")");
 }
 
+static Response *session(Request *);
 static Response *home(Request *);
 static Response *dashboard(Request *);
 static Response *login(Request *);
@@ -100,6 +101,7 @@ int main(void) {
     serverAddHandler(server, login);
     serverAddHandler(server, dashboard);
     serverAddHandler(server, home);
+    serverAddHandler(server, session);
     serverServe(server);
 
     return 0;
@@ -113,8 +115,21 @@ int main(void) {
     valid = false;               \
 }
 
+static Response *session(Request *req) {
+    char *sid = kvFindList(req->cookies, "sid");
+
+    if (sid != NULL) {
+        req->account = accountGetBySId(DB, sid);
+    }
+
+    return NULL;
+}
+
 static Response *home(Request *req) {
     EXACT_ROUTE(req, "/");
+
+    if (req->account != NULL)
+        return responseNewRedirect("/dashboard/");
 
     Response *response = responseNew();
     Template *template = templateNew("templates/index.html");
@@ -127,7 +142,7 @@ static Response *home(Request *req) {
 }
 
 static Response *dashboard(Request *req) {
-    EXACT_ROUTE(req, "/");
+    EXACT_ROUTE(req, "/dashboard/");
 
     Response *response = responseNew();
     Template *template = templateNew("templates/index.html");
@@ -141,6 +156,9 @@ static Response *dashboard(Request *req) {
 
 static Response *login(Request *req) {
     EXACT_ROUTE(req, "/login/");
+
+    if (req->account != NULL)
+        return responseNewRedirect("/dashboard/");
 
     Response *response = responseNew();
     Template *template = templateNew("templates/login.html");
@@ -187,6 +205,9 @@ static Response *login(Request *req) {
 static Response *logout(Request *req) {
     EXACT_ROUTE(req, "/logout/");
 
+    if (req->account == NULL)
+        return responseNewRedirect("/");
+
     Response *response = responseNewRedirect("/");
     responseAddCookie(response, "sid", "", NULL, NULL, -1);
     return response;
@@ -194,6 +215,9 @@ static Response *logout(Request *req) {
 
 static Response *signup(Request *req) {
     EXACT_ROUTE(req, "/signup/");
+
+    if (req->account != NULL)
+        return responseNewRedirect("/dashboard/");
 
     Response *response = responseNew();
     Template *template = templateNew("templates/signup.html");

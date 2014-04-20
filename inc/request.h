@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "list.h"
+#include "models/account.h"
 
 typedef enum Method {
     OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT, UNKNOWN_METHOD
@@ -19,6 +20,8 @@ typedef struct Request {
     ListCell *postBody;
     ListCell *cookies;
     ListCell *headers;
+
+    Account *account; // Don't worry. You're doing fine. Game is hard.
 } Request;
 
 Request *requestNew(char *);

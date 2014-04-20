@@ -72,7 +72,7 @@ static inline ListCell *parseQS(char *path) {
         if (s) {segment = strtok(copy, "="); s = false;}
         else   {segment = strtok(NULL, "=");}
 
-        if (segment == NULL) break; 
+        if (segment == NULL) break;
         if (*(segment + strlen(segment) + 1) == '&') continue;
 
         key     = segment;
@@ -96,6 +96,7 @@ static inline ListCell *parseQS(char *path) {
 static inline ListCell *parseHeaders(char *segment) {
     ListCell *headers = NULL;
 
+    size_t len;
     char *header;
 
     while (segment != NULL) {
@@ -112,6 +113,11 @@ static inline ListCell *parseHeaders(char *segment) {
 
         if (*segment == ' ')
             segment += 1;
+
+        len = strlen(segment);
+
+        if (*(segment + len - 1) == '\r')
+            *(segment + len - 1)  = '\0';
 
         headers = listCons(kvNew(header, segment), sizeof(KV), headers);
     }
@@ -136,6 +142,7 @@ Request *requestNew(char *buff) {
     request->postBody    = NULL;
     request->headers     = NULL;
     request->cookies     = NULL;
+    request->account     = NULL;
 
     // METHOD
     TOK(buff, " \t");
@@ -217,6 +224,7 @@ void requestDel(Request *req) {
     if (req->postBody    != NULL) kvDelList(req->postBody);
     if (req->headers     != NULL) kvDelList(req->headers);
     if (req->cookies     != NULL) kvDelList(req->cookies);
+    if (req->account     != NULL) accountDel(req->account);
 
     free(req);
 }

@@ -1,7 +1,9 @@
+#include <stdio.h>
 #include <time.h>
 
 #include "bs.h"
 #include "models/account.h"
+#include "models/session.h"
 
 Account *accountNew(int id, int createdAt, char *name, char *email, char *username) {
     Account *account = malloc(sizeof(Account));
@@ -83,19 +85,13 @@ Account *accountGetBySId(sqlite3 *DB, char *sid) {
     if (sid == NULL)
         return NULL;
 
-    int aid;
-    Account *account;
-    sqlite3_stmt *statement;
+    Session *session = sessionGetBySId(DB, sid);
 
-    if (sqlite3_prepare_v2(DB, "SELECT account FROM sessions WHERE sid = ?", -1, &statement, NULL) != SQLITE_OK) {
+    if (session == NULL)
         return NULL;
-    }
 
-    if (sqlite3_bind_text(statement, 1, sid, -1, NULL) != SQLITE_OK) goto fail;
-    if (sqlite3_step(statement) != SQLITE_ROW)                       goto fail;
-
-    aid = sqlite3_column_int(statement, 0);
-    sqlite3_finalize(statement);
+    Account *account = NULL;
+    sqlite3_stmt *statement;
 
     if (sqlite3_prepare_v2(DB,
                            "SELECT id, createdAt, name, username, email"
@@ -105,8 +101,8 @@ Account *accountGetBySId(sqlite3 *DB, char *sid) {
         return NULL;
     }
 
-    if (sqlite3_bind_int(statement, 1, aid) != SQLITE_OK) goto fail;
-    if (sqlite3_step(statement) != SQLITE_ROW)            goto fail;
+    if (sqlite3_bind_int(statement, 1, session->accountId) != SQLITE_OK) goto fail;
+    if (sqlite3_step(statement) != SQLITE_ROW)                           goto fail;
 
     account = accountNew(sqlite3_column_int(statement, 0),
                          sqlite3_column_int(statement, 1),
@@ -114,13 +110,11 @@ Account *accountGetBySId(sqlite3 *DB, char *sid) {
                          (char *)sqlite3_column_text(statement, 3),
                          (char *)sqlite3_column_text(statement, 4));
 
-    sqlite3_finalize(statement);
-
-    return account;
 
 fail:
+    sessionDel(session);
     sqlite3_finalize(statement);
-    return NULL;
+    return account;
 }
 
 bool accountCheckUsername(sqlite3 *DB, char *username) {

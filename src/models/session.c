@@ -46,7 +46,12 @@ Session *sessionCreate(sqlite3 *DB, char *username, char *password) {
     Session *session = NULL;
     sqlite3_stmt *statement;
 
-    if (sqlite3_prepare_v2(DB, "SELECT id FROM accounts WHERE username = ? and password = ?", -1, &statement, NULL) != SQLITE_OK) {
+    if (sqlite3_prepare_v2(DB,
+                           "SELECT id"
+                           "  FROM accounts"
+                           " WHERE username = ?"
+                           "   AND password = ?",
+                           -1, &statement, NULL) != SQLITE_OK) {
         return NULL;
     }
 
