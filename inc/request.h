@@ -16,6 +16,7 @@ typedef struct Request {
     char *uri;
 
     ListCell *queryString;
+    ListCell *cookies;
     ListCell *headers;
 } Request;
 

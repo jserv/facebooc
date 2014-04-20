@@ -1,6 +1,37 @@
+#include <stdio.h>
+
 #include "bs.h"
 #include "kv.h"
 #include "request.h"
+
+static inline ListCell *parseCookies(char *header) {
+    ListCell *cookies = NULL;
+
+    char *copy = bsNew(header);
+    char *segment, *key;
+
+    bool s = true;
+
+    for (;;) {
+        if (s) {segment = strtok(copy, "="); s = false;}
+        else   {segment = strtok(NULL, "=");}
+
+        if (segment == NULL) break;
+
+        if (*segment == ' ') segment += 1;
+
+        key     = segment;
+        segment = strtok(NULL, ";\0");
+
+        if (segment == NULL) break;
+
+        cookies = listCons(kvNew(key, segment), sizeof(KV), cookies);
+    }
+
+    bsDel(copy);
+
+    return cookies;
+}
 
 static inline ListCell *parseQS(char *path) {
     ListCell *qs = NULL;
@@ -70,6 +101,7 @@ Request *requestNew(char *buff) {
     request->uri         = NULL;
     request->queryString = NULL;
     request->headers     = NULL;
+    request->cookies     = NULL;
 
     // METHOD
     TOK(buff, " \t");
@@ -116,7 +148,15 @@ Request *requestNew(char *buff) {
             goto fail;
     }
 
-    // TODO: COOKIES
+    // COOKIES
+    segment = kvFindList(request->headers, "Cookie");
+
+    if (segment != NULL) {
+        request->cookies = parseCookies(segment);
+
+        if (request->cookies == NULL)
+            goto fail;
+    }
 
     return request;
 
@@ -131,6 +171,7 @@ void requestDel(Request *req) {
     if (req->uri         != NULL) bsDel(req->uri);
     if (req->queryString != NULL) kvDelList(req->queryString);
     if (req->headers     != NULL) kvDelList(req->headers);
+    if (req->cookies     != NULL) kvDelList(req->cookies);
 
     free(req);
 }
