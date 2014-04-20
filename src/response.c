@@ -98,5 +98,8 @@ void responseWrite(Response *response, int fd) {
     }
 
     write(fd, "\r\n", 2);
-    write(fd, response->body, bsGetLen(response->body));
+
+    if (response->body != NULL) {
+        write(fd, response->body, bsGetLen(response->body));
+    }
 }
