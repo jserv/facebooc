@@ -1,0 +1,116 @@
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "bs.h"
+#include "kv.h"
+#include "template.h"
+
+Template *templateNew(char *filename) {
+    Template *template = malloc(sizeof(Template));
+
+    template->filename = filename;
+    template->context  = NULL;
+
+    return template;
+}
+
+void templateDel(Template *template) {
+    if (template->context != NULL) kvDelList(template->context);
+
+    free(template);
+}
+
+void templateSet(Template *template, char *key, char *value) {
+    template->context = listCons(kvNew(key, value), sizeof(KV), template->context);
+}
+
+char *templateRender(Template *template) {
+    Template *inc;
+    FILE *file = fopen(template->filename, "r");
+    char *res  = bsNew("");
+    char *pos, *buff, *incBs, *val;
+    char *segment;
+    bool  rep = false;
+    size_t len;
+
+    if (file == NULL) {
+        fprintf(stderr, "error: template '%s' not found\n", template->filename);
+        exit(1);
+    }
+
+    fseek(file, 0, SEEK_END);
+    len = ftell(file);
+    rewind(file);
+
+    buff = malloc(sizeof(char) * (len + 1));
+    buff[0] = ' ';
+    fread(buff + 1, sizeof(char), len, file);
+    fclose(file);
+
+    // VARIABLES
+    segment = strtok_r(buff, "{\0", &pos);
+
+    assert(segment != NULL);
+    bsLCat(&res, segment + 1);
+
+    for (;;) {
+        segment = strtok_r(NULL, "}\0", &pos);
+
+        if (segment == NULL)
+            break;
+
+        if (*segment == '{') {
+            rep      = true;
+            segment += 1;
+            val      = kvFindList(template->context, segment);
+
+            if (val == NULL) {
+                fprintf(stderr, "error: unbound var '%s'\n", segment);
+                exit(1);
+            }
+
+            bsLCat(&res, val);
+        } else if (*segment == '%') {
+            rep      = true;
+            segment += 1;
+
+            if (strncmp(segment, "include", 7) == 0) {
+                segment[strlen(segment) - 1] = '\0'; // Drop the final %
+                segment += 8;
+
+                inc = templateNew(segment);
+                inc->context = template->context;
+                incBs = templateRender(inc);
+                bsLCat(&res, incBs);
+                bsDel(incBs);
+                free(inc);
+            } else{
+                fprintf(stderr, "error: unknown exp {%%%s} in '%s'\n", segment, template->filename);
+                exit(1);
+            }
+        } else {
+            rep = false;
+
+            bsLCat(&res, "{");
+        }
+
+        segment = strtok_r(NULL, "{\0", &pos);
+
+        if (segment == NULL)
+            break;
+
+        if (rep) {
+            rep      = false;
+            segment += 1;
+        } else {
+            bsLCat(&res, "}");
+        }
+
+        bsLCat(&res, segment);
+    }
+
+    free(buff);
+
+    return res;
+}
