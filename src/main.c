@@ -134,8 +134,7 @@ static Response *home(Request *req) {
     Response *response = responseNew();
     Template *template = templateNew("templates/index.html");
     responseSetStatus(response, OK);
-    templateSet(template, "subtitle", "Dashboard");
-    templateSet(template, "username", "Bogdan");
+    templateSet(template, "subtitle", "Home");
     responseSetBody(response, templateRender(template));
     templateDel(template);
     return response;
@@ -144,11 +143,14 @@ static Response *home(Request *req) {
 static Response *dashboard(Request *req) {
     EXACT_ROUTE(req, "/dashboard/");
 
+    if (req->account == NULL)
+        return responseNewRedirect("/login/");
+
     Response *response = responseNew();
-    Template *template = templateNew("templates/index.html");
+    Template *template = templateNew("templates/dashboard.html");
     responseSetStatus(response, OK);
     templateSet(template, "subtitle", "Dashboard");
-    templateSet(template, "username", "Bogdan");
+    templateSet(template, "accountName", req->account->name);
     responseSetBody(response, templateRender(template));
     templateDel(template);
     return response;
