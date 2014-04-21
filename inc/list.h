@@ -18,6 +18,7 @@ typedef struct Cell {
 } ListCell;
 
 ListCell        *listCons(void *, size_t, ListCell *);
+ListCell        *listReverse(ListCell *);
 void             listDel(ListCell *);
 IterationResult  listForEach(ListCell *, ListIterator);
 
