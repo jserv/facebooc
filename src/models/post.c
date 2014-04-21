@@ -27,9 +27,12 @@ Post *postCreate(sqlite3 *DB, int authorId, char *body) {
         -1, &statement, NULL);
 
     if (rc != SQLITE_OK) return NULL;
-    if (sqlite3_bind_int(statement, 1, t)               != SQLITE_OK) goto fail;
-    if (sqlite3_bind_int(statement, 2, authorId)        != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 3, body, -1, NULL) != SQLITE_OK) goto fail;
+
+    char *escapedBody = bsEscape(body);
+
+    if (sqlite3_bind_int(statement, 1, t)                      != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 2, authorId)               != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 3, escapedBody, -1, NULL) != SQLITE_OK) goto fail;
 
     if (sqlite3_step(statement) == SQLITE_DONE) {
         post = postNew(sqlite3_last_insert_rowid(DB),
@@ -37,6 +40,7 @@ Post *postCreate(sqlite3 *DB, int authorId, char *body) {
     }
 
 fail:
+    bsDel(escapedBody);
     sqlite3_finalize(statement);
     return post;
 }

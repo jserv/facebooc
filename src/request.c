@@ -6,9 +6,10 @@
 
 // TODO: Make this less shitty.
 static inline char *urldecode(char *segment) {
-    char *cc  = segment;
-    char *bs  = bsNew("");
-    char c[2] = "\0\0";
+    char *cc   = segment;
+    char *bs   = bsNew("");
+    char cb[3] = "\0\0\0";
+    char c[2]  = "\0\0";
 
     while (*cc != '\0') {
         if (*cc == '+') *cc = ' ';
@@ -17,19 +18,14 @@ static inline char *urldecode(char *segment) {
 
             bsLCat(&bs, segment);
 
-            if (*(cc + 1) == '0' && *(cc + 2) == 'D' &&
-                *(cc + 3) == '%' && *(cc + 4) == '0' &&
-                *(cc + 5) == 'A') {
-                bsLCat(&bs, "\n");
+            cb[0] = *(cc + 1);
+            cb[1] = *(cc + 2);
+            c[0]  = (char)strtol(cb, NULL, 16);
 
-                cc += 5;
-                segment = cc + 1;
-            } else {
-                c[0] = (char)strtol(cc + 1, &segment, 16);
-                cc   = segment;
+            cc     += 2;
+            segment = cc + 1;
 
-                bsLCat(&bs, c);
-            }
+            bsLCat(&bs, c);
         }
 
         cc++;

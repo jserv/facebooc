@@ -58,17 +58,23 @@ Account *accountCreate(sqlite3 *DB, char *name, char *email, char *username, cha
         -1, &statement, NULL);
 
     if (rc != SQLITE_OK) return NULL;
-    if (sqlite3_bind_int(statement, 1, time(NULL))          != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 2, name, -1, NULL)     != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 3, email, -1, NULL)    != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 4, username, -1, NULL) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 5, password, -1, NULL) != SQLITE_OK) goto fail;
+
+    char *escapedName  = bsEscape(name);
+    char *escapedEmail = bsEscape(email);
+
+    if (sqlite3_bind_int(statement, 1, time(NULL))              != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 2, escapedName, -1, NULL)  != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 3, escapedEmail, -1, NULL) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 4, username, -1, NULL)     != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 5, password, -1, NULL)     != SQLITE_OK) goto fail;
 
     if (sqlite3_step(statement) == SQLITE_DONE) {
         account = accountGetByEmail(DB, email);
     }
 
 fail:
+    bsDel(escapedName);
+    bsDel(escapedEmail);
     sqlite3_finalize(statement);
     return account;
 }
