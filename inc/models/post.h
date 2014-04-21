@@ -16,6 +16,7 @@ typedef struct Post {
 Post     *postNew(int, int, int, char *);
 Post     *postCreate(sqlite3 *, int, char *);
 ListCell *postGetLatest(sqlite3 *, int, int);
+ListCell *postGetLatestGraph(sqlite3 *, int, int);
 void      postDel(Post *);
 
 #endif

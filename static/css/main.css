@@ -81,3 +81,17 @@ form#main-form p.bg-danger {
     padding: 0 2px;
     margin-top: 2px;
 }
+ul#posts {
+    list-style-type: none;
+    padding: 0 5px;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+ul#posts li {
+    border: 1px solid #DDD;
+    margin-bottom: 5px;
+    padding: 5px;
+}
+ul#posts li hr {
+    margin: 5px 0;
+}

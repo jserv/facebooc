@@ -87,6 +87,7 @@ static Response *session(Request *);
 static Response *home(Request *);
 static Response *dashboard(Request *);
 static Response *profile(Request *);
+static Response *post(Request *);
 static Response *search(Request *);
 static Response *login(Request *);
 static Response *logout(Request *);
@@ -113,6 +114,7 @@ int main(void) {
     serverAddHandler(server, logout);
     serverAddHandler(server, login);
     serverAddHandler(server, search);
+    serverAddHandler(server, post);
     serverAddHandler(server, profile);
     serverAddHandler(server, dashboard);
     serverAddHandler(server, home);
@@ -164,11 +166,61 @@ static Response *dashboard(Request *req) {
 
     Response *response = responseNew();
     Template *template = templateNew("templates/dashboard.html");
-    responseSetStatus(response, OK);
+
+    char *res = NULL;
+    char sbuff[1024];
+
+    time_t t;
+
+    Account *account    = NULL;
+    Post *post          = NULL;
+    ListCell *postPCell = NULL;
+    ListCell *postCell  = postGetLatestGraph(DB, req->account->id, 0);
+
+    if (postCell != NULL)
+        res = bsNew("<ul id=\"posts\">");
+
+    while (postCell != NULL) {
+        post = (Post *)postCell->value;
+        account = accountGetById(DB, post->authorId);
+
+        sprintf(sbuff,
+                "<li><span class=\"act\">%s posted:</span>"
+                "<hr/>"
+                "%s"
+                "<hr/>"
+                "<a href=\"/like/%d/?r=dashboard\">Like</a> ",
+                account->name,
+                post->body,
+                post->id);
+        accountDel(account);
+        bsLCat(&res, sbuff);
+
+        t = post->createdAt;
+        strftime(sbuff, 1024, "%c GMT", gmtime(&t));
+        bsLCat(&res, sbuff);
+        bsLCat(&res, "</li>");
+
+        postDel(post);
+        postPCell = postCell;
+        postCell  = postCell->next;
+
+        free(postPCell);
+    }
+
+    if (res != NULL) {
+        bsLCat(&res, "</ul>");
+        templateSet(template, "graph", res);
+        bsDel(res);
+    } else {
+        templateSet(template, "graph", "<h4 class=\"not-found\">Nothing here.</h4>");
+    }
+
     templateSet(template, "active", "dashboard");
     templateSet(template, "loggedIn", "t");
     templateSet(template, "subtitle", "Dashboard");
     templateSet(template, "accountName", req->account->name);
+    responseSetStatus(response, OK);
     responseSetBody(response, templateRender(template));
     templateDel(template);
     return response;
@@ -226,7 +278,7 @@ static Response *profile(Request *req) {
         post = (Post *)postCell->value;
 
         sprintf(sbuff,
-                "<li>%s<hr/><a href=\"/like/%d/\">Like</a> ",
+                "<li>%s<hr/><a href=\"/like/%d/?r=dashboard\">Like</a> ",
                 post->body,
                 post->id);
         bsLCat(&res, sbuff);
@@ -266,6 +318,22 @@ static Response *profile(Request *req) {
     bsDel(idStr);
     templateDel(template);
     return response;
+}
+
+static Response *post(Request *req) {
+    EXACT_ROUTE(req, "/post/");
+
+    if (req->method != POST)
+        return NULL;
+
+    char *postStr = kvFindList(req->postBody, "post");
+
+    if (bsGetLen(postStr) == 0)
+        return responseNewRedirect("/dashboard/");
+
+    postDel(postCreate(DB, req->account->id, postStr));
+
+    return responseNewRedirect("/dashboard/");
 }
 
 static Response *search(Request *req) {
