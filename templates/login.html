@@ -1,19 +1,25 @@
 {%include templates/header.html%}
-<form action="" method="POST">
-    <label for="username">Username: </label>
-    <input type="text" id="username"
-           name="username"
-           value="{{formUsername}}" />
-    <label for="username" class="error">{{usernameError}}</label>
+<form action="" method="POST" id="main-form" role="form">
+    <div class="form-group">
+        <label for="username"
+               class="control-label">Username: </label>
+        <input type="text"
+               class="form-control"
+               id="username"
+               name="username"
+               value="{{formUsername}}" />
+        <p class="bg-danger">{{usernameError}}</p>
+    </div>
 
-    <br/>
+    <div class="form-group">
+        <label for="password">Password: </label>
+        <input type="password"
+               class="form-control"
+               id="password"
+               name="password" />
+        <p class="bg-danger">{{passwordError}}</p>
+    </div>
 
-    <label for="password">Password: </label>
-    <input type="password" id="password" name="password" />
-    <label for="password" class="error">{{passwordError}}</label>
-
-    <br/>
-
-    <input type="submit" />
+    <input class="btn btn-default" type="submit" />
 </form>
 {%include templates/footer.html%}

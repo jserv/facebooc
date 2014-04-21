@@ -1,40 +1,68 @@
 {%include templates/header.html%}
-<form action="" method="POST">
-    <label for="username">Name: </label>
-    <input type="text" id="name"
-           name="name"
-           value="{{formName}}" />
-    <label for="name" class="error">{{nameError}}</label>
+<form action="" method="POST" id="main-form" role="form">
+    <div class="form-group">
+        <label for="username"
+               class="control-label">
+            Name:
+        </label>
+        <input type="text"
+               class="form-control"
+               id="name"
+               name="name"
+               value="{{formName}}" />
+        <p class="bg-danger">{{nameError}}</p>
+    </div>
 
-    <br/>
+    <div class="form-group">
+        <label for="email"
+               class="control-label">
+            Email:
+        </label>
+        <input type="text"
+               class="form-control"
+               id="email"
+               name="email"
+               value="{{formEmail}}" />
+        <p class="bg-danger">{{emailError}}</p>
+    </div>
 
-    <label for="username">Username: </label>
-    <input type="text" id="username"
-           name="username"
-           value="{{formUsername}}" />
-    <label for="username" class="error">{{usernameError}}</label>
+    <div class="form-group">
+        <label for="username"
+               class="control-label">
+            Username:
+        </label>
+        <input type="text"
+               class="form-control"
+               id="username"
+               name="username"
+               value="{{formUsername}}" />
+        <p class="bg-danger">{{usernameError}}</p>
+    </div>
 
-    <br/>
+    <div class="form-group">
+        <label for="password"
+               class="control-label">
+            Password:
+        </label>
+        <input type="password"
+               class="form-control"
+               id="password"
+               name="password" />
+        <p class="bg-danger">{{passwordError}}</p>
+    </div>
 
-    <label for="email">Email: </label>
-    <input type="text" id="email"
-           name="email"
-           value="{{formEmail}}" />
-    <label for="email" class="error">{{emailError}}</label>
+    <div class="form-group">
+        <label for="confirm-password"
+               class="control-label">
+            Confirm password:
+        </label>
+        <input type="password"
+               class="form-control"
+               id="confirm-password"
+               name="confirm-password" />
+        <p class="bg-danger">{{confirmPasswordError}}</p>
+    </div>
 
-    <br/>
-    <label for="password">Password: </label>
-    <input type="password" id="password" name="password" />
-    <label for="password" class="error">{{passwordError}}</label>
-
-    <br/>
-
-    <label for="confirm-password">Confirm password: </label>
-    <input type="password" id="confirm-password" name="confirm-password" />
-    <label for="confirm-password" class="error">{{confirmPasswordError}}</label>
-
-    <br/>
-
-    <input type="submit" />
+    <input class="btn btn-default" type="submit" />
 </form>
 {%include templates/footer.html%}

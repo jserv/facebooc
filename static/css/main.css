@@ -70,5 +70,14 @@ h4.not-found {
 }
 ul#search-results {
     list-style-type: none;
+    padding-left: 10px;
     margin-top: 10px;
+}
+form#main-form {
+    margin: 30px 0;
+    padding: 0 10px;
+}
+form#main-form p.bg-danger {
+    padding: 0 2px;
+    margin-top: 2px;
 }
