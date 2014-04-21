@@ -43,6 +43,29 @@ fail:
     return like;
 }
 
+bool likeLiked(sqlite3 *DB, int accountId, int postId) {
+    int rc;
+    bool res = false;
+    sqlite3_stmt *statement;
+
+    rc = sqlite3_prepare_v2(DB,
+                            "SELECT id"
+                            "  FROM likes"
+                            " WHERE account = ?"
+                            "   AND post = ?",
+                            -1, &statement, NULL);
+
+    if (rc != SQLITE_OK) return false;
+    if (sqlite3_bind_int(statement, 1, accountId) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 2, postId)    != SQLITE_OK) goto fail;
+
+    res = sqlite3_step(statement) == SQLITE_ROW;
+
+fail:
+    sqlite3_finalize(statement);
+    return res;
+}
+
 void likeDel(Like *like) {
     free(like);
 }

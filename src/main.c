@@ -11,6 +11,7 @@
 
 #include "models/account.h"
 #include "models/connection.h"
+#include "models/like.h"
 #include "models/post.h"
 #include "models/session.h"
 
@@ -88,6 +89,8 @@ static Response *home(Request *);
 static Response *dashboard(Request *);
 static Response *profile(Request *);
 static Response *post(Request *);
+static Response *like(Request *);
+static Response *connect(Request *);
 static Response *search(Request *);
 static Response *login(Request *);
 static Response *logout(Request *);
@@ -114,6 +117,8 @@ int main(void) {
     serverAddHandler(server, logout);
     serverAddHandler(server, login);
     serverAddHandler(server, search);
+    serverAddHandler(server, connect);
+    serverAddHandler(server, like);
     serverAddHandler(server, post);
     serverAddHandler(server, profile);
     serverAddHandler(server, dashboard);
@@ -172,6 +177,8 @@ static Response *dashboard(Request *req) {
 
     time_t t;
 
+    bool liked;
+
     Account *account    = NULL;
     Post *post          = NULL;
     ListCell *postPCell = NULL;
@@ -183,18 +190,24 @@ static Response *dashboard(Request *req) {
     while (postCell != NULL) {
         post = (Post *)postCell->value;
         account = accountGetById(DB, post->authorId);
+        liked = likeLiked(DB, req->account->id, post->id);
 
         sprintf(sbuff,
                 "<li><span class=\"act\">%s posted:</span>"
                 "<hr/>"
                 "%s"
-                "<hr/>"
-                "<a href=\"/like/%d/?r=dashboard\">Like</a> ",
+                "<hr/>",
                 account->name,
-                post->body,
-                post->id);
+                post->body);
         accountDel(account);
         bsLCat(&res, sbuff);
+
+        if (liked) {
+            bsLCat(&res, "Liked - ");
+        } else {
+            sprintf(sbuff, "<a href=\"/like/%d/\">Like</a> - ", post->id);
+            bsLCat(&res, sbuff);
+        }
 
         t = post->createdAt;
         strftime(sbuff, 1024, "%c GMT", gmtime(&t));
@@ -248,7 +261,7 @@ static Response *profile(Request *req) {
 
     Response *response = responseNew();
     Template *template = templateNew("templates/profile.html");
-    Connection *connection = connectionGetByAccountIds(DB, account->id, req->account->id);
+    Connection *connection = connectionGetByAccountIds(DB, req->account->id, account->id);
     char connectStr[255];
 
     if (connection != NULL) {
@@ -266,6 +279,8 @@ static Response *profile(Request *req) {
 
     time_t t;
 
+    bool liked;
+
     Post *post          = NULL;
     ListCell *postPCell = NULL;
     ListCell *postCell  = postGetLatest(DB, account->id, 0);
@@ -276,12 +291,17 @@ static Response *profile(Request *req) {
 
     while (postCell != NULL) {
         post = (Post *)postCell->value;
+        liked = likeLiked(DB, req->account->id, post->id);
 
-        sprintf(sbuff,
-                "<li>%s<hr/><a href=\"/like/%d/?r=dashboard\">Like</a> ",
-                post->body,
-                post->id);
+        sprintf(sbuff, "<li>%s<hr/>", post->body);
         bsLCat(&res, sbuff);
+
+        if (liked) {
+            bsLCat(&res, "Liked - ");
+        } else {
+            sprintf(sbuff, "<a href=\"/like/%d/\">Like</a> - ", post->id);
+            bsLCat(&res, sbuff);
+        }
 
         t = post->createdAt;
         strftime(sbuff, 1024, "%c GMT", gmtime(&t));
@@ -333,6 +353,66 @@ static Response *post(Request *req) {
 
     postDel(postCreate(DB, req->account->id, postStr));
 
+    return responseNewRedirect("/dashboard/");
+}
+
+static Response *like(Request *req) {
+    ROUTE(req, "/like/");
+
+    if (req->account == NULL)
+        return NULL;
+
+    int   id = -1;
+    int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
+    char *idStr = bsSubstr(req->uri, idStart, -1);
+
+    sscanf(idStr, "%d", &id);
+
+    Post *post = postGetById(DB, id);
+
+    if (post == NULL)
+        goto fail;
+
+    likeDel(likeCreate(DB, req->account->id, post->authorId, post->id));
+
+    if (kvFindList(req->queryString, "r") != NULL) {
+        char sbuff[1024];
+        sprintf(sbuff, "/profile/%d/", post->authorId);
+        bsDel(idStr);
+        return responseNewRedirect(sbuff);
+    }
+
+fail:
+    bsDel(idStr);
+    return responseNewRedirect("/dashboard/");
+}
+
+static Response *connect(Request *req) {
+    ROUTE(req, "/connect/");
+
+    if (req->account == NULL)
+        return NULL;
+
+    int   id = -1;
+    int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
+    char *idStr = bsSubstr(req->uri, idStart, -1);
+
+    sscanf(idStr, "%d", &id);
+
+    Account *account = accountGetById(DB, id);
+
+    if (account == NULL)
+        goto fail;
+
+    connectionDel(connectionCreate(DB, req->account->id, account->id));
+
+    char sbuff[1024];
+    sprintf(sbuff, "/profile/%d/", account->id);
+    bsDel(idStr);
+    return responseNewRedirect(sbuff);
+
+fail:
+    bsDel(idStr);
     return responseNewRedirect("/dashboard/");
 }
 

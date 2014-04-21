@@ -41,6 +41,34 @@ fail:
     return post;
 }
 
+Post *postGetById(sqlite3 *DB, int id) {
+    if (id == -1)
+        return NULL;
+
+    Post *post = NULL;
+    sqlite3_stmt *statement;
+
+    if (sqlite3_prepare_v2(DB,
+                           "SELECT id, createdAt, author, body"
+                           "  FROM posts"
+                           " WHERE id = ?",
+                           -1, &statement, NULL) != SQLITE_OK) {
+        return NULL;
+    }
+
+    if (sqlite3_bind_int(statement, 1, id) != SQLITE_OK)  goto fail;
+    if (sqlite3_step(statement)            != SQLITE_ROW) goto fail;
+
+    post = postNew(sqlite3_column_int(statement, 0),
+                   sqlite3_column_int(statement, 1),
+                   sqlite3_column_int(statement, 2),
+                   (char *)sqlite3_column_text(statement, 3));
+
+fail:
+    sqlite3_finalize(statement);
+    return post;
+}
+
 ListCell *postGetLatest(sqlite3 *DB, int accountId, int page) {
     if (accountId == -1)
         return NULL;

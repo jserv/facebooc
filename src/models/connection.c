@@ -45,18 +45,19 @@ Connection *connectionGetByAccountIds(sqlite3 *DB, int account1Id, int account2I
     if (account1Id == -1 || account2Id == -1)
         return NULL;
 
+    int rc;
     Connection *connection = NULL;
     sqlite3_stmt *statement;
 
-    if (sqlite3_prepare_v2(DB,
+
+    rc = sqlite3_prepare_v2(DB,
                            "SELECT id, createdAt, account1, account2"
                            "  FROM connections"
                            " WHERE account1 = ?"
                            "   AND account2 = ?",
-                           -1, &statement, NULL) != SQLITE_OK) {
-        return NULL;
-    }
+                           -1, &statement, NULL);
 
+    if (rc != SQLITE_OK) return NULL;
     if (sqlite3_bind_int(statement, 1, account1Id) != SQLITE_OK)  goto fail;
     if (sqlite3_bind_int(statement, 2, account2Id) != SQLITE_OK)  goto fail;
     if (sqlite3_step(statement)                    != SQLITE_ROW) goto fail;
