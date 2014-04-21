@@ -1,6 +1,7 @@
 #include <signal.h>
 #include <sqlite3.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
 #include "bs.h"
@@ -9,6 +10,8 @@
 #include "template.h"
 
 #include "models/account.h"
+#include "models/connection.h"
+#include "models/post.h"
 #include "models/session.h"
 
 // INITIALIZATION
@@ -83,6 +86,7 @@ static void initDB() {
 static Response *session(Request *);
 static Response *home(Request *);
 static Response *dashboard(Request *);
+static Response *profile(Request *);
 static Response *search(Request *);
 static Response *login(Request *);
 static Response *logout(Request *);
@@ -109,6 +113,7 @@ int main(void) {
     serverAddHandler(server, logout);
     serverAddHandler(server, login);
     serverAddHandler(server, search);
+    serverAddHandler(server, profile);
     serverAddHandler(server, dashboard);
     serverAddHandler(server, home);
     serverAddHandler(server, session);
@@ -169,6 +174,100 @@ static Response *dashboard(Request *req) {
     return response;
 }
 
+static Response *profile(Request *req) {
+    ROUTE(req, "/profile/");
+
+    if (req->account == NULL)
+        return NULL;
+
+    int   id = -1;
+    int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
+    char *idStr = bsSubstr(req->uri, idStart, -1);
+
+    sscanf(idStr, "%d", &id);
+
+    Account *account = accountGetById(DB, id);
+
+    if (account == NULL)
+        return NULL;
+
+    if (account->id == req->account->id)
+        return responseNewRedirect("/dashboard/");
+
+    Response *response = responseNew();
+    Template *template = templateNew("templates/profile.html");
+    Connection *connection = connectionGetByAccountIds(DB, account->id, req->account->id);
+    char connectStr[255];
+
+    if (connection != NULL) {
+        sprintf(connectStr, "You and %s are connected!", account->name);
+    } else {
+        sprintf(connectStr,
+                "You and %s are not connected."
+                " <a href=\"/connect/%d/\">Click here</a> to connect!",
+                account->name,
+                account->id);
+    }
+
+    char *res = NULL;
+    char sbuff[1024];
+
+    time_t t;
+
+    Post *post          = NULL;
+    ListCell *postPCell = NULL;
+    ListCell *postCell  = postGetLatest(DB, account->id, 0);
+
+    if (postCell != NULL) {
+        res = bsNew("<ul id=\"posts\">");
+    }
+
+    while (postCell != NULL) {
+        post = (Post *)postCell->value;
+
+        sprintf(sbuff,
+                "<li>%s<hr/><a href=\"/like/%d/\">Like</a> ",
+                post->body,
+                post->id);
+        bsLCat(&res, sbuff);
+
+        t = post->createdAt;
+        strftime(sbuff, 1024, "%c GMT", gmtime(&t));
+        bsLCat(&res, sbuff);
+        bsLCat(&res, "</li>");
+
+        postDel(post);
+        postPCell = postCell;
+        postCell  = postCell->next;
+
+        free(postPCell);
+    }
+
+    if (res != NULL) {
+        bsLCat(&res, "</ul>");
+        templateSet(template, "profilePosts", res);
+        bsDel(res);
+    } else {
+        templateSet(template, "profilePosts", "<h4 class=\"not-found\">This person has not posted anything yet!</h4>");
+    }
+
+    templateSet(template, "active", "profile");
+    templateSet(template, "loggedIn", "t");
+    templateSet(template, "subtitle", account->name);
+    templateSet(template, "profileId", idStr);
+    templateSet(template, "profileName", account->name);
+    templateSet(template, "profileEmail", account->email);
+    templateSet(template, "profileConnect", connectStr);
+    templateSet(template, "accountName", req->account->name);
+    responseSetStatus(response, OK);
+    responseSetBody(response, templateRender(template));
+    connectionDel(connection);
+    accountDel(account);
+    bsDel(idStr);
+    templateDel(template);
+    return response;
+}
+
 static Response *search(Request *req) {
     EXACT_ROUTE(req, "/search/");
 
@@ -182,6 +281,7 @@ static Response *search(Request *req) {
 
     char *res = NULL;
     char  sbuff[1024];
+
     Account *account       = NULL;
     ListCell *accountPCell = NULL;
     ListCell *accountCell  = accountSearch(DB, query, 0);

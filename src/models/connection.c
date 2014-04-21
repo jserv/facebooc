@@ -41,6 +41,36 @@ fail:
     return connection;
 }
 
+Connection *connectionGetByAccountIds(sqlite3 *DB, int account1Id, int account2Id) {
+    if (account1Id == -1 || account2Id == -1)
+        return NULL;
+
+    Connection *connection = NULL;
+    sqlite3_stmt *statement;
+
+    if (sqlite3_prepare_v2(DB,
+                           "SELECT id, createdAt, account1, account2"
+                           "  FROM connections"
+                           " WHERE account1 = ?"
+                           "   AND account2 = ?",
+                           -1, &statement, NULL) != SQLITE_OK) {
+        return NULL;
+    }
+
+    if (sqlite3_bind_int(statement, 1, account1Id) != SQLITE_OK)  goto fail;
+    if (sqlite3_bind_int(statement, 2, account2Id) != SQLITE_OK)  goto fail;
+    if (sqlite3_step(statement)                    != SQLITE_ROW) goto fail;
+
+    connection = connectionNew(sqlite3_column_int(statement, 0),
+                               sqlite3_column_int(statement, 1),
+                               sqlite3_column_int(statement, 2),
+                               sqlite3_column_int(statement, 3));
+
+fail:
+    sqlite3_finalize(statement);
+    return connection;
+}
+
 void connectionDel(Connection *connection) {
     free(connection);
 }

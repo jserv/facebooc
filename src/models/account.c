@@ -17,6 +17,35 @@ Account *accountNew(int id, int createdAt, char *name, char *email, char *userna
     return account;
 }
 
+Account *accountGetById(sqlite3 *DB, int id) {
+    if (id == -1)
+        return NULL;
+
+    Account *account = NULL;
+    sqlite3_stmt *statement;
+
+    if (sqlite3_prepare_v2(DB,
+                           "SELECT id, createdAt, name, email, username"
+                           "  FROM accounts"
+                           " WHERE id = ?",
+                           -1, &statement, NULL) != SQLITE_OK) {
+        return NULL;
+    }
+
+    if (sqlite3_bind_int(statement, 1, id) != SQLITE_OK)  goto fail;
+    if (sqlite3_step(statement)            != SQLITE_ROW) goto fail;
+
+    account = accountNew(sqlite3_column_int(statement, 0),
+                         sqlite3_column_int(statement, 1),
+                         (char *)sqlite3_column_text(statement, 2),
+                         (char *)sqlite3_column_text(statement, 3),
+                         (char *)sqlite3_column_text(statement, 4));
+
+fail:
+    sqlite3_finalize(statement);
+    return account;
+}
+
 Account *accountCreate(sqlite3 *DB, char *name, char *email, char *username, char *password) {
     int rc;
     Account *account = NULL;

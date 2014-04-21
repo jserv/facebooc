@@ -41,6 +41,42 @@ fail:
     return post;
 }
 
+ListCell *postGetLatest(sqlite3 *DB, int accountId, int page) {
+    if (accountId == -1)
+        return NULL;
+
+    int rc;
+    Post *post = NULL;
+    ListCell *posts = NULL;
+    sqlite3_stmt *statement;
+
+    rc = sqlite3_prepare_v2(
+        DB,
+        "SELECT id, createdAt, author, body"
+        "  FROM posts"
+        " WHERE author = ?"
+        " ORDER BY createdAt DESC"
+        " LIMIT 10 "
+        "OFFSET ?",
+        -1, &statement, NULL);
+
+    if (rc != SQLITE_OK) return NULL;
+    if (sqlite3_bind_int(statement, 1, accountId) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 2, page * 10) != SQLITE_OK) goto fail;
+
+    while (sqlite3_step(statement) == SQLITE_ROW) {
+        post = postNew(sqlite3_column_int(statement, 0),
+                       sqlite3_column_int(statement, 1),
+                       sqlite3_column_int(statement, 2),
+                       (char *)sqlite3_column_text(statement, 3));
+        posts = listCons(post, sizeof(Post), posts);
+    }
+
+fail:
+    sqlite3_finalize(statement);
+    return posts;
+}
+
 void postDel(Post *post) {
     bsDel(post->body);
     free(post);

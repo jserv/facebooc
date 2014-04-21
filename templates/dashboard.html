@@ -5,4 +5,16 @@
         Here's what your friends have been up to:
     </p>
 </div>
+<hr/>
+<form action="/post/" method="POST" id="main-form" role="form">
+    <div class="form-group">
+        <textarea class="form-control"
+                  id="post"
+                  name="post"
+                  rows="5"
+                  placeholder="What would you like to share?"></textarea>
+    </div>
+
+    <input class="btn btn-default" type="submit" />
+</form>
 {%include templates/footer.html%}

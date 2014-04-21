@@ -3,6 +3,8 @@
 
 #include <sqlite3.h>
 
+#include "list.h"
+
 typedef struct Post {
     int id;
     int createdAt;
@@ -11,8 +13,9 @@ typedef struct Post {
     char *body;
 } Post;
 
-Post *postNew(int, int, int, char *);
-Post *postCreate(sqlite3 *, int, char *);
-void  postDel(Post *);
+Post     *postNew(int, int, int, char *);
+Post     *postCreate(sqlite3 *, int, char *);
+ListCell *postGetLatest(sqlite3 *, int, int);
+void      postDel(Post *);
 
 #endif

@@ -12,6 +12,7 @@ typedef struct Connection {
 
 Connection *connectionNew(int, int, int, int);
 Connection *connectionCreate(sqlite3 *, int, int);
+Connection *connectionGetByAccountIds(sqlite3 *, int, int);
 void        connectionDel(Connection *);
 
 #endif
