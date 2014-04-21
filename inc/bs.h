@@ -13,6 +13,7 @@ char     *bsNewLen(char *, size_t);
 char     *bsCat(char *, char *);
 char     *bsSubstr(char *, uint32_t, int32_t);
 char     *bsRandom(uint32_t, char *);
+char     *bsEscape(char *);
 void      bsLCat(char **, char *);
 void      bsDel(char *);
 void      bsSetLen(char *, uint32_t);

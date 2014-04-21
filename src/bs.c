@@ -47,22 +47,6 @@ char *bsCat(char *bs1, char *bs2) {
     return bs;
 }
 
-void bsLCat(char **orig, char *s) {
-    size_t lenO = bsGetLen(*orig);
-    size_t lenS = strlen(s);
-    size_t len  = lenO + lenS;
-
-    *orig = BS_HEADER_LEN +
-        (char *)realloc(
-            *orig - BS_HEADER_LEN,
-            sizeof(char) * BS_HEADER_LEN +
-            sizeof(char) * (len + 1));
-
-    strcpy(*orig + lenO, s);
-
-    bsSetLen(*orig, len);
-}
-
 char *bsSubstr(char *orig, uint32_t beginning, int32_t end) {
     size_t len    = bsGetLen(orig);
     size_t newLen = (end <= 0)
@@ -107,6 +91,50 @@ char *bsRandom(uint32_t len, char *suffix) {
     }
 
     return bs;
+}
+
+char *bsEscape(char *bs) {
+    char *copy = bsNew(bs);
+    char *res  = bsNew("");
+
+    char *c = copy;
+    char *p = copy;
+
+    while (*c != '\0') {
+        if (*c == '<') {
+            *c = '\0';
+            bsLCat(&res, p);
+            bsLCat(&res, "&lt;");
+            p = c + 1;
+        } else if (*c == '>') {
+            *c = '\0';
+            bsLCat(&res, p);
+            bsLCat(&res, "&gt;");
+            p = c + 1;
+        }
+
+        c++;
+    }
+
+    bsLCat(&res, p);
+    bsDel(copy);
+    return res;
+}
+
+void bsLCat(char **orig, char *s) {
+    size_t lenO = bsGetLen(*orig);
+    size_t lenS = strlen(s);
+    size_t len  = lenO + lenS;
+
+    *orig = BS_HEADER_LEN +
+        (char *)realloc(
+            *orig - BS_HEADER_LEN,
+            sizeof(char) * BS_HEADER_LEN +
+            sizeof(char) * (len + 1));
+
+    strcpy(*orig + lenO, s);
+
+    bsSetLen(*orig, len);
 }
 
 void bsDel(char *bs) {
