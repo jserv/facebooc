@@ -17,10 +17,19 @@ static inline char *urldecode(char *segment) {
 
             bsLCat(&bs, segment);
 
-            c[0] = (char)strtol(cc + 1, &segment, 16);
-            cc   = segment;
+            if (*(cc + 1) == '0' && *(cc + 2) == 'D' &&
+                *(cc + 3) == '%' && *(cc + 4) == '0' &&
+                *(cc + 5) == 'A') {
+                bsLCat(&bs, "\n");
 
-            bsLCat(&bs, c);
+                cc += 5;
+                segment = cc + 1;
+            } else {
+                c[0] = (char)strtol(cc + 1, &segment, 16);
+                cc   = segment;
+
+                bsLCat(&bs, c);
+            }
         }
 
         cc++;
