@@ -7,13 +7,11 @@
 char *bsNew(const char *str)
 {
     size_t len = strlen(str);
-
     char *bs = BS_HEADER_LEN +
                malloc(sizeof(char) * BS_HEADER_LEN +
                       sizeof(char) * (len + 1));
 
     strcpy(bs, str);
-
     bsSetLen(bs, len);
 
     return bs;
@@ -26,7 +24,6 @@ char *bsNewLen(char *buf, size_t len)
                       sizeof(char) * (len + 1));
 
     memcpy(bs, buf, len);
-
     bsSetLen(bs, len);
 
     return bs;
@@ -53,9 +50,8 @@ char *bsCat(char *bs1, char *bs2)
 char *bsSubstr(char *orig, uint32_t beginning, int32_t end)
 {
     size_t len    = bsGetLen(orig);
-    size_t newLen = (end <= 0)
-                    ? len - beginning + end
-                    : end - beginning;
+    size_t newLen = (end <= 0) ? len - beginning + end :
+                                 end - beginning;
 
     assert(newLen >  0);
     assert(newLen <= len);
@@ -88,13 +84,11 @@ char *bsRandom(uint32_t len, char *suffix)
 
     bsSetLen(bs, len);
 
-    for (uint32_t i = 0; i < len; i++) {
+    for (uint32_t i = 0; i < len; i++)
         bs[i] = table[rand() % sizeof(table)];
-    }
 
-    if (suffix != NULL) {
+    if (suffix != NULL)
         bsLCat(&bs, suffix);
-    }
 
     return bs;
 }
@@ -119,7 +113,6 @@ char *bsEscape(char *bs)
             bsLCat(&res, "&gt;");
             p = c + 1;
         }
-
         c++;
     }
 
@@ -135,13 +128,11 @@ void bsLCat(char **orig, char *s)
     size_t len  = lenO + lenS;
 
     *orig = BS_HEADER_LEN +
-            (char *)realloc(
-                *orig - BS_HEADER_LEN,
-                sizeof(char) * BS_HEADER_LEN +
-                sizeof(char) * (len + 1));
+            (char *) realloc(*orig - BS_HEADER_LEN,
+                             sizeof(char) * BS_HEADER_LEN +
+                             sizeof(char) * (len + 1));
 
     strcpy(*orig + lenO, s);
-
     bsSetLen(*orig, len);
 }
 
@@ -161,9 +152,8 @@ void bsSetLen(char *bs, uint32_t len)
 
 uint32_t bsGetLen(char *bs)
 {
-    return
-        (((char) * (bs + 0 - BS_HEADER_LEN) & 0xFF) << 24) |
-        (((char) * (bs + 1 - BS_HEADER_LEN) & 0xFF) << 16) |
-        (((char) * (bs + 2 - BS_HEADER_LEN) & 0xFF) <<  8) |
-        (((char) * (bs + 3 - BS_HEADER_LEN) & 0xFF));
+    return (((char) * (bs + 0 - BS_HEADER_LEN) & 0xFF) << 24) |
+           (((char) * (bs + 1 - BS_HEADER_LEN) & 0xFF) << 16) |
+           (((char) * (bs + 2 - BS_HEADER_LEN) & 0xFF) <<  8) |
+           (((char) * (bs + 3 - BS_HEADER_LEN) & 0xFF));
 }

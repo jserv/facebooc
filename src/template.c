@@ -25,7 +25,8 @@ void templateDel(Template *template)
 
 void templateSet(Template *template, char *key, char *value)
 {
-    template->context = listCons(kvNew(key, value), sizeof(KV), template->context);
+    template->context = listCons(kvNew(key, value), sizeof(KV),
+                                 template->context);
 }
 
 char *templateRender(Template *template)
@@ -39,7 +40,8 @@ char *templateRender(Template *template)
     size_t len;
 
     if (file == NULL) {
-        fprintf(stderr, "error: template '%s' not found\n", template->filename);
+        fprintf(stderr,
+                "error: template '%s' not found\n", template->filename);
         exit(1);
     }
 
@@ -111,7 +113,9 @@ char *templateRender(Template *template)
                     }
                 }
             } else {
-                fprintf(stderr, "error: unknown exp {%%%s} in '%s'\n", segment, template->filename);
+                fprintf(stderr,
+                        "error: unknown exp {%%%s} in '%s'\n",
+                        segment, template->filename);
                 exit(1);
             }
         } else {

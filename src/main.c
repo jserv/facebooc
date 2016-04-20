@@ -15,9 +15,6 @@
 #include "models/post.h"
 #include "models/session.h"
 
-// INITIALIZATION
-// ==============
-
 Server  *server = NULL;
 sqlite3 *DB     = NULL;
 
@@ -133,8 +130,7 @@ int main(void)
     return 0;
 }
 
-// HANDLERS
-// ========
+/* handlers */
 
 #define invalid(k, v) {          \
     templateSet(template, k, v); \
@@ -145,9 +141,8 @@ static Response *session(Request *req)
 {
     char *sid = kvFindList(req->cookies, "sid");
 
-    if (sid != NULL) {
+    if (sid != NULL)
         req->account = accountGetBySId(DB, sid);
-    }
 
     return NULL;
 }
@@ -181,9 +176,7 @@ static Response *dashboard(Request *req)
 
     char *res = NULL;
     char sbuff[1024];
-
     time_t t;
-
     bool liked;
 
     Account *account    = NULL;
@@ -233,7 +226,8 @@ static Response *dashboard(Request *req)
         templateSet(template, "graph", res);
         bsDel(res);
     } else {
-        templateSet(template, "graph", "<h4 class=\"not-found\">Nothing here.</h4>");
+        templateSet(template, "graph",
+                    "<h4 class=\"not-found\">Nothing here.</h4>");
     }
 
     templateSet(template, "active", "dashboard");
@@ -250,8 +244,7 @@ static Response *profile(Request *req)
 {
     ROUTE(req, "/profile/");
 
-    if (req->account == NULL)
-        return NULL;
+    if (req->account == NULL) return NULL;
 
     int   id = -1;
     int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
@@ -261,15 +254,16 @@ static Response *profile(Request *req)
 
     Account *account = accountGetById(DB, id);
 
-    if (account == NULL)
-        return NULL;
+    if (account == NULL) return NULL;
 
     if (account->id == req->account->id)
         return responseNewRedirect("/dashboard/");
 
     Response *response = responseNew();
     Template *template = templateNew("templates/profile.html");
-    Connection *connection = connectionGetByAccountIds(DB, req->account->id, account->id);
+    Connection *connection = connectionGetByAccountIds(DB,
+                                                       req->account->id,
+                                                       account->id);
     char connectStr[255];
 
     if (connection != NULL) {
@@ -284,18 +278,15 @@ static Response *profile(Request *req)
 
     char *res = NULL;
     char sbuff[1024];
-
     time_t t;
-
     bool liked;
 
     Post *post          = NULL;
     ListCell *postPCell = NULL;
     ListCell *postCell  = postGetLatest(DB, account->id, 0);
 
-    if (postCell != NULL) {
+    if (postCell != NULL)
         res = bsNew("<ul id=\"posts\">");
-    }
 
     while (postCell != NULL) {
         post = (Post *)postCell->value;
@@ -328,7 +319,9 @@ static Response *profile(Request *req)
         templateSet(template, "profilePosts", res);
         bsDel(res);
     } else {
-        templateSet(template, "profilePosts", "<h4 class=\"not-found\">This person has not posted anything yet!</h4>");
+        templateSet(template, "profilePosts",
+                    "<h4 class=\"not-found\">This person has not posted "
+                    "anything yet!</h4>");
     }
 
     templateSet(template, "active", "profile");
@@ -352,8 +345,7 @@ static Response *post(Request *req)
 {
     EXACT_ROUTE(req, "/post/");
 
-    if (req->method != POST)
-        return NULL;
+    if (req->method != POST) return NULL;
 
     char *postStr = kvFindList(req->postBody, "post");
 
@@ -369,8 +361,7 @@ static Response *like(Request *req)
 {
     ROUTE(req, "/like/");
 
-    if (req->account == NULL)
-        return NULL;
+    if (req->account == NULL) return NULL;
 
     int   id = -1;
     int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
@@ -436,8 +427,7 @@ static Response *search(Request *req)
 
     char *query = kvFindList(req->queryString, "q");
 
-    if (query == NULL)
-        return NULL;
+    if (query == NULL) return NULL;
 
     char *res = NULL;
     char  sbuff[1024];
@@ -446,9 +436,8 @@ static Response *search(Request *req)
     ListCell *accountPCell = NULL;
     ListCell *accountCell  = accountSearch(DB, query, 0);
 
-    if (accountCell != NULL) {
+    if (accountCell != NULL)
         res = bsNew("<ul id=\"search-results\">");
-    }
 
     while (accountCell != NULL) {
         account = (Account *)accountCell->value;
@@ -465,16 +454,17 @@ static Response *search(Request *req)
         free(accountPCell);
     }
 
-    if (res != NULL) {
+    if (res != NULL)
         bsLCat(&res, "</ul>");
-    }
 
     Response *response = responseNew();
     Template *template = templateNew("templates/search.html");
     responseSetStatus(response, OK);
 
     if (res == NULL) {
-        templateSet(template, "results", "<h4 class=\"not-found\">There were no results for your query.</h4>");
+        templateSet(template, "results",
+                    "<h4 class=\"not-found\">There were no results "
+                    "for your query.</h4>");
     } else {
         templateSet(template, "results", res);
         bsDel(res);
@@ -523,7 +513,8 @@ static Response *login(Request *req)
 
             if (session != NULL) {
                 responseSetStatus(response, FOUND);
-                responseAddCookie(response, "sid", session->sessionId, NULL, NULL, 3600 * 24 * 30);
+                responseAddCookie(response, "sid", session->sessionId,
+                                  NULL, NULL, 3600 * 24 * 30);
                 responseAddHeader(response, "Location", "/dashboard/");
                 templateDel(template);
                 sessionDel(session);
@@ -575,7 +566,8 @@ static Response *signup(Request *req)
         if (name == NULL) {
             invalid("nameError", "You must enter your name!");
         } else if (strlen(name) < 5 || strlen(name) > 50) {
-            invalid("nameError", "Your name must be between 5 and 50 characters long.");
+            invalid("nameError",
+                    "Your name must be between 5 and 50 characters long.");
         } else {
             templateSet(template, "formName", name);
         }
@@ -585,7 +577,8 @@ static Response *signup(Request *req)
         } else if (strchr(email, '@') == NULL) {
             invalid("emailError", "Invalid email.");
         } else if (strlen(email) < 3 || strlen(email) > 50) {
-            invalid("emailError", "Your email must be between 3 and 50 characters long.");
+            invalid("emailError",
+                    "Your email must be between 3 and 50 characters long.");
         } else if (!accountCheckEmail(DB, email)) {
             invalid("emailError", "This email is taken.");
         } else {
@@ -595,7 +588,8 @@ static Response *signup(Request *req)
         if (username == NULL) {
             invalid("usernameError", "You must enter a username!");
         } else if (strlen(username) < 3 || strlen(username) > 50) {
-            invalid("usernameError", "Your username must be between 3 and 50 characters long.");
+            invalid("usernameError",
+                    "Your username must be between 3 and 50 characters long.");
         } else if (!accountCheckUsername(DB, username)) {
             invalid("usernameError", "This username is taken.");
         } else {
@@ -605,17 +599,20 @@ static Response *signup(Request *req)
         if (password == NULL) {
             invalid("passwordError", "You must enter a password!");
         } else if (strlen(password) < 8) {
-            invalid("passwordError", "Your password must be at least 8 characters long!");
+            invalid("passwordError",
+                    "Your password must be at least 8 characters long!");
         }
 
         if (confirmPassword == NULL) {
             invalid("confirmPasswordError", "You must confirm your password.");
         } else if (strcmp(password, confirmPassword) != 0) {
-            invalid("confirmPasswordError", "The two passwords must be the same.");
+            invalid("confirmPasswordError",
+                    "The two passwords must be the same.");
         }
 
         if (valid) {
-            Account *account = accountCreate(DB, name, email, username, password);
+            Account *account = accountCreate(DB, name,
+                                             email, username, password);
 
             if (account != NULL) {
                 responseSetStatus(response, FOUND);
@@ -624,7 +621,8 @@ static Response *signup(Request *req)
                 accountDel(account);
                 return response;
             } else {
-                invalid("nameError", "Unexpected error. Please try again later.");
+                invalid("nameError",
+                        "Unexpected error. Please try again later.");
             }
         }
     }

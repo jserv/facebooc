@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/select.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
@@ -43,24 +44,20 @@ char *METHODS[8] = {
 Server *serverNew(unsigned int port)
 {
     Server *server = malloc(sizeof(Server));
-
     server->port     = port;
     server->handlers = NULL;
-
     return server;
 }
 
 void serverDel(Server *server)
 {
     if (server->handlers != NULL) listDel(server->handlers);
-
     free(server);
 }
 
 void serverAddHandler(Server *server, Handler handler)
 {
     HandlerP handlerP = &handler;
-
     server->handlers = listCons(handlerP, sizeof(HandlerP), server->handlers);
 }
 
@@ -69,25 +66,21 @@ static Response *staticHandler(Request *req)
     ROUTE(req, "/static/");
 
     // EXIT ON SHENANIGANS
-    if (strstr(req->uri, "../") != NULL) {
+    if (strstr(req->uri, "../") != NULL)
         return NULL;
-    }
 
     char *filename = req->uri + 1;
 
     // EXIT ON DIRS
     struct stat sbuff;
 
-    if (stat(filename, &sbuff) < 0 || S_ISDIR(sbuff.st_mode)) {
+    if (stat(filename, &sbuff) < 0 || S_ISDIR(sbuff.st_mode))
         return NULL;
-    }
 
     // EXIT ON NOT FOUND
     FILE *file = fopen(filename, "r");
 
-    if (file == NULL) {
-        return NULL;
-    }
+    if (file == NULL) return NULL;
 
     // GET LENGTH
     char *buff;
@@ -198,7 +191,8 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
 
                 LOG_REQUEST(addr, METHODS[req->method], req->path, 404);
             } else {
-                LOG_REQUEST(addr, METHODS[req->method], req->path, response->status);
+                LOG_REQUEST(addr, METHODS[req->method], req->path,
+                            response->status);
 
                 responseWrite(response, fd);
                 responseDel(response);

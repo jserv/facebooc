@@ -31,8 +31,7 @@ ListCell *listReverse(ListCell *cell)
 
 void listDel(ListCell *cell)
 {
-    if (cell == NULL)
-        return;
+    if (cell == NULL) return;
 
     ListCell *next;
 
@@ -48,8 +47,7 @@ void listDel(ListCell *cell)
 
 IterationResult listForEach(ListCell *cell, ListIterator iterator)
 {
-    if (cell == NULL)
-        return DONE;
+    if (cell == NULL) return DONE;
 
     bool res;
 

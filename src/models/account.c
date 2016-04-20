@@ -5,7 +5,8 @@
 #include "models/account.h"
 #include "models/session.h"
 
-Account *accountNew(int id, int createdAt, char *name, char *email, char *username)
+Account *accountNew(int id, int createdAt, char *name,
+                    char *email, char *username)
 {
     Account *account = malloc(sizeof(Account));
 
@@ -48,7 +49,8 @@ fail:
     return account;
 }
 
-Account *accountCreate(sqlite3 *DB, char *name, char *email, char *username, char *password)
+Account *accountCreate(sqlite3 *DB, char *name,
+                       char *email, char *username, char *password)
 {
     int rc;
     Account *account = NULL;

@@ -9,10 +9,22 @@
 
 char *STATUSES[5][25] = {
     {"Continue", "Switching Protocols"},
-    {"OK", "Created", "Accepted", "Non-Authoritative Information", "No Content", "Reset Content", "Partial Content"},
-    {"Multiple Choices", "Moved Permanently", "Found", "See Other", "Not Modified", "Use Proxy", "Switch Proxy", "Temporary Redirect", "Permanent Redirect"},
-    {"Bad Request", "Unauthorized", "Payment Required", "Forbidden", "Not Found", "Method Not Allowed", "Not Acceptable", "Proxy Authentication Required", "Request Timeout", "Conflict", "Gone", "Length Required", "Precondition Failed", "Request Entity Too Large", "Request-URI Too Long", "Unsupported Media Type", "Requested Range Not Satisfiable", "Expectation Failed", "I'm A Teapot", "Authentication Timeout", "Enhance Your Calm"},
-    {"Internal Server Error", "Not Implemneted", "Bad Gateway", "Service Unavailable", "Gateway Timeout", "HTTP Version Not Supported"},
+    {"OK", "Created", "Accepted", "Non-Authoritative Information",
+     "No Content", "Reset Content", "Partial Content"},
+    {"Multiple Choices", "Moved Permanently", "Found", "See Other",
+     "Not Modified", "Use Proxy", "Switch Proxy", "Temporary Redirect",
+     "Permanent Redirect"},
+    {"Bad Request", "Unauthorized", "Payment Required", "Forbidden",
+     "Not Found", "Method Not Allowed", "Not Acceptable",
+     "Proxy Authentication Required", "Request Timeout", "Conflict",
+     "Gone", "Length Required", "Precondition Failed",
+     "Request Entity Too Large", "Request-URI Too Long",
+     "Unsupported Media Type", "Requested Range Not Satisfiable",
+     "Expectation Failed", "I'm A Teapot", "Authentication Timeout",
+     "Enhance Your Calm"},
+    {"Internal Server Error", "Not Implemneted", "Bad Gateway",
+     "Service Unavailable", "Gateway Timeout",
+     "HTTP Version Not Supported"},
 };
 
 Response *responseNew()
@@ -46,7 +58,8 @@ void responseSetBody(Response *response, char *body)
     response->body = body;
 }
 
-void responseAddCookie(Response *response, char *key, char *value, char *domain, char *path, int duration)
+void responseAddCookie(Response *response, char *key, char *value,
+                       char *domain, char *path, int duration)
 {
     char cbuff[512];
     char sbuff[100];
@@ -72,7 +85,8 @@ void responseAddCookie(Response *response, char *key, char *value, char *domain,
 
 void responseAddHeader(Response *response, char *key, char *value)
 {
-    response->headers = listCons(kvNew(key, value), sizeof(KV), response->headers);
+    response->headers = listCons(kvNew(key, value), sizeof(KV),
+                                 response->headers);
 }
 
 void responseDel(Response *response)
@@ -98,7 +112,8 @@ void responseWrite(Response *response, int fd)
                 ((KV *)header->value)->key,
                 ((KV *)header->value)->value);
 
-        buffer = listCons(sbuffer, sizeof(char) * (strlen(sbuffer) + 1), buffer);
+        buffer = listCons(sbuffer,
+                          sizeof(char) * (strlen(sbuffer) + 1), buffer);
         header = header->next;
     }
 
@@ -118,7 +133,6 @@ void responseWrite(Response *response, int fd)
 
     write(fd, "\r\n", 2);
 
-    if (response->body != NULL) {
+    if (response->body != NULL)
         write(fd, response->body, bsGetLen(response->body));
-    }
 }

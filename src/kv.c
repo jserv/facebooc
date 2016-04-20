@@ -8,7 +8,7 @@ KV *kvNew(char *key, char *value)
 {
     KV *kv = malloc(sizeof(KV));
 
-    kv->key   = bsNew(key);
+    kv->key = bsNew(key);
     kv->value = bsNew(value);
 
     return kv;
@@ -54,10 +54,8 @@ void kvPrintList(ListCell *list)
 char *kvFindList(ListCell *cell, char *key)
 {
     while (cell != NULL) {
-        if (strcmp(((KV *)cell->value)->key, key) == 0) {
+        if (strcmp(((KV *)cell->value)->key, key) == 0)
             return ((KV *)cell->value)->value;
-        }
-
         cell = cell->next;
     }
 

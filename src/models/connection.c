@@ -3,7 +3,8 @@
 
 #include "models/connection.h"
 
-Connection *connectionNew(int id, int createdAt, int account1Id, int account2Id)
+Connection *connectionNew(int id, int createdAt,
+                          int account1Id, int account2Id)
 {
     Connection *connection = malloc(sizeof(Connection));
 
@@ -15,7 +16,8 @@ Connection *connectionNew(int id, int createdAt, int account1Id, int account2Id)
     return connection;
 }
 
-Connection *connectionCreate(sqlite3 *DB, int account1Id, int account2Id)
+Connection *connectionCreate(sqlite3 *DB,
+                             int account1Id, int account2Id)
 {
     int rc, t;
     Connection *connection = NULL;
@@ -43,7 +45,8 @@ fail:
     return connection;
 }
 
-Connection *connectionGetByAccountIds(sqlite3 *DB, int account1Id, int account2Id)
+Connection *connectionGetByAccountIds(sqlite3 *DB,
+                                      int account1Id, int account2Id)
 {
     if (account1Id == -1 || account2Id == -1)
         return NULL;
