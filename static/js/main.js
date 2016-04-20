@@ -148,8 +148,9 @@
         }
       }
     }
-    ctrl.init_header = function(){
+    ctrl.init_front_page = function(){
       console.log('Hello Facebooc');
+      ctrl.twitter_map_handler.init_map();
     }
   }
   frontPageController.$injector = ['$rootScope', '$scope', '$http', '$window', '$location', 'GLOBAL_VALUES'];
