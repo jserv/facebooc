@@ -67,7 +67,7 @@
         // init map
         if(ctrl.twitter_map_handler.map === undefined){
           // init map
-          ctrl.twitter_map_handler.map = new L.map('tweets_map')
+          ctrl.twitter_map_handler.map = new L.map('front_page')
                           .setView( ctrl.twitter_map_handler.default_location, 8);
 
           // set map tiles
