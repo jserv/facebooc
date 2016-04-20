@@ -146,6 +146,11 @@ static inline int makeSocket(unsigned int port)
         exit(1);
     }
 
+    {
+        int optval = 1; /* prevent from address being taken */
+        setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+    }
+
     addr.sin_family      = AF_INET;
     addr.sin_port        = htons(port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
