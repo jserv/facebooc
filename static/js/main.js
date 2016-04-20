@@ -65,9 +65,6 @@
       is_appending : false,
       init_map : function(arg_position){
         var _this = this;
-        // set geo-location
-        if(arg_position && arg_position.coords) _this.default_location = [arg_position.coords.latitude, arg_position.coords.longitude];
-
         // init map
         if(!_this.map){
           // init map
@@ -141,7 +138,7 @@
 
           // set map popup
           var map_popup = L.popup();
-          map_popup.setLatLng( _this.default_location )
+          map_popup.setLatLng( [ 23.893589, 121.083589] )
                   .setContent( '<div style="text-align: center;">' +
                                 '<h3>Facebooc</h3>' +
                                 '<p class="lead">The best social network you\'ve never heard of!</p>' +
