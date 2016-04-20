@@ -17,10 +17,9 @@ ListCell *listCons(void *value, size_t size, ListCell *next)
 
 ListCell *listReverse(ListCell *cell)
 {
-    ListCell *prev, *next;
-
+    ListCell *prev = NULL;
     while (cell != NULL) {
-        next = cell->next;
+        ListCell *next = cell->next;
         cell->next = prev;
         prev = cell;
         cell = next;
@@ -33,10 +32,8 @@ void listDel(ListCell *cell)
 {
     if (cell == NULL) return;
 
-    ListCell *next;
-
     do {
-        next = cell->next;
+        ListCell *next = cell->next;
 
         free(cell->value);
         free(cell);
