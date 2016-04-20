@@ -98,7 +98,7 @@ static Response *signup(Request *);
 static Response *about(Request *);
 static Response *notFound(Request *);
 
-int main(void)
+int main(int argc, char *argv[])
 {
     if (signal(SIGINT,  sig) == SIG_ERR ||
         signal(SIGTERM, sig) == SIG_ERR) {
@@ -110,7 +110,14 @@ int main(void)
 
     initDB();
 
-    Server *server = serverNew(8080);
+    unsigned int server_port = 8080;
+    if (argc > 1) {
+        if (sscanf(argv[1], "%u", &server_port) == 0 || server_port > 65535) {
+            fprintf(stderr, "error: invalid command line argument, using default port 8080.\n");
+            server_port = 8080;
+        }
+    }
+    Server *server = serverNew(server_port);
     serverAddHandler(server, notFound);
     serverAddStaticHandler(server);
     serverAddHandler(server, about);
