@@ -6,60 +6,60 @@
 
 KV *kvNew(char *key, char *value)
 {
-	KV *kv = malloc(sizeof(KV));
+    KV *kv = malloc(sizeof(KV));
 
-	kv->key   = bsNew(key);
-	kv->value = bsNew(value);
+    kv->key   = bsNew(key);
+    kv->value = bsNew(value);
 
-	return kv;
+    return kv;
 }
 
 void kvDel(KV *kv)
 {
-	bsDel(kv->key);
-	bsDel(kv->value);
-	free(kv);
+    bsDel(kv->key);
+    bsDel(kv->value);
+    free(kv);
 }
 
 static bool kvDelEach(void *kv)
 {
-	if (kv != NULL) {
-		bsDel(((KV *)kv)->key);
-		bsDel(((KV *)kv)->value);
-	}
+    if (kv != NULL) {
+        bsDel(((KV *)kv)->key);
+        bsDel(((KV *)kv)->value);
+    }
 
-	return true;
+    return true;
 }
 
 void kvDelList(ListCell *list)
 {
-	listForEach(list, kvDelEach);
-	listDel(list);
+    listForEach(list, kvDelEach);
+    listDel(list);
 }
 
 static bool kvPrintEach(void *kv)
 {
-	fprintf(stdout, "%s: %s\n",
-	        ((KV *)kv)->key,
-	        ((KV *)kv)->value);
+    fprintf(stdout, "%s: %s\n",
+            ((KV *)kv)->key,
+            ((KV *)kv)->value);
 
-	return true;
+    return true;
 }
 
 void kvPrintList(ListCell *list)
 {
-	listForEach(list, kvPrintEach);
+    listForEach(list, kvPrintEach);
 }
 
 char *kvFindList(ListCell *cell, char *key)
 {
-	while (cell != NULL) {
-		if (strcmp(((KV *)cell->value)->key, key) == 0) {
-			return ((KV *)cell->value)->value;
-		}
+    while (cell != NULL) {
+        if (strcmp(((KV *)cell->value)->key, key) == 0) {
+            return ((KV *)cell->value)->value;
+        }
 
-		cell = cell->next;
-	}
+        cell = cell->next;
+    }
 
-	return NULL;
+    return NULL;
 }

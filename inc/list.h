@@ -5,16 +5,16 @@
 #include <stdlib.h>
 
 typedef enum IterationResult {
-	BREAK, DONE
+    BREAK, DONE
 } IterationResult;
 
 typedef bool (*ListIterator)(void *);
 
 typedef struct Cell {
-	struct Cell *next;
+    struct Cell *next;
 
-	void *value;
-	size_t size;
+    void *value;
+    size_t size;
 } ListCell;
 
 ListCell        *listCons(void *, size_t, ListCell *);

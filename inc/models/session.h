@@ -4,11 +4,11 @@
 #include <sqlite3.h>
 
 typedef struct Session {
-	int id;
-	int createdAt;
-	int accountId;
+    int id;
+    int createdAt;
+    int accountId;
 
-	char *sessionId;
+    char *sessionId;
 } Session;
 
 Session *sessionNew(int, int, int, char *);

@@ -4,9 +4,9 @@
 #include "list.h"
 
 typedef struct Template {
-	char *filename;
+    char *filename;
 
-	ListCell *context;
+    ListCell *context;
 } Template;
 
 Template *templateNew(char *);
