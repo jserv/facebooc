@@ -28,7 +28,7 @@ body {
   padding-bottom: 8px;
 }
 .my_front_page{
-  min-height: 500px;
+  min-height: 400px;
   width: 100%;
 }
 @media (min-width: 768px) {

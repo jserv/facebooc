@@ -142,7 +142,7 @@
                                 '<h3>Facebooc</h3>' +
                                 '<p class="lead">The best social network you\'ve never heard of!</p>' +
                                 '<p>' +
-                                '<a class="btn btn-md btn-secondary" href="/signup/" role="button">Sign up today</a>' +
+                                '<a class="btn btn-info" href="/signup/" role="button">Sign up today</a>' +
                                 '</p>' +
                                 '<p class="small">Or <a href="/login/">login</a> if you heard about Facebooc before it was cool.</p>' +
                                 '</div>')
