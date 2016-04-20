@@ -19,7 +19,7 @@
 </head>
 <body>
     <div class="container-fluid">
-        <div class="header">
+        <div class="header" ng-controller="headerCtrl as ctrl">
             <!--h3 class="text-muted pull-left"><a href="/">Facebooc</a></h3-->
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#facebooc-navbar-collapse">
@@ -35,8 +35,8 @@
                 <ul class="nav navbar-nav navbar-right">
                   <li class="{%when loggedIn t visible%} ">
                       <form action="/search/" method="GET" class="form-inline my_navbar_search">
-                          <div class="form-group">
-                        <input type="text"
+                        <div class="form-group">
+                          <input type="text"
                                class="form-control search"
                                placeholder="Search for people..."
                                name="q"

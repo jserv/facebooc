@@ -34,4 +34,15 @@
       isBlink: ( ( ( !!window.chrome && !!window.chrome.webstore ) || ( (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0 ) ) && !!window.CSS )
     }
   });
+
+  //
+  // headerController
+    var headerController = function($rootScope, $scope, $http, $window, $location, GLOBAL_VALUES){
+      var ctrl = this;
+      ctrl.init_header = function(){
+        console.log('Hello Facebooc');
+      }
+    }
+    headerController.$injector = ['$rootScope', '$scope', '$http', '$window', '$location', 'GLOBAL_VALUES'];
+    window.main_app.controller('headerCtrl', headerController);
 })(jQuery); // End of use strict
