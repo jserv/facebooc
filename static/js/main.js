@@ -133,6 +133,7 @@
                             .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
                           
           ctrl.twitter_map_handler.map.on( "viewreset", ctrl.twitter_map_handler.update_d3_elem_on_map.bind(ctrl.twitter_map_handler) );
+          setTimeout( ctrl.twitter_map_handler.update_d3_elem_on_map.bind(ctrl.twitter_map_handler), 500 );
 
           // set map popup
           var map_popup = L.popup();
@@ -143,6 +144,27 @@
                                '</div>')
                   .openOn(ctrl.twitter_map_handler.map);
         }
+      },
+      update_d3_elem_on_map : function(){
+        var _this = this;
+        _this.d3_circles.attr("transform", 
+            function(d) { 
+                return "translate("+ 
+                _this.map.latLngToLayerPoint(d.LatLng).x +","+ 
+                _this.map.latLngToLayerPoint(d.LatLng).y +")";
+            }
+        ).transition()
+        .duration(900)
+        .delay(800)
+        .attr('r', 100)
+        .style("opacity",0)
+        .each("end", function(){
+            d3.select(this)
+              .transition()
+              .duration(700)
+              .style("r", 20)
+              .style("opacity",0.8);
+        });
       }
     }
     ctrl.init_front_page = function(){
