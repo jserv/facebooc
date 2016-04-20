@@ -50,13 +50,13 @@
   var frontPageController = function($rootScope, $scope, $http, $window, $location, GLOBAL_VALUES){
     var ctrl = this;
     ctrl.twitter_map_handler = ctrl.twitter_map_handler || {
-      map : undefined,
-      tiles : undefined,
-      my_icon : undefined,
-      d3_svg : undefined,
-      d3_gradient : undefined,
-      d3_data : undefined,
-      d3_circles : undefined,
+      map : null,
+      tiles : null,
+      my_icon : null,
+      d3_svg : null,
+      d3_gradient : null,
+      d3_data : null,
+      d3_circles : null,
       is_set_map_center_on : true,
       default_location : [23.893589, 121.083589],
       defualt_circles : [[23.893589, 121.083589]],
@@ -66,7 +66,7 @@
       init_map : function(){
         var _this = this;
         // init map
-        if(_this.map === undefined){
+        if(!_this.map){
           // init map
           _this.map = new L.map('front_page')
                           .setView( _this.default_location, 8);
@@ -82,7 +82,7 @@
           _this.map._initPathRoot();
 
           // set d3
-          if(_this.d3_svg === undefined){
+          if(!_this.d3_svg){
             _this.d3_svg = d3.select("div#front_page").select("svg");
           }
 
