@@ -134,9 +134,6 @@
                           
           ctrl.twitter_map_handler.map.on( "viewreset", ctrl.twitter_map_handler.update_d3_elem_on_map.bind(ctrl.twitter_map_handler) );
 
-          //
-          setTimeout( ctrl.twitter_map_handler.update_d3_elem_on_map.bind(ctrl.twitter_map_handler), 500 );
-
           // set map popup
           var map_popup = L.popup();
           map_popup.setLatLng( [ 23.893589, 121.083589] )
