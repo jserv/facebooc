@@ -9,7 +9,7 @@
     angular.bootstrap(document.body, ['mainApp']);
   });
 
-  window.main_app = window.main_app || angular.module('mainApp', [ 'angular-responsive', 'ui.router', 'ngAnimate' ], function($interpolateProvider) {
+  window.main_app = window.main_app || angular.module('mainApp', [ 'ngAnimate' ], function($interpolateProvider) {
     $interpolateProvider.startSymbol('[[');
     $interpolateProvider.endSymbol(']]');
   });
