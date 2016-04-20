@@ -87,7 +87,7 @@ char *bsRandom(uint32_t len, char *suffix)
     for (uint32_t i = 0; i < len; i++)
         bs[i] = table[rand() % sizeof(table)];
 
-    if (suffix != NULL)
+    if (suffix)
         bsLCat(&bs, suffix);
 
     return bs;

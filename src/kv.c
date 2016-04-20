@@ -23,7 +23,7 @@ void kvDel(KV *kv)
 
 static bool kvDelEach(void *kv)
 {
-    if (kv != NULL) {
+    if (kv) {
         bsDel(((KV *)kv)->key);
         bsDel(((KV *)kv)->value);
     }
@@ -53,8 +53,8 @@ void kvPrintList(ListCell *list)
 
 char *kvFindList(ListCell *cell, char *key)
 {
-    while (cell != NULL) {
-        if (strcmp(((KV *)cell->value)->key, key) == 0)
+    while (cell) {
+        if (!strcmp(((KV *)cell->value)->key, key))
             return ((KV *)cell->value)->value;
         cell = cell->next;
     }

@@ -30,15 +30,14 @@ Like *likeCreate(sqlite3 *DB, int accountId, int authorId, int postId)
              -1, &statement, NULL);
 
     if (rc != SQLITE_OK) return NULL;
-    if (sqlite3_bind_int(statement, 1, t)         != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 1, t) != SQLITE_OK) goto fail;
     if (sqlite3_bind_int(statement, 2, accountId) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_int(statement, 3, authorId)  != SQLITE_OK) goto fail;
-    if (sqlite3_bind_int(statement, 4, postId)    != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 3, authorId) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 4, postId) != SQLITE_OK) goto fail;
 
-    if (sqlite3_step(statement) == SQLITE_DONE) {
+    if (sqlite3_step(statement) == SQLITE_DONE)
         like = likeNew(sqlite3_last_insert_rowid(DB),
                        t, accountId, authorId, postId);
-    }
 
 fail:
     sqlite3_finalize(statement);
@@ -60,7 +59,7 @@ bool likeLiked(sqlite3 *DB, int accountId, int postId)
 
     if (rc != SQLITE_OK) return false;
     if (sqlite3_bind_int(statement, 1, accountId) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_int(statement, 2, postId)    != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 2, postId) != SQLITE_OK) goto fail;
 
     res = sqlite3_step(statement) == SQLITE_ROW;
 

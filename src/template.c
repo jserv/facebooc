@@ -11,14 +11,14 @@ Template *templateNew(char *filename)
     Template *template = malloc(sizeof(Template));
 
     template->filename = filename;
-    template->context  = NULL;
+    template->context = NULL;
 
     return template;
 }
 
 void templateDel(Template *template)
 {
-    if (template->context != NULL) kvDelList(template->context);
+    if (template->context) kvDelList(template->context);
 
     free(template);
 }
@@ -39,7 +39,7 @@ char *templateRender(Template *template)
     bool  rep = false;
     size_t len;
 
-    if (file == NULL) {
+    if (!file) {
         fprintf(stderr,
                 "error: template '%s' not found\n", template->filename);
         exit(1);
@@ -58,30 +58,24 @@ char *templateRender(Template *template)
 
     // VARIABLES
     segment = strtok_r(buff, "{\0", &pos);
-
-    assert(segment != NULL);
+    assert(segment);
     bsLCat(&res, segment + 1);
 
     for (;;) {
         segment = strtok_r(NULL, "}\0", &pos);
 
-        if (segment == NULL) {
-            break;
-        }
+        if (!segment) break;
 
         if (*segment == '{') {
-            rep      = true;
+            rep = true;
             segment += 1;
-            val      = kvFindList(template->context, segment);
-
-            if (val != NULL) {
+            val = kvFindList(template->context, segment);
+            if (val)
                 bsLCat(&res, val);
-            }
         } else if (*segment == '%') {
-            rep      = true;
+            rep = true;
             segment += 1;
-
-            if (strncmp(segment, "include", 7) == 0) {
+            if (!strncmp(segment, "include", 7)) {
                 segment += 8;
                 segment[strlen(segment) - 1] = '\0';
 
@@ -92,7 +86,7 @@ char *templateRender(Template *template)
                 bsLCat(&res, incBs);
                 bsDel(incBs);
                 free(inc);
-            } else if (strncmp(segment, "when", 4) == 0) {
+            } else if (!strncmp(segment, "when", 4)) {
                 char *spc;
 
                 segment += 5;
@@ -100,12 +94,12 @@ char *templateRender(Template *template)
                 *spc     = '\0';
                 incBs    = kvFindList(template->context, segment);
 
-                if (incBs != NULL) {
+                if (incBs) {
                     segment = spc + 1;
                     spc     = strchr(segment, ' ');
                     *spc    = '\0';
 
-                    if (strcmp(incBs, segment) == 0) {
+                    if (!strcmp(incBs, segment)) {
                         segment = spc + 1;
                         segment[strlen(segment) - 1] = '\0';
 
@@ -126,9 +120,7 @@ char *templateRender(Template *template)
 
         segment = strtok_r(NULL, "{\0", &pos);
 
-        if (segment == NULL) {
-            break;
-        }
+        if (!segment) break;
 
         if (rep) {
             rep      = false;

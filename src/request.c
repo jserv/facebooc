@@ -21,7 +21,7 @@ static inline char *urldecode(char *segment)
 
             cb[0] = *(cc + 1);
             cb[1] = *(cc + 2);
-            c[0]  = (char)strtol(cb, NULL, 16);
+            c[0]  = (char) strtol(cb, NULL, 16);
 
             cc     += 2;
             segment = cc + 1;
@@ -40,7 +40,6 @@ static inline char *urldecode(char *segment)
 static inline ListCell *parseCookies(char *header)
 {
     ListCell *cookies = NULL;
-
     char *copy = bsNew(header);
     char *segment, *key;
 
@@ -54,14 +53,14 @@ static inline ListCell *parseCookies(char *header)
             segment = strtok(NULL, "=");
         }
 
-        if (segment == NULL) break;
+        if (!segment) break;
 
         if (*segment == ' ') segment += 1;
 
         key     = segment;
         segment = strtok(NULL, ";\0");
 
-        if (segment == NULL) break;
+        if (!segment) break;
 
         cookies = listCons(kvNew(key, segment), sizeof(KV), cookies);
     }
@@ -74,7 +73,6 @@ static inline ListCell *parseCookies(char *header)
 static inline ListCell *parseQS(char *path)
 {
     ListCell *qs = NULL;
-
     char *copy = bsNew(path);
     char *segment, *key, *value;
 
@@ -88,13 +86,13 @@ static inline ListCell *parseQS(char *path)
             segment = strtok(NULL, "=");
         }
 
-        if (segment == NULL) break;
+        if (!segment) break;
         if (*(segment + strlen(segment) + 1) == '&') continue;
 
         key     = segment;
         segment = strtok(NULL, "&\0");
 
-        if (segment == NULL) break;
+        if (!segment) break;
 
         key   = urldecode(key);
         value = urldecode(segment);
@@ -112,21 +110,17 @@ static inline ListCell *parseQS(char *path)
 static inline ListCell *parseHeaders(char *segment)
 {
     ListCell *headers = NULL;
-
     size_t len;
     char *header;
 
-    while (segment != NULL) {
+    while (segment) {
         segment = strtok(NULL, ":\n");
-
-        if (segment == NULL || *segment == '\r')
-            break;
+        if (!segment || *segment == '\r') break;
 
         header  = segment;
         segment = strtok(NULL, "\n");
 
-        if (segment == NULL)
-            break;
+        if (!segment) break;
 
         if (*segment == ' ')
             segment += 1;
@@ -142,9 +136,9 @@ static inline ListCell *parseHeaders(char *segment)
     return headers;
 }
 
-#define TOK(s, d)           \
-    segment = strtok(s, d); \
-    if (segment == NULL)    \
+#define TOK(s, d)               \
+    segment = strtok(s, d);     \
+    if (!segment)               \
         goto fail;
 
 Request *requestNew(char *buff)
@@ -153,26 +147,26 @@ Request *requestNew(char *buff)
 
     char *segment, *bs;
 
-    request->method      = UNKNOWN_METHOD;
-    request->path        = NULL;
-    request->uri         = NULL;
+    request->method = UNKNOWN_METHOD;
+    request->path = NULL;
+    request->uri = NULL;
     request->queryString = NULL;
-    request->postBody    = NULL;
-    request->headers     = NULL;
-    request->cookies     = NULL;
-    request->account     = NULL;
+    request->postBody = NULL;
+    request->headers = NULL;
+    request->cookies = NULL;
+    request->account = NULL;
 
     // METHOD
     TOK(buff, " \t");
 
-    if (strcmp(segment, "OPTIONS") == 0) request->method = OPTIONS;
-    else if (strcmp(segment, "GET")     == 0) request->method = GET;
-    else if (strcmp(segment, "HEAD")    == 0) request->method = HEAD;
-    else if (strcmp(segment, "POST")    == 0) request->method = POST;
-    else if (strcmp(segment, "PUT")     == 0) request->method = PUT;
-    else if (strcmp(segment, "DELETE")  == 0) request->method = DELETE;
-    else if (strcmp(segment, "TRACE")   == 0) request->method = TRACE;
-    else if (strcmp(segment, "CONNECT") == 0) request->method = CONNECT;
+    if (!strcmp(segment, "OPTIONS")) request->method = OPTIONS;
+    else if (!strcmp(segment, "GET")) request->method = GET;
+    else if (!strcmp(segment, "HEAD")) request->method = HEAD;
+    else if (!strcmp(segment, "POST")) request->method = POST;
+    else if (!strcmp(segment, "PUT")) request->method = PUT;
+    else if (!strcmp(segment, "DELETE")) request->method = DELETE;
+    else if (!strcmp(segment, "TRACE")) request->method = TRACE;
+    else if (!strcmp(segment, "CONNECT")) request->method = CONNECT;
     else goto fail;
 
     // PATH
@@ -181,8 +175,7 @@ Request *requestNew(char *buff)
     request->path = bsNew(segment);
     request->uri  = bsNew(segment);
 
-    if (strchr(request->path, '#') != NULL)
-        goto fail;
+    if (strchr(request->path, '#')) goto fail;
 
     // VERSION
     TOK(NULL, "\n");
@@ -197,34 +190,27 @@ Request *requestNew(char *buff)
     // BODY
     bs = kvFindList(request->headers, "Content-Type");
 
-    if (bs != NULL && strncmp(bs, "application/x-www-form-urlencoded", 33) == 0) {
+    if (bs && !strncmp(bs, "application/x-www-form-urlencoded", 33)) {
         segment = strtok(NULL, "\0");
-
-        if (segment == NULL)
-            goto fail;
+        if (!segment) goto fail;
 
         request->postBody = parseQS(segment);
     }
 
     // QUERYSTRING
     segment = strchr(request->path, '?');
-
-    if (segment != NULL) {
+    if (segment) {
         request->uri = bsNewLen(request->path, segment - request->path);
         request->queryString = parseQS(segment + 1);
-
-        if (request->queryString == NULL)
-            goto fail;
+        if (!request->queryString) goto fail;
     }
 
     // COOKIES
     segment = kvFindList(request->headers, "Cookie");
 
-    if (segment != NULL) {
+    if (segment) {
         request->cookies = parseCookies(segment);
-
-        if (request->cookies == NULL)
-            goto fail;
+        if (!request->cookies) goto fail;
     }
 
     return request;
@@ -237,13 +223,13 @@ fail:
 
 void requestDel(Request *req)
 {
-    if (req->path        != NULL) bsDel(req->path);
-    if (req->uri         != NULL) bsDel(req->uri);
-    if (req->queryString != NULL) kvDelList(req->queryString);
-    if (req->postBody    != NULL) kvDelList(req->postBody);
-    if (req->headers     != NULL) kvDelList(req->headers);
-    if (req->cookies     != NULL) kvDelList(req->cookies);
-    if (req->account     != NULL) accountDel(req->account);
+    if (req->path) bsDel(req->path);
+    if (req->uri) bsDel(req->uri);
+    if (req->queryString) kvDelList(req->queryString);
+    if (req->postBody) kvDelList(req->postBody);
+    if (req->headers) kvDelList(req->headers);
+    if (req->cookies) kvDelList(req->cookies);
+    if (req->account) accountDel(req->account);
 
     free(req);
 }

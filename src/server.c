@@ -44,14 +44,14 @@ char *METHODS[8] = {
 Server *serverNew(unsigned int port)
 {
     Server *server = malloc(sizeof(Server));
-    server->port     = port;
+    server->port = port;
     server->handlers = NULL;
     return server;
 }
 
 void serverDel(Server *server)
 {
-    if (server->handlers != NULL) listDel(server->handlers);
+    if (server->handlers) listDel(server->handlers);
     free(server);
 }
 
@@ -66,8 +66,7 @@ static Response *staticHandler(Request *req)
     ROUTE(req, "/static/");
 
     // EXIT ON SHENANIGANS
-    if (strstr(req->uri, "../") != NULL)
-        return NULL;
+    if (strstr(req->uri, "../")) return NULL;
 
     char *filename = req->uri + 1;
 
@@ -79,8 +78,7 @@ static Response *staticHandler(Request *req)
 
     // EXIT ON NOT FOUND
     FILE *file = fopen(filename, "r");
-
-    if (file == NULL) return NULL;
+    if (!file) return NULL;
 
     // GET LENGTH
     char *buff;
@@ -106,14 +104,14 @@ static Response *staticHandler(Request *req)
 
     len = bsGetLen(req->uri);
 
-    if (strncmp(req->uri + len - 4, "html", 4) == 0) mimeType = "text/html";
-    else if (strncmp(req->uri + len - 4, "json", 4) == 0) mimeType = "application/json";
-    else if (strncmp(req->uri + len - 4, "jpeg", 4) == 0) mimeType = "image/jpeg";
-    else if (strncmp(req->uri + len - 3,  "jpg", 3) == 0) mimeType = "image/jpeg";
-    else if (strncmp(req->uri + len - 3,  "gif", 3) == 0) mimeType = "image/gif";
-    else if (strncmp(req->uri + len - 3,  "png", 3) == 0) mimeType = "image/png";
-    else if (strncmp(req->uri + len - 3,  "css", 3) == 0) mimeType = "text/css";
-    else if (strncmp(req->uri + len - 2,   "js", 2) == 0) mimeType = "application/javascript";
+    if (!strncmp(req->uri + len - 4, "html", 4)) mimeType = "text/html";
+    else if (!strncmp(req->uri + len - 4, "json", 4)) mimeType = "application/json";
+    else if (!strncmp(req->uri + len - 4, "jpeg", 4)) mimeType = "image/jpeg";
+    else if (!strncmp(req->uri + len - 3,  "jpg", 3)) mimeType = "image/jpeg";
+    else if (!strncmp(req->uri + len - 3,  "gif", 3)) mimeType = "image/gif";
+    else if (!strncmp(req->uri + len - 3,  "png", 3)) mimeType = "image/png";
+    else if (!strncmp(req->uri + len - 3,  "css", 3)) mimeType = "text/css";
+    else if (!strncmp(req->uri + len - 2,   "js", 2)) mimeType = "application/javascript";
 
     // RESPOND
     responseSetStatus(response, OK);
@@ -173,22 +171,20 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
 
         Request *req = requestNew(buff);
 
-        if (req == NULL) {
+        if (!req) {
             write(fd, "HTTP/1.0 400 Bad Request\r\n\r\nBad Request", 39);
-
             LOG_400(addr);
         } else {
             ListCell *handler  = server->handlers;
             Response *response = NULL;
 
-            while (handler != NULL && response == NULL) {
+            while (handler && !response) {
                 response = (*(HandlerP)handler->value)(req);
                 handler  = handler->next;
             }
 
-            if (response == NULL) {
+            if (!response) {
                 write(fd, "HTTP/1.0 404 Not Found\r\n\r\nNot Found!", 36);
-
                 LOG_REQUEST(addr, METHODS[req->method], req->path, 404);
             } else {
                 LOG_REQUEST(addr, METHODS[req->method], req->path,

@@ -30,11 +30,9 @@ char *STATUSES[5][25] = {
 Response *responseNew()
 {
     Response *response = malloc(sizeof(Response));
-
-    response->status  = OK;
+    response->status = OK;
     response->headers = NULL;
-    response->body    = NULL;
-
+    response->body = NULL;
     return response;
 }
 
@@ -68,12 +66,12 @@ void responseAddCookie(Response *response, char *key, char *value,
     strftime(sbuff, 100, "%c GMT", gmtime(&t));
     sprintf(cbuff, "%s=%s; Expires=%s", key, value, sbuff);
 
-    if (domain != NULL) {
+    if (domain) {
         sprintf(sbuff, "; Domain=%s", domain);
         strcat(cbuff, sbuff);
     }
 
-    if (path != NULL) {
+    if (path) {
         sprintf(sbuff, "; Path=%s", path);
         strcat(cbuff, sbuff);
     } else {
@@ -91,8 +89,8 @@ void responseAddHeader(Response *response, char *key, char *value)
 
 void responseDel(Response *response)
 {
-    if (response->headers != NULL) kvDelList(response->headers);
-    if (response->body    != NULL) bsDel(response->body);
+    if (response->headers) kvDelList(response->headers);
+    if (response->body) bsDel(response->body);
 
     free(response);
 }
@@ -107,7 +105,7 @@ void responseWrite(Response *response, int fd)
     // HEADERS
     header = response->headers;
 
-    while (header != NULL) {
+    while (header) {
         sprintf(sbuffer, "%s: %s\r\n",
                 ((KV *)header->value)->key,
                 ((KV *)header->value)->value);
@@ -125,7 +123,7 @@ void responseWrite(Response *response, int fd)
     buffer = listCons(sbuffer, sizeof(char) * (strlen(sbuffer) + 1), buffer);
 
     // OUTPUT
-    while (buffer != NULL) {
+    while (buffer) {
         write(fd, buffer->value, strlen(buffer->value));
 
         buffer = buffer->next;
@@ -133,6 +131,6 @@ void responseWrite(Response *response, int fd)
 
     write(fd, "\r\n", 2);
 
-    if (response->body != NULL)
+    if (response->body)
         write(fd, response->body, bsGetLen(response->body));
 }

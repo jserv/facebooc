@@ -16,12 +16,12 @@
 #include "models/session.h"
 
 Server  *server = NULL;
-sqlite3 *DB     = NULL;
+sqlite3 *DB = NULL;
 
 static void sig(int signum)
 {
-    if (server != NULL) serverDel(server);
-    if (DB     != NULL) sqlite3_close(DB);
+    if (server) serverDel(server);
+    if (DB) sqlite3_close(DB);
 
     fprintf(stdout, "\n[%d] Bye!\n", signum);
     exit(0);
@@ -141,7 +141,7 @@ static Response *session(Request *req)
 {
     char *sid = kvFindList(req->cookies, "sid");
 
-    if (sid != NULL)
+    if (sid)
         req->account = accountGetBySId(DB, sid);
 
     return NULL;
@@ -151,7 +151,7 @@ static Response *home(Request *req)
 {
     EXACT_ROUTE(req, "/");
 
-    if (req->account != NULL)
+    if (req->account)
         return responseNewRedirect("/dashboard/");
 
     Response *response = responseNew();
@@ -168,7 +168,7 @@ static Response *dashboard(Request *req)
 {
     EXACT_ROUTE(req, "/dashboard/");
 
-    if (req->account == NULL)
+    if (!req->account)
         return responseNewRedirect("/login/");
 
     Response *response = responseNew();
@@ -179,15 +179,15 @@ static Response *dashboard(Request *req)
     time_t t;
     bool liked;
 
-    Account *account    = NULL;
-    Post *post          = NULL;
+    Account *account = NULL;
+    Post *post = NULL;
     ListCell *postPCell = NULL;
     ListCell *postCell  = postGetLatestGraph(DB, req->account->id, 0);
 
-    if (postCell != NULL)
+    if (postCell)
         res = bsNew("<ul id=\"posts\">");
 
-    while (postCell != NULL) {
+    while (postCell) {
         post = (Post *)postCell->value;
         account = accountGetById(DB, post->authorId);
         liked = likeLiked(DB, req->account->id, post->id);
@@ -221,7 +221,7 @@ static Response *dashboard(Request *req)
         free(postPCell);
     }
 
-    if (res != NULL) {
+    if (res) {
         bsLCat(&res, "</ul>");
         templateSet(template, "graph", res);
         bsDel(res);
@@ -244,7 +244,7 @@ static Response *profile(Request *req)
 {
     ROUTE(req, "/profile/");
 
-    if (req->account == NULL) return NULL;
+    if (!req->account) return NULL;
 
     int   id = -1;
     int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
@@ -254,7 +254,7 @@ static Response *profile(Request *req)
 
     Account *account = accountGetById(DB, id);
 
-    if (account == NULL) return NULL;
+    if (!account) return NULL;
 
     if (account->id == req->account->id)
         return responseNewRedirect("/dashboard/");
@@ -266,7 +266,7 @@ static Response *profile(Request *req)
                                                        account->id);
     char connectStr[255];
 
-    if (connection != NULL) {
+    if (connection) {
         sprintf(connectStr, "You and %s are connected!", account->name);
     } else {
         sprintf(connectStr,
@@ -281,14 +281,14 @@ static Response *profile(Request *req)
     time_t t;
     bool liked;
 
-    Post *post          = NULL;
+    Post *post = NULL;
     ListCell *postPCell = NULL;
     ListCell *postCell  = postGetLatest(DB, account->id, 0);
 
-    if (postCell != NULL)
+    if (postCell)
         res = bsNew("<ul id=\"posts\">");
 
-    while (postCell != NULL) {
+    while (postCell) {
         post = (Post *)postCell->value;
         liked = likeLiked(DB, req->account->id, post->id);
 
@@ -314,7 +314,7 @@ static Response *profile(Request *req)
         free(postPCell);
     }
 
-    if (res != NULL) {
+    if (res) {
         bsLCat(&res, "</ul>");
         templateSet(template, "profilePosts", res);
         bsDel(res);
@@ -361,7 +361,7 @@ static Response *like(Request *req)
 {
     ROUTE(req, "/like/");
 
-    if (req->account == NULL) return NULL;
+    if (!req->account) return NULL;
 
     int   id = -1;
     int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
@@ -370,13 +370,11 @@ static Response *like(Request *req)
     sscanf(idStr, "%d", &id);
 
     Post *post = postGetById(DB, id);
-
-    if (post == NULL)
-        goto fail;
+    if (!post) goto fail;
 
     likeDel(likeCreate(DB, req->account->id, post->authorId, post->id));
 
-    if (kvFindList(req->queryString, "r") != NULL) {
+    if (kvFindList(req->queryString, "r")) {
         char sbuff[1024];
         sprintf(sbuff, "/profile/%d/", post->authorId);
         bsDel(idStr);
@@ -391,9 +389,7 @@ fail:
 static Response *connect(Request *req)
 {
     ROUTE(req, "/connect/");
-
-    if (req->account == NULL)
-        return NULL;
+    if (!req->account) return NULL;
 
     int   id = -1;
     int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
@@ -402,9 +398,7 @@ static Response *connect(Request *req)
     sscanf(idStr, "%d", &id);
 
     Account *account = accountGetById(DB, id);
-
-    if (account == NULL)
-        goto fail;
+    if (!account) goto fail;
 
     connectionDel(connectionCreate(DB, req->account->id, account->id));
 
@@ -422,24 +416,24 @@ static Response *search(Request *req)
 {
     EXACT_ROUTE(req, "/search/");
 
-    if (req->account == NULL)
+    if (!req->account)
         return responseNewRedirect("/login/");
 
     char *query = kvFindList(req->queryString, "q");
 
-    if (query == NULL) return NULL;
+    if (!query) return NULL;
 
     char *res = NULL;
     char  sbuff[1024];
 
-    Account *account       = NULL;
+    Account *account = NULL;
     ListCell *accountPCell = NULL;
     ListCell *accountCell  = accountSearch(DB, query, 0);
 
-    if (accountCell != NULL)
+    if (accountCell)
         res = bsNew("<ul id=\"search-results\">");
 
-    while (accountCell != NULL) {
+    while (accountCell) {
         account = (Account *)accountCell->value;
 
         sprintf(sbuff,
@@ -454,14 +448,14 @@ static Response *search(Request *req)
         free(accountPCell);
     }
 
-    if (res != NULL)
+    if (res)
         bsLCat(&res, "</ul>");
 
     Response *response = responseNew();
     Template *template = templateNew("templates/search.html");
     responseSetStatus(response, OK);
 
-    if (res == NULL) {
+    if (!res) {
         templateSet(template, "results",
                     "<h4 class=\"not-found\">There were no results "
                     "for your query.</h4>");
@@ -483,7 +477,7 @@ static Response *login(Request *req)
 {
     EXACT_ROUTE(req, "/login/");
 
-    if (req->account != NULL)
+    if (req->account)
         return responseNewRedirect("/dashboard/");
 
     Response *response = responseNew();
@@ -498,20 +492,19 @@ static Response *login(Request *req)
         char *username = kvFindList(req->postBody, "username");
         char *password = kvFindList(req->postBody, "password");
 
-        if (username == NULL) {
+        if (!username) {
             invalid("usernameError", "Username missing!");
         } else {
             templateSet(template, "formUsername", username);
         }
 
-        if (password == NULL) {
+        if (!password) {
             invalid("passwordError", "Password missing!");
         }
 
         if (valid) {
             Session *session = sessionCreate(DB, username, password);
-
-            if (session != NULL) {
+            if (session) {
                 responseSetStatus(response, FOUND);
                 responseAddCookie(response, "sid", session->sessionId,
                                   NULL, NULL, 3600 * 24 * 30);
@@ -533,8 +526,7 @@ static Response *login(Request *req)
 static Response *logout(Request *req)
 {
     EXACT_ROUTE(req, "/logout/");
-
-    if (req->account == NULL)
+    if (!req->account)
         return responseNewRedirect("/");
 
     Response *response = responseNewRedirect("/");
@@ -546,7 +538,7 @@ static Response *signup(Request *req)
 {
     EXACT_ROUTE(req, "/signup/");
 
-    if (req->account != NULL)
+    if (req->account)
         return responseNewRedirect("/dashboard/");
 
     Response *response = responseNew();
@@ -563,7 +555,7 @@ static Response *signup(Request *req)
         char *password = kvFindList(req->postBody, "password");
         char *confirmPassword = kvFindList(req->postBody, "confirm-password");
 
-        if (name == NULL) {
+        if (!name) {
             invalid("nameError", "You must enter your name!");
         } else if (strlen(name) < 5 || strlen(name) > 50) {
             invalid("nameError",
@@ -572,7 +564,7 @@ static Response *signup(Request *req)
             templateSet(template, "formName", name);
         }
 
-        if (email == NULL) {
+        if (!email) {
             invalid("emailError", "You must enter an email!");
         } else if (strchr(email, '@') == NULL) {
             invalid("emailError", "Invalid email.");
@@ -585,7 +577,7 @@ static Response *signup(Request *req)
             templateSet(template, "formEmail", email);
         }
 
-        if (username == NULL) {
+        if (!username) {
             invalid("usernameError", "You must enter a username!");
         } else if (strlen(username) < 3 || strlen(username) > 50) {
             invalid("usernameError",
@@ -596,14 +588,14 @@ static Response *signup(Request *req)
             templateSet(template, "formUsername", username);
         }
 
-        if (password == NULL) {
+        if (!password) {
             invalid("passwordError", "You must enter a password!");
         } else if (strlen(password) < 8) {
             invalid("passwordError",
                     "Your password must be at least 8 characters long!");
         }
 
-        if (confirmPassword == NULL) {
+        if (!confirmPassword) {
             invalid("confirmPasswordError", "You must confirm your password.");
         } else if (strcmp(password, confirmPassword) != 0) {
             invalid("confirmPasswordError",
@@ -614,7 +606,7 @@ static Response *signup(Request *req)
             Account *account = accountCreate(DB, name,
                                              email, username, password);
 
-            if (account != NULL) {
+            if (account) {
                 responseSetStatus(response, FOUND);
                 responseAddHeader(response, "Location", "/login/");
                 templateDel(template);
@@ -639,7 +631,7 @@ static Response *about(Request *req)
     Response *response = responseNew();
     Template *template = templateNew("templates/about.html");
     templateSet(template, "active", "about");
-    templateSet(template, "loggedIn", (req->account != NULL) ? "t" : "");
+    templateSet(template, "loggedIn", req->account ? "t" : "");
     templateSet(template, "subtitle", "About");
     responseSetStatus(response, OK);
     responseSetBody(response, templateRender(template));
@@ -651,7 +643,7 @@ static Response *notFound(Request *req)
 {
     Response *response = responseNew();
     Template *template = templateNew("templates/404.html");
-    templateSet(template, "loggedIn", (req->account != NULL) ? "t" : "");
+    templateSet(template, "loggedIn", req->account ? "t" : "");
     templateSet(template, "subtitle", "404 Not Found");
     responseSetStatus(response, NOT_FOUND);
     responseSetBody(response, templateRender(template));

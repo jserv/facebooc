@@ -7,7 +7,7 @@ Session *sessionNew(int id, int createdAt, int accountId, char *sessionId)
 {
     Session *session = malloc(sizeof(Session));
 
-    session->id        = id;
+    session->id = id;
     session->createdAt = createdAt;
     session->accountId = accountId;
     session->sessionId = bsNew(sessionId);
@@ -28,7 +28,8 @@ Session *sessionGetBySId(sqlite3 *DB, char *sid)
         return NULL;
     }
 
-    if (sqlite3_bind_text(statement, 1, sid, -1, NULL) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 1, sid, -1, NULL) != SQLITE_OK)
+        goto fail;
 
     if (sqlite3_step(statement) == SQLITE_ROW) {
         session = sessionNew(sqlite3_column_int(statement, 0),
@@ -58,9 +59,12 @@ Session *sessionCreate(sqlite3 *DB, char *username, char *password)
         return NULL;
     }
 
-    if (sqlite3_bind_text(statement, 1, username, -1, NULL) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 2, password, -1, NULL) != SQLITE_OK) goto fail;
-    if (sqlite3_step(statement) != SQLITE_ROW)                            goto fail;
+    if (sqlite3_bind_text(statement, 1, username, -1, NULL) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_bind_text(statement, 2, password, -1, NULL) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_step(statement) != SQLITE_ROW)
+        goto fail;
 
     sid = bsRandom(24, username);
     aid = sqlite3_column_int(statement, 0);
@@ -73,17 +77,16 @@ Session *sessionCreate(sqlite3 *DB, char *username, char *password)
         goto fail;
     }
 
-    if (sqlite3_bind_int(statement, 1, time(NULL))     != SQLITE_OK) goto fail;
-    if (sqlite3_bind_int(statement, 2, aid)            != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 1, time(NULL)) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 2, aid) != SQLITE_OK) goto fail;
     if (sqlite3_bind_text(statement, 3, sid, -1, NULL) != SQLITE_OK) goto fail;
-    if (sqlite3_step(statement) != SQLITE_DONE) {
+    if (sqlite3_step(statement) != SQLITE_DONE)
         goto fail;
-    }
 
     session = sessionGetBySId(DB, sid);
 
 fail:
-    if (sid != NULL)
+    if (sid)
         bsDel(sid);
 
     sqlite3_finalize(statement);

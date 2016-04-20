@@ -21,12 +21,10 @@ Account *accountNew(int id, int createdAt, char *name,
 
 Account *accountGetById(sqlite3 *DB, int id)
 {
-    if (id == -1)
-        return NULL;
+    if (id == -1) return NULL;
 
     Account *account = NULL;
     sqlite3_stmt *statement;
-
     if (sqlite3_prepare_v2(DB,
                            "SELECT id, createdAt, name, email, username"
                            "  FROM accounts"
@@ -55,7 +53,6 @@ Account *accountCreate(sqlite3 *DB, char *name,
     int rc;
     Account *account = NULL;
     sqlite3_stmt *statement;
-
     rc = sqlite3_prepare_v2(
              DB,
              "INSERT INTO accounts(createdAt, name, email, username, password)"
@@ -67,15 +64,18 @@ Account *accountCreate(sqlite3 *DB, char *name,
     char *escapedName  = bsEscape(name);
     char *escapedEmail = bsEscape(email);
 
-    if (sqlite3_bind_int(statement, 1, time(NULL))              != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 2, escapedName, -1, NULL)  != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 3, escapedEmail, -1, NULL) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 4, username, -1, NULL)     != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 5, password, -1, NULL)     != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 1, time(NULL)) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 2, escapedName, -1, NULL) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_bind_text(statement, 3, escapedEmail, -1, NULL) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_bind_text(statement, 4, username, -1, NULL) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_bind_text(statement, 5, password, -1, NULL) != SQLITE_OK)
+        goto fail;
 
-    if (sqlite3_step(statement) == SQLITE_DONE) {
+    if (sqlite3_step(statement) == SQLITE_DONE)
         account = accountGetByEmail(DB, email);
-    }
 
 fail:
     bsDel(escapedName);
@@ -86,8 +86,7 @@ fail:
 
 Account *accountGetByEmail(sqlite3 *DB, char *email)
 {
-    if (email == NULL)
-        return NULL;
+    if (!email) return NULL;
 
     Account *account = NULL;
     sqlite3_stmt *statement;
@@ -100,8 +99,9 @@ Account *accountGetByEmail(sqlite3 *DB, char *email)
         return NULL;
     }
 
-    if (sqlite3_bind_text(statement, 1, email, -1, NULL) != SQLITE_OK)  goto fail;
-    if (sqlite3_step(statement)                          != SQLITE_ROW) goto fail;
+    if (sqlite3_bind_text(statement, 1, email, -1, NULL) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_step(statement) != SQLITE_ROW) goto fail;
 
     account = accountNew(sqlite3_column_int(statement, 0),
                          sqlite3_column_int(statement, 1),
@@ -116,17 +116,13 @@ fail:
 
 Account *accountGetBySId(sqlite3 *DB, char *sid)
 {
-    if (sid == NULL)
-        return NULL;
+    if (!sid) return NULL;
 
     Session *session = sessionGetBySId(DB, sid);
-
-    if (session == NULL)
-        return NULL;
+    if (!session) return NULL;
 
     Account *account = NULL;
     sqlite3_stmt *statement;
-
     if (sqlite3_prepare_v2(DB,
                            "SELECT id, createdAt, name, email, username"
                            "  FROM accounts"
@@ -153,8 +149,7 @@ fail:
 
 ListCell *accountSearch(sqlite3 *DB, char *query, int page)
 {
-    if (query == NULL)
-        return NULL;
+    if (!query) return NULL;
 
     int rc;
     Account *account = NULL;
@@ -174,10 +169,14 @@ ListCell *accountSearch(sqlite3 *DB, char *query, int page)
              -1, &statement, NULL);
 
     if (rc != SQLITE_OK) return NULL;
-    if (sqlite3_bind_text(statement, 1, query, -1, NULL) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 2, query, -1, NULL) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 3, query, -1, NULL) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_int(statement, 4, page * 10)        != SQLITE_OK) goto fail;
+    if (sqlite3_bind_text(statement, 1, query, -1, NULL) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_bind_text(statement, 2, query, -1, NULL) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_bind_text(statement, 3, query, -1, NULL) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_bind_int(statement, 4, page * 10) != SQLITE_OK)
+        goto fail;
 
     while (sqlite3_step(statement) == SQLITE_ROW) {
         account = accountNew(sqlite3_column_int(statement, 0),
@@ -198,7 +197,9 @@ bool accountCheckUsername(sqlite3 *DB, char *username)
     bool res;
     sqlite3_stmt *statement;
 
-    if (sqlite3_prepare_v2(DB, "SELECT id FROM accounts WHERE username = ?", -1, &statement, NULL) != SQLITE_OK) {
+    if (sqlite3_prepare_v2(DB,
+                           "SELECT id FROM accounts WHERE username = ?",
+                           -1, &statement, NULL) != SQLITE_OK) {
         return false;
     }
 
@@ -219,7 +220,9 @@ bool accountCheckEmail(sqlite3 *DB, char *email)
     bool res;
     sqlite3_stmt *statement;
 
-    if (sqlite3_prepare_v2(DB, "SELECT id FROM accounts WHERE email = ?", -1, &statement, NULL) != SQLITE_OK) {
+    if (sqlite3_prepare_v2(DB,
+                           "SELECT id FROM accounts WHERE email = ?",
+                           -1, &statement, NULL) != SQLITE_OK) {
         return false;
     }
 
@@ -227,7 +230,6 @@ bool accountCheckEmail(sqlite3 *DB, char *email)
         sqlite3_finalize(statement);
         return false;
     }
-
     res = sqlite3_step(statement) != SQLITE_ROW;
 
     sqlite3_finalize(statement);

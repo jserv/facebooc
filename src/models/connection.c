@@ -8,8 +8,8 @@ Connection *connectionNew(int id, int createdAt,
 {
     Connection *connection = malloc(sizeof(Connection));
 
-    connection->id         = id;
-    connection->createdAt  = createdAt;
+    connection->id = id;
+    connection->createdAt = createdAt;
     connection->account1Id = account1Id;
     connection->account2Id = account2Id;
 
@@ -31,8 +31,9 @@ Connection *connectionCreate(sqlite3 *DB,
              -1, &statement, NULL);
 
     if (rc != SQLITE_OK) return NULL;
-    if (sqlite3_bind_int(statement, 1, t)          != SQLITE_OK) goto fail;
-    if (sqlite3_bind_int(statement, 2, account1Id) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 1, t) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 2, account1Id) != SQLITE_OK)
+        goto fail;
     if (sqlite3_bind_int(statement, 3, account2Id) != SQLITE_OK) goto fail;
 
     if (sqlite3_step(statement) == SQLITE_DONE) {
