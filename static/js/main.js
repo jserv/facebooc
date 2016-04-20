@@ -81,12 +81,12 @@
           ctrl.twitter_map_handler.map._initPathRoot();
 
           // set d3
-          if(this.d3_svg === undefined){
-            this.d3_svg = d3.select("div#front_page").select("svg");
+          if(ctrl.twitter_map_handler.d3_svg === undefined){
+            ctrl.twitter_map_handler.d3_svg = d3.select("div#front_page").select("svg");
           }
 
           // define the gradient
-          ctrl.twitter_map_handler.d3_gradient = this.d3_svg.append("svg:defs")
+          ctrl.twitter_map_handler.d3_gradient = ctrl.twitter_map_handler.d3_svg.append("svg:defs")
                                         .append("svg:radialGradient")
                                         .attr("id", "gradient")
                                         .attr("x1", "0%")
