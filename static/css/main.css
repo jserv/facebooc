@@ -24,8 +24,8 @@ body {
   border-top: 1px solid #e5e5e5;
 }
 .my_navbar_search{
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 @media (min-width: 768px) {
   .container {
