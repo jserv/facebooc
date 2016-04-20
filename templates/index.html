@@ -1,21 +1,6 @@
 {%include templates/header.html%}
 <div ng-controller="frontPageCtrl as ctrl" ng-init="ctrl.init_front_page()">
   <div id="map_tip"></div>
-  <div id="front_page" class="jumbotron">
-      <h1>Facebooc</h1>
-      <p class="lead">
-          The best social network you've never heard of!
-      </p>
-      <p>
-          <a class="btn btn-lg btn-success"
-             href="/signup/"
-             role="button">
-              Sign up today
-          </a>
-      </p>
-      <p class="small">
-          Or <a href="/login/">login</a> if you heard about Facebooc before it was cool.
-      </p>
-  </div>
+  <div id="front_page" class="jumbotron my_front_page"></div>
 </div>
 {%include templates/footer.html%}

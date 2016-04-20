@@ -139,10 +139,10 @@
           var map_popup = L.popup();
           map_popup.setLatLng( [ 23.893589, 121.083589] )
                   .setContent( '<div style="text-align: center;">' +
-                                '<h1>Facebooc</h1>' +
+                                '<h3>Facebooc</h3>' +
                                 '<p class="lead">The best social network you\'ve never heard of!</p>' +
                                 '<p>' +
-                                '<a class="btn btn-lg btn-success" href="/signup/" role="button">Sign up today</a>' +
+                                '<a class="btn btn-lg btn-info" href="/signup/" role="button">Sign up today</a>' +
                                 '</p>' +
                                 '<p class="small">Or <a href="/login/">login</a> if you heard about Facebooc before it was cool.</p>' +
                                 '</div>')

@@ -27,6 +27,10 @@ body {
   padding-top: 8px;
   padding-bottom: 8px;
 }
+.my_front_page{
+  min-height: 300px;
+  width: 100%;
+}
 @media (min-width: 768px) {
   .container {
     max-width: 730px;
