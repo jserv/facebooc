@@ -66,7 +66,7 @@
       init_map : function(arg_position){
         var _this = this;
         // set geo-location
-        if(arg_position && arg_position.coords) _this.default_location[arg_position.coords.latitude, arg_position.coords.longitude];
+        if(arg_position && arg_position.coords) _this.default_location = [arg_position.coords.latitude, arg_position.coords.longitude];
 
         // init map
         if(!_this.map){
