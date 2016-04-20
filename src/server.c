@@ -13,10 +13,10 @@
 #include "bs.h"
 #include "server.h"
 
-#define GET_TIME                                  \
-    time_t t = time(NULL);                        \
-    char timebuff[100];                           \
-    strftime(timebuff, 100, "%c", localtime(&t)); \
+#define GET_TIME                                                \
+    time_t t = time(NULL);                                      \
+    char timebuff[100];                                         \
+    strftime(timebuff, sizeof(timebuff), "%c", localtime(&t));
 
 #define LOG_400(addr) {                           \
     GET_TIME;                                     \
