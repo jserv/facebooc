@@ -30,7 +30,7 @@ $(EXEC): $(OBJS)
 all: $(EXEC)
 run: $(EXEC)
 	@echo "Starting Facebooc service..."
-	@./$(EXEC)
+	@./$(EXEC) $(port)
 
 clean:
 	$(RM) $(OBJS) $(EXEC) $(deps)
