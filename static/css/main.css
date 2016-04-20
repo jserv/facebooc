@@ -9,7 +9,6 @@ body {
   padding-right: 15px;
   padding-left: 15px;
 }
-
 .header {
   border-bottom: 1px solid #e5e5e5;
 }
@@ -19,13 +18,15 @@ body {
   margin-bottom: 0;
   line-height: 40px;
 }
-
 .footer {
   padding-top: 19px;
   color: #777;
   border-top: 1px solid #e5e5e5;
 }
-
+.my_navbar_search{
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
 @media (min-width: 768px) {
   .container {
     max-width: 730px;
