@@ -6,8 +6,8 @@
 #include "list.h"
 
 typedef struct KV {
-    char *key;
-    char *value;
+	char *key;
+	char *value;
 } KV;
 
 KV   *kvNew(char *, char *);

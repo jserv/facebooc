@@ -7,12 +7,12 @@
 #include "list.h"
 
 typedef struct Account {
-    int id;
-    int createdAt;
+	int id;
+	int createdAt;
 
-    char *name;
-    char *email;
-    char *username;
+	char *name;
+	char *email;
+	char *username;
 } Account;
 
 Account  *accountNew(int, int, char *, char *, char *);

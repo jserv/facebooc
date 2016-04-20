@@ -6,11 +6,11 @@
 #include "list.h"
 
 typedef struct Post {
-    int id;
-    int createdAt;
-    int authorId;
+	int id;
+	int createdAt;
+	int authorId;
 
-    char *body;
+	char *body;
 } Post;
 
 Post     *postNew(int, int, int, char *);

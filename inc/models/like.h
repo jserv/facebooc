@@ -5,11 +5,11 @@
 #include <stdbool.h>
 
 typedef struct Like {
-    int id;
-    int createdAt;
-    int accountId;
-    int authorId;
-    int postId;
+	int id;
+	int createdAt;
+	int accountId;
+	int authorId;
+	int postId;
 } Like;
 
 Like *likeNew(int, int, int, int, int);

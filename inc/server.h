@@ -6,9 +6,9 @@
 #include "response.h"
 
 typedef struct Server {
-    unsigned int port;
+	unsigned int port;
 
-    ListCell *handlers;
+	ListCell *handlers;
 } Server;
 
 typedef Response *(*Handler)(Request *);
