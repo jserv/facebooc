@@ -196,9 +196,7 @@ static Response *dashboard(Request *req)
 
     while (postCell != NULL) {
         post = (Post *)postCell->value;
-	if (!post) break;
         account = accountGetById(DB, post->authorId);
-	if (!account) break;
         liked = likeLiked(DB, req->account->id, post->id);
 
         sprintf(sbuff,
