@@ -13,29 +13,32 @@
 #include "bs.h"
 #include "server.h"
 
-#define GET_TIME                                                \
-    time_t t = time(NULL);                                      \
-    char timebuff[100];                                         \
-    strftime(timebuff, sizeof(timebuff), "%c", localtime(&t));
+#define GET_TIME                                  \
+    time_t t = time(NULL);                        \
+    char timebuff[100];                           \
+    strftime(timebuff, sizeof(timebuff),          \
+             "%c", localtime(&t));
 
-#define LOG_400(addr) {                           \
-    GET_TIME;                                     \
-    fprintf(stdout,                               \
-            "%s %s 400\n",                        \
-            timebuff,                             \
-            inet_ntoa(addr->sin_addr));           \
-}
+#define LOG_400(addr)                             \
+    do {                                          \
+        GET_TIME;                                 \
+        fprintf(stdout,                           \
+                "%s %s 400\n",                    \
+                timebuff,                         \
+                inet_ntoa(addr->sin_addr));       \
+    } while (0)
 
-#define LOG_REQUEST(addr, method, path, status) { \
-    GET_TIME;                                     \
-    fprintf(stdout,                               \
-            "%s %s %s %s %d\n",                   \
-            timebuff,                             \
-            inet_ntoa(addr->sin_addr),            \
-            method,                               \
-            path,                                 \
-            status);                              \
-}
+#define LOG_REQUEST(addr, method, path, status)   \
+    do {                                          \
+        GET_TIME;                                 \
+        fprintf(stdout,                           \
+                "%s %s %s %s %d\n",               \
+                timebuff,                         \
+                inet_ntoa(addr->sin_addr),        \
+                method,                           \
+                path,                             \
+                status);                          \
+    } while (0)
 
 char *METHODS[8] = {
     "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"
