@@ -31,6 +31,9 @@ body {
   min-height: 400px;
   width: 100%;
 }
+.signup_btn{
+  color: #fff;
+}
 @media (min-width: 768px) {
   .container {
     max-width: 730px;
