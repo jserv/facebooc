@@ -64,29 +64,30 @@
       tweets_list : [],
       is_appending : false,
       init_map : function(){
+        var _this = this;
         // init map
-        if(ctrl.twitter_map_handler.map === undefined){
+        if(_this.map === undefined){
           // init map
-          ctrl.twitter_map_handler.map = new L.map('front_page')
-                          .setView( ctrl.twitter_map_handler.default_location, 8);
+          _this.map = new L.map('front_page')
+                          .setView( _this.default_location, 8);
 
           // set map tiles
           L.tileLayer(
             'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© + Openstreetmap Contributors',
             maxZoom: 18,
-          }).addTo(ctrl.twitter_map_handler.map);
+          }).addTo(_this.map);
 
           //
-          ctrl.twitter_map_handler.map._initPathRoot();
+          _this.map._initPathRoot();
 
           // set d3
-          if(ctrl.twitter_map_handler.d3_svg === undefined){
-            ctrl.twitter_map_handler.d3_svg = d3.select("div#front_page").select("svg");
+          if(_this.d3_svg === undefined){
+            _this.d3_svg = d3.select("div#front_page").select("svg");
           }
 
           // define the gradient
-          ctrl.twitter_map_handler.d3_gradient = ctrl.twitter_map_handler.d3_svg.append("svg:defs")
+          _this.d3_gradient = _this.d3_svg.append("svg:defs")
                                         .append("svg:radialGradient")
                                         .attr("id", "gradient")
                                         .attr("x1", "0%")
@@ -96,20 +97,20 @@
                                         .attr("spreadMethod", "pad");
 
           // Define the gradient colors
-          ctrl.twitter_map_handler.d3_gradient.append("svg:stop")
+          _this.d3_gradient.append("svg:stop")
                           .attr("offset", "0%")
                           .attr("stop-color", "#00f")
                           .attr("stop-opacity", 1);
 
-          ctrl.twitter_map_handler.d3_gradient.append("svg:stop")
+          _this.d3_gradient.append("svg:stop")
                           .attr("offset", "100%")
                           .attr("stop-color", "#fff")
                           .attr("stop-opacity", 0);
 
           // set default data
-          ctrl.twitter_map_handler.d3_data = ctrl.twitter_map_handler.defualt_circles;
+          _this.d3_data = _this.defualt_circles;
           // set lat_lng for Leaflet
-          ctrl.twitter_map_handler.d3_data.forEach(function(d) {
+          _this.d3_data.forEach(function(d) {
               d.LatLng = new L.LatLng(d[0], d[1]);
           });
                           
@@ -120,9 +121,9 @@
                           .style("z-index", "10000")
                           .style("visibility", "hidden");
 
-          var g = ctrl.twitter_map_handler.d3_svg.append("g");
-          ctrl.twitter_map_handler.d3_circles = g.selectAll("circle")
-                            .data(ctrl.twitter_map_handler.d3_data)
+          var g = _this.d3_svg.append("g");
+          _this.d3_circles = g.selectAll("circle")
+                            .data(_this.d3_data)
                             .enter()
                             .append("circle")
                             .attr('r', 0)
@@ -132,8 +133,8 @@
                             .on("mousemove", function(d){return tooltip.html('tweet location: ' + d).style("top", (d3.event.pageY - 10)+"px").style("left",(d3.event.pageX + 10)+"px");})
                             .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
                           
-          ctrl.twitter_map_handler.map.on( "viewreset", ctrl.twitter_map_handler.update_d3_elem_on_map.bind(ctrl.twitter_map_handler) );
-          setTimeout( ctrl.twitter_map_handler.update_d3_elem_on_map.bind(ctrl.twitter_map_handler), 500 );
+          _this.map.on( "viewreset", _this.update_d3_elem_on_map.bind(_this) );
+          setTimeout( _this.update_d3_elem_on_map.bind(_this), 500 );
 
           // set map popup
           var map_popup = L.popup();
@@ -142,11 +143,11 @@
                                 '<h3>Facebooc</h3>' +
                                 '<p class="lead">The best social network you\'ve never heard of!</p>' +
                                 '<p>' +
-                                '<a class="btn btn-info" href="/signup/" role="button">Sign up today</a>' +
+                                '<a class="btn btn-primary" href="/signup/" role="button">Sign up today</a>' +
                                 '</p>' +
                                 '<p class="small">Or <a href="/login/">login</a> if you heard about Facebooc before it was cool.</p>' +
                                 '</div>')
-                  .openOn(ctrl.twitter_map_handler.map);
+                  .openOn(_this.map);
         }
       },
       update_d3_elem_on_map : function(){
