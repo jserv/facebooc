@@ -1,16 +1,38 @@
-run: all
-	./bin/facebooc
+CFLAGS = -O2 -g -Wall -I include
+LDFLAGS = -lsqlite3
 
-debug: src/*.c
-	rm -rf bin
-	mkdir -p bin
-	$(CC) -o bin/facebooc -Wall -Iinc -g src/*.c src/**/*.c -lsqlite3
-	gdb bin/facebooc
+EXEC = bin/facebooc
+OBJS = \
+	src/kv.o \
+	src/response.o \
+	src/template.o \
+	src/main.o \
+	src/bs.o \
+	src/request.o \
+	src/list.o \
+	src/models/like.o \
+	src/models/account.o \
+	src/models/connection.o \
+	src/models/session.o \
+	src/models/post.o \
+	src/server.o
 
-all: src/*.c
-	rm -rf bin
-	mkdir -p bin
-	$(CC) -o bin/facebooc -Wall -Iinc -O2 src/*.c src/**/*.c -lsqlite3
+deps := $(OBJS:%.o=%.o.d)
+
+src/%.o: src/%.c
+	$(CC) $(CFLAGS) -o $@ -MMD -MF $@.d -c $<
+
+$(EXEC): $(OBJS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+
+all: $(EXEC)
+run: $(EXEC)
+	@echo "Starting Facebooc service..."
+	@./$(EXEC)
 
 clean:
-	rm -f bin/facebooc
+	$(RM) $(OBJS) $(EXEC) $(deps)
+distclean: clean
+	$(RM) db.sqlite3
+
+-include $(deps)
