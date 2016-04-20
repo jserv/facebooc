@@ -139,7 +139,7 @@
           var map_popup = L.popup();
           map_popup.setLatLng( [ 23.893589, 121.083589] )
                   .setContent( '<div style="text-align: center;">' +
-                               '<p>Track 2016 TW Election on Twitter</p>' +
+                               '<p>Facebooc</p>' +
                                '<img style="width: 80px;" src="/static/leaflet-0.7/images/twitter-1.png"><br>' +
                                '</div>')
                   .openOn(ctrl.twitter_map_handler.map);
