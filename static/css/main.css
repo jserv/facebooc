@@ -32,7 +32,7 @@ body {
   width: 100%;
 }
 .signup_btn{
-  color: #fff;
+  color: #fff !important;
 }
 @media (min-width: 768px) {
   .container {
