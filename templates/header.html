@@ -16,7 +16,55 @@
     <div class="container-fluid">
         <div class="header">
             <h3 class="text-muted pull-left"><a href="/">Facebooc</a></h3>
-            <ul class="nav nav-pills pull-right">
+
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top">Facebooc</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                  <li class="visible {%when active home active%} {%when loggedIn t hidden%} ">
+                      <a class="page-scroll" href="/">Home</a>
+                  </li>
+                  <li class="visible {%when active login active%} {%when loggedIn t hidden%} ">
+                      <a class="page-scroll" href="/login/">Login</a>
+                  </li>
+                  <li class="visible {%when active signup active%} {%when loggedIn t hidden%} ">
+                      <a class="page-scroll" href="/signup/">Sign Up</a>
+                  </li>
+                  <li class="visible {%when active about active%} {%when loggedIn t hidden%} ">
+                      <a class="page-scroll" href="/about/">About</a>
+                  </li>
+                  <li class="{%when loggedIn t visible%} ">
+                      <form action="/search/" method="GET" class="form-inline">
+                          <div class="form-group">
+                        <input type="text"
+                               class="form-control search"
+                               placeholder="Search for people..."
+                               name="q"
+                               value="{{searchQuery}}" />
+                          </div>
+                      </form>
+                  </li>
+                  <li class="{%when active dashboard active%}  {%when loggedIn t visible%} ">
+                      <a class="page-scroll" href="/dashboard/">Dashboard</a>
+                  </li>
+                  <li class="{%when loggedIn t visible%} ">
+                      <a class="page-scroll" href="/logout/">Logout</a>
+                  </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+
+            <!--ul class="nav nav-pills pull-right">
                 <li class="visible {%when active home active%} {%when loggedIn t hidden%} ">
                     <a href="/">Home</a>
                 </li>
@@ -29,24 +77,24 @@
                 <li class="visible {%when active about active%} {%when loggedIn t hidden%} ">
                     <a href="/about/">About</a>
                 </li>
-		<li class="{%when loggedIn t visible%} ">
-		    <form action="/search/" method="GET" class="form-inline">
-		        <div class="form-group">
-		    	<input type="text"
-		    	       class="form-control search"
-		    	       placeholder="Search for people..."
-		    	       name="q"
-		    	       value="{{searchQuery}}" />
-		        </div>
-		    </form>
-		</li>
+                <li class="{%when loggedIn t visible%} ">
+                    <form action="/search/" method="GET" class="form-inline">
+                        <div class="form-group">
+                      <input type="text"
+                             class="form-control search"
+                             placeholder="Search for people..."
+                             name="q"
+                             value="{{searchQuery}}" />
+                        </div>
+                    </form>
+                </li>
                 <li class="{%when active dashboard active%}  {%when loggedIn t visible%} ">
                     <a href="/dashboard/">Dashboard</a>
                 </li>
                 <li class="{%when loggedIn t visible%} ">
                     <a href="/logout/">Logout</a>
                 </li>
-            </ul>
+            </ul-->
             <div class="clearfix"></div>
         </div>
     </div>
