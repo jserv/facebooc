@@ -26,7 +26,7 @@ static void sig(int signum)
     if (server != NULL) serverDel(server);
     if (DB     != NULL) sqlite3_close(DB);
 
-    fprintf(stdout, "\n[%d] Buh-bye!\n", signum);
+    fprintf(stdout, "\n[%d] Bye!\n", signum);
     exit(0);
 }
 
