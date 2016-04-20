@@ -1,4 +1,4 @@
-CFLAGS = -O2 -g -std=c99 -Wall -I include
+CFLAGS = -O2 -g -std=c99 -Wall -D_POSIX_SOURCE -I include
 LDFLAGS = -lsqlite3
 
 OUT = bin
