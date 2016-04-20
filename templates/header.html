@@ -13,8 +13,9 @@
           href="/static/css/main.css" />
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <div class="header">
+            <h3 class="text-muted pull-left"><a href="/">Facebooc</a></h3>
             <ul class="nav nav-pills pull-right">
                 <li class="visible {%when active home active%} {%when loggedIn t hidden%} ">
                     <a href="/">Home</a>
@@ -28,17 +29,17 @@
                 <li class="visible {%when active about active%} {%when loggedIn t hidden%} ">
                     <a href="/about/">About</a>
                 </li>
-                <li class="{%when loggedIn t visible%} ">
-                    <form action="/search/" method="GET">
-                        <div class="form-group">
-                            <input type="text"
-                                   class="form-control search"
-                                   placeholder="Search for people..."
-                                   name="q"
-                                   value="{{searchQuery}}" />
-                        </div>
-                    </form>
-                </li>
+		<li class="{%when loggedIn t visible%} ">
+		    <form action="/search/" method="GET" class="form-inline">
+		        <div class="form-group">
+		    	<input type="text"
+		    	       class="form-control search"
+		    	       placeholder="Search for people..."
+		    	       name="q"
+		    	       value="{{searchQuery}}" />
+		        </div>
+		    </form>
+		</li>
                 <li class="{%when active dashboard active%}  {%when loggedIn t visible%} ">
                     <a href="/dashboard/">Dashboard</a>
                 </li>
@@ -46,6 +47,7 @@
                     <a href="/logout/">Logout</a>
                 </li>
             </ul>
-
-            <h3 class="text-muted"><a href="/">Facebooc</a></h3>
+            <div class="clearfix"></div>
         </div>
+    </div>
+    <div class="container">
