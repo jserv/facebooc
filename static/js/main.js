@@ -59,12 +59,21 @@
       d3_circles : null,
       is_set_map_center_on : true,
       default_location : [23.893589, 121.083589],
-      defualt_circles : [[23.893589, 121.083589]],
+      default_circles : [[23.893589, 121.083589]],
       location_ary : [],
       tweets_list : [],
       is_appending : false,
       init_map : function(arg_position){
         var _this = this;
+<<<<<<< HEAD
+=======
+        // set geo-location
+        if(arg_position && arg_position.coords){
+	  _this.default_location = [arg_position.coords.latitude, arg_position.coords.longitude];
+	  _this.default_circles = [[arg_position.coords.latitude, arg_position.coords.longitude]];
+	}
+
+>>>>>>> 4a07a5125f5a9c52eacd022b448bb213bd8009e0
         // init map
         if(!_this.map){
           // init map
@@ -108,7 +117,7 @@
                           .attr("stop-opacity", 0);
 
           // set default data
-          _this.d3_data = _this.defualt_circles;
+          _this.d3_data = _this.default_circles;
           // set lat_lng for Leaflet
           _this.d3_data.forEach(function(d) {
               d.LatLng = new L.LatLng(d[0], d[1]);
