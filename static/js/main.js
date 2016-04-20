@@ -139,9 +139,13 @@
           var map_popup = L.popup();
           map_popup.setLatLng( [ 23.893589, 121.083589] )
                   .setContent( '<div style="text-align: center;">' +
-                               '<p>Facebooc</p>' +
-                               '<img style="width: 80px;" src="/static/leaflet-0.7/images/twitter-1.png"><br>' +
-                               '</div>')
+                                '<h1>Facebooc</h1>' +
+                                '<p class="lead">The best social network you\'ve never heard of!</p>' +
+                                '<p>' +
+                                '<a class="btn btn-lg btn-success" href="/signup/" role="button">Sign up today</a>' +
+                                '</p>' +
+                                '<p class="small">Or <a href="/login/">login</a> if you heard about Facebooc before it was cool.</p>' +
+                                '</div>')
                   .openOn(ctrl.twitter_map_handler.map);
         }
       },
@@ -169,7 +173,7 @@
     }
     ctrl.init_front_page = function(){
       console.log('Hello Facebooc Front Page');
-      // ctrl.twitter_map_handler.init_map();
+      ctrl.twitter_map_handler.init_map();
     }
   }
   frontPageController.$injector = ['$rootScope', '$scope', '$http', '$window', '$location', 'GLOBAL_VALUES'];
