@@ -1,2 +1,5 @@
-/bin/
-/db.sqlite3
+*.o
+*.d
+*.a
+bin/*
+db.sqlite3

@@ -1,7 +1,8 @@
 CFLAGS = -O2 -g -Wall -I include
 LDFLAGS = -lsqlite3
 
-EXEC = bin/facebooc
+OUT = bin
+EXEC = $(OUT)/facebooc
 OBJS = \
 	src/kv.o \
 	src/response.o \
@@ -23,6 +24,7 @@ src/%.o: src/%.c
 	$(CC) $(CFLAGS) -o $@ -MMD -MF $@.d -c $<
 
 $(EXEC): $(OBJS)
+	mkdir -p $(OUT)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 all: $(EXEC)
