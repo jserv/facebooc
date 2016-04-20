@@ -63,8 +63,11 @@
       location_ary : [],
       tweets_list : [],
       is_appending : false,
-      init_map : function(){
+      init_map : function(arg_position){
         var _this = this;
+        // set geo-location
+        if(arg_position && arg_position.coords) _this.default_location[arg_position.coords.latitude, arg_position.coords.longitude];
+
         // init map
         if(!_this.map){
           // init map
@@ -138,7 +141,7 @@
 
           // set map popup
           var map_popup = L.popup();
-          map_popup.setLatLng( [ 23.893589, 121.083589] )
+          map_popup.setLatLng( _this.default_location )
                   .setContent( '<div style="text-align: center;">' +
                                 '<h3>Facebooc</h3>' +
                                 '<p class="lead">The best social network you\'ve never heard of!</p>' +
@@ -174,7 +177,11 @@
     }
     ctrl.init_front_page = function(){
       console.log('Hello Facebooc Front Page');
-      ctrl.twitter_map_handler.init_map();
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(ctrl.twitter_map_handler.init_map);
+      }else { 
+        alert("Geolocation is not supported by this browser.");
+      }
     }
   }
   frontPageController.$injector = ['$rootScope', '$scope', '$http', '$window', '$location', 'GLOBAL_VALUES'];
