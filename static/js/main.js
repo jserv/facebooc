@@ -41,7 +41,7 @@
     var ctrl = this;
     ctrl.init_header = function(){
       console.log('Hello Facebooc');
-      T("audio").load("/static/timbre/misc/audio/drumkit.wav", function() {
+      T("audio").load("/static/timbre/audio/drumkit.wav", function() {
         var BD  = this.slice(   0,  500).set({bang:false});
         var SD  = this.slice( 500, 1000).set({bang:false});
         var HH1 = this.slice(1000, 1500).set({bang:false, mul:0.2});
