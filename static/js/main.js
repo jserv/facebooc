@@ -39,8 +39,10 @@
   // headerController
   var headerController = function($rootScope, $scope, $http, $window, $location, GLOBAL_VALUES){
     var ctrl = this;
-    ctrl.init_header = function(){
-      console.log('Hello Facebooc');
+
+    // play midi with timbre
+    ctrl.play_beatbox = function(){
+      /* timbre.js (http://mohayonao.github.io/timbre.js/beatbox.html) */
       T("audio").load("/static/timbre/audio/drumkit.wav", function() {
         var BD  = this.slice(   0,  500).set({bang:false});
         var SD  = this.slice( 500, 1000).set({bang:false});
@@ -61,7 +63,6 @@
         ].wrapExtend(128);
 
         var P2 = sc.series(16);
-
         var drum = T("lowshelf", {freq:110, gain:8, mul:0.6}, BD, SD, HH1, HH2, CYM).play();
         var lead = T("saw", {freq:T("param")});
         var vcf  = T("MoogFF", {freq:2400, gain:6, mul:0.1}, lead);
@@ -92,6 +93,11 @@
           arp.noteOn(noteNum + 24, 60);
         }).start();
       });
+    }
+
+    ctrl.init_header = function(){
+      console.log('Hello Facebooc');
+      ctrl.play_beatbox();
     }
   }
   headerController.$injector = ['$rootScope', '$scope', '$http', '$window', '$location', 'GLOBAL_VALUES'];
