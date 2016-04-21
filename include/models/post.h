@@ -5,6 +5,8 @@
 
 #include "list.h"
 
+#define MAX_BODY_LEN 65536
+
 typedef struct Post {
     int id;
     int createdAt;
