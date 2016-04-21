@@ -182,7 +182,8 @@ static Response *dashboard(Request *req)
     Template *template = templateNew("templates/dashboard.html");
 
     char *res = NULL;
-    char sbuff[1024];
+    char sbuff[128];
+    char *bbuff = NULL;
     time_t t;
     bool liked;
 
@@ -199,7 +200,8 @@ static Response *dashboard(Request *req)
         account = accountGetById(DB, post->authorId);
         liked = likeLiked(DB, req->account->id, post->id);
 
-        sprintf(sbuff,
+        bbuff = bsNewLen("", strlen(post->body) + 256);
+        sprintf(bbuff,
                 "<li><span class=\"act\">%s posted:</span>"
                 "<hr/>"
                 "%s"
@@ -207,7 +209,7 @@ static Response *dashboard(Request *req)
                 account->name,
                 post->body);
         accountDel(account);
-        bsLCat(&res, sbuff);
+        bsLCat(&res, bbuff);
 
         if (liked) {
             bsLCat(&res, "Liked - ");
@@ -217,10 +219,11 @@ static Response *dashboard(Request *req)
         }
 
         t = post->createdAt;
-        strftime(sbuff, 1024, "%c GMT", gmtime(&t));
+        strftime(sbuff, 128, "%c GMT", gmtime(&t));
         bsLCat(&res, sbuff);
         bsLCat(&res, "</li>");
 
+        bsDel(bbuff);
         postDel(post);
         postPCell = postCell;
         postCell  = postCell->next;
@@ -271,7 +274,7 @@ static Response *profile(Request *req)
     Connection *connection = connectionGetByAccountIds(DB,
                                                        req->account->id,
                                                        account->id);
-    char connectStr[255];
+    char connectStr[512];
 
     if (connection) {
         sprintf(connectStr, "You and %s are connected!", account->name);
@@ -284,7 +287,8 @@ static Response *profile(Request *req)
     }
 
     char *res = NULL;
-    char sbuff[1024];
+    char sbuff[128];
+    char *bbuff = NULL;
     time_t t;
     bool liked;
 
@@ -299,8 +303,9 @@ static Response *profile(Request *req)
         post = (Post *)postCell->value;
         liked = likeLiked(DB, req->account->id, post->id);
 
-        sprintf(sbuff, "<li>%s<hr/>", post->body);
-        bsLCat(&res, sbuff);
+        bbuff = bsNewLen("", strlen(post->body) + 256);
+        sprintf(bbuff, "<li>%s<hr/>", post->body);
+        bsLCat(&res, bbuff);
 
         if (liked) {
             bsLCat(&res, "Liked - ");
@@ -310,10 +315,11 @@ static Response *profile(Request *req)
         }
 
         t = post->createdAt;
-        strftime(sbuff, 1024, "%c GMT", gmtime(&t));
+        strftime(sbuff, 128, "%c GMT", gmtime(&t));
         bsLCat(&res, sbuff);
         bsLCat(&res, "</li>");
 
+        bsDel(bbuff);
         postDel(post);
         postPCell = postCell;
         postCell  = postCell->next;
@@ -358,8 +364,8 @@ static Response *post(Request *req)
 
     if (bsGetLen(postStr) == 0)
         return responseNewRedirect("/dashboard/");
-
-    postDel(postCreate(DB, req->account->id, postStr));
+    else if (bsGetLen(postStr) < MAX_BODY_LEN)
+        postDel(postCreate(DB, req->account->id, postStr));
 
     return responseNewRedirect("/dashboard/");
 }
