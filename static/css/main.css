@@ -23,6 +23,7 @@ body {
   color: #777;
   border-top: 1px solid #e5e5e5;
 }
+/* alantai */
 .my_navbar_search{
   padding-top: 8px;
   padding-bottom: 8px;
@@ -31,14 +32,14 @@ body {
   min-height: 400px;
   width: 100%;
 }
-.signup_btn{
+.front_page_map{
+  text-align: center;
+}
+.front_page_map.signup_btn{
   color: #fff !important;
 }
-@media (min-width: 768px) {
-  .container {
-    max-width: 730px;
-  }
-}
+/* end of alantai */
+
 .container-narrow > hr {
   margin: 30px 0;
 }
@@ -102,4 +103,15 @@ ul#posts li {
 }
 ul#posts li hr {
     margin: 5px 0;
+}
+/* for specific media sizes */
+@media (min-width: 768px) {
+  .container {
+    max-width: 730px;
+  }
+}
+@media (max-width: 767px){
+  .front_page_map{
+    max-width: 260px;
+  }
 }
