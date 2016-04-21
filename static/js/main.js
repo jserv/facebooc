@@ -49,7 +49,7 @@
   // headerController
   var frontPageController = function($rootScope, $scope, $http, $window, $location, GLOBAL_VALUES){
     var ctrl = this;
-    ctrl.twitter_map_handler = ctrl.twitter_map_handler || {
+    ctrl.map_handler = ctrl.map_handler || {
       map : null,
       tiles : null,
       my_icon : null,
@@ -66,32 +66,32 @@
       init_map : function(arg_position){
         // set geo-location
         if(arg_position && arg_position.coords){
-      	  ctrl.twitter_map_handler.default_location = [arg_position.coords.latitude, arg_position.coords.longitude];
-      	  ctrl.twitter_map_handler.default_circles = [[arg_position.coords.latitude, arg_position.coords.longitude]];
+      	  ctrl.map_handler.default_location = [arg_position.coords.latitude, arg_position.coords.longitude];
+      	  ctrl.map_handler.default_circles = [[arg_position.coords.latitude, arg_position.coords.longitude]];
       	}
         // init map
-        if(!ctrl.twitter_map_handler.map){
+        if(!ctrl.map_handler.map){
           // init map
-          ctrl.twitter_map_handler.map = new L.map('front_page')
-                          .setView( ctrl.twitter_map_handler.default_location, 8);
+          ctrl.map_handler.map = new L.map('front_page')
+                          .setView( ctrl.map_handler.default_location, 8);
 
           // set map tiles
           L.tileLayer(
             'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© + Openstreetmap Contributors',
             maxZoom: 18,
-          }).addTo(ctrl.twitter_map_handler.map);
+          }).addTo(ctrl.map_handler.map);
 
           //
-          ctrl.twitter_map_handler.map._initPathRoot();
+          ctrl.map_handler.map._initPathRoot();
 
           // set d3
-          if(!ctrl.twitter_map_handler.d3_svg){
-            ctrl.twitter_map_handler.d3_svg = d3.select("div#front_page").select("svg");
+          if(!ctrl.map_handler.d3_svg){
+            ctrl.map_handler.d3_svg = d3.select("div#front_page").select("svg");
           }
 
           // define the gradient
-          ctrl.twitter_map_handler.d3_gradient = ctrl.twitter_map_handler.d3_svg.append("svg:defs")
+          ctrl.map_handler.d3_gradient = ctrl.map_handler.d3_svg.append("svg:defs")
                                         .append("svg:radialGradient")
                                         .attr("id", "gradient")
                                         .attr("x1", "0%")
@@ -101,20 +101,20 @@
                                         .attr("spreadMethod", "pad");
 
           // Define the gradient colors
-          ctrl.twitter_map_handler.d3_gradient.append("svg:stop")
+          ctrl.map_handler.d3_gradient.append("svg:stop")
                           .attr("offset", "0%")
                           .attr("stop-color", "#00f")
                           .attr("stop-opacity", 1);
 
-          ctrl.twitter_map_handler.d3_gradient.append("svg:stop")
+          ctrl.map_handler.d3_gradient.append("svg:stop")
                           .attr("offset", "100%")
                           .attr("stop-color", "#fff")
                           .attr("stop-opacity", 0);
 
           // set default data
-          ctrl.twitter_map_handler.d3_data = ctrl.twitter_map_handler.default_circles;
+          ctrl.map_handler.d3_data = ctrl.map_handler.default_circles;
           // set lat_lng for Leaflet
-          ctrl.twitter_map_handler.d3_data.forEach(function(d) {
+          ctrl.map_handler.d3_data.forEach(function(d) {
               d.LatLng = new L.LatLng(d[0], d[1]);
           });
                           
@@ -125,9 +125,9 @@
                           .style("z-index", "10000")
                           .style("visibility", "hidden");
 
-          var g = ctrl.twitter_map_handler.d3_svg.append("g");
-          ctrl.twitter_map_handler.d3_circles = g.selectAll("circle")
-                            .data(ctrl.twitter_map_handler.d3_data)
+          var g = ctrl.map_handler.d3_svg.append("g");
+          ctrl.map_handler.d3_circles = g.selectAll("circle")
+                            .data(ctrl.map_handler.d3_data)
                             .enter()
                             .append("circle")
                             .attr('r', 0)
@@ -137,12 +137,12 @@
                             .on("mousemove", function(d){return tooltip.html('tweet location: ' + d).style("top", (d3.event.pageY - 10)+"px").style("left",(d3.event.pageX + 10)+"px");})
                             .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
                           
-          ctrl.twitter_map_handler.map.on( "viewreset", ctrl.twitter_map_handler.update_d3_elem_on_map.bind(ctrl.twitter_map_handler) );
-          setTimeout( ctrl.twitter_map_handler.update_d3_elem_on_map.bind(ctrl.twitter_map_handler), 500 );
+          ctrl.map_handler.map.on( "viewreset", ctrl.map_handler.update_d3_elem_on_map.bind(ctrl.map_handler) );
+          setTimeout( ctrl.map_handler.update_d3_elem_on_map.bind(ctrl.map_handler), 500 );
 
           // set map popup
           var map_popup = L.popup();
-          map_popup.setLatLng( ctrl.twitter_map_handler.default_location )
+          map_popup.setLatLng( ctrl.map_handler.default_location )
                   .setContent( '<div style="text-align: center;">' +
                                 '<h3>Facebooc</h3>' +
                                 '<p class="lead">The best social network you\'ve never heard of!</p>' +
@@ -151,16 +151,15 @@
                                 '</p>' +
                                 '<p class="small">Or <a href="/login/">login</a> if you heard about Facebooc before it was cool.</p>' +
                                 '</div>')
-                  .openOn(ctrl.twitter_map_handler.map);
+                  .openOn(ctrl.map_handler.map);
         }
       },
       update_d3_elem_on_map : function(){
-        // var ctrl.twitter_map_handler = this;
-        ctrl.twitter_map_handler.d3_circles.attr("transform", 
+        ctrl.map_handler.d3_circles.attr("transform", 
             function(d) { 
                 return "translate("+ 
-                ctrl.twitter_map_handler.map.latLngToLayerPoint(d.LatLng).x +","+ 
-                ctrl.twitter_map_handler.map.latLngToLayerPoint(d.LatLng).y +")";
+                ctrl.map_handler.map.latLngToLayerPoint(d.LatLng).x +","+ 
+                ctrl.map_handler.map.latLngToLayerPoint(d.LatLng).y +")";
             }
         ).transition()
         .duration(900)
@@ -179,7 +178,11 @@
     ctrl.init_front_page = function(){
       console.log('Hello Facebooc Front Page');
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(ctrl.twitter_map_handler.init_map);
+        navigator.geolocation.getCurrentPosition(ctrl.map_handler.init_map, function(err){
+          //
+          console.log(err);
+          ctrl.map_handler.init_map(null);
+        }, {timeout: 500});
       }else { 
         alert("Geolocation is not supported by this browser.");
       }
