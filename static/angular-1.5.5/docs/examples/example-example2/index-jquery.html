@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Example - example-example2-jquery</title>
+  <link href="style.css" rel="stylesheet" type="text/css">
+  
+
+  <script src="../../components/jquery-2.1.1/jquery.js"></script>
+  <script src="../../../angular.js"></script>
+  <script src="../../../angular-aria.js"></script>
+  <script src="script.js"></script>
+  
+
+  
+</head>
+<body ng-app="ngAria_ngModelExample">
+  <form ng-controller="formsController">
+  <some-checkbox role="checkbox" ng-model="checked" ng-class="{active: checked}"
+    ng-disabled="isDisabled" ng-click="toggleCheckbox()"
+    aria-label="Custom Checkbox" show-attrs>
+    <span class="icon" aria-hidden="true"></span>
+    Custom Checkbox
+  </some-checkbox>
+</form>
+</body>
+</html>
