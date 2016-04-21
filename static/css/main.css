@@ -35,7 +35,7 @@ body {
 #front_page_map{
   text-align: center;
 }
-#front_page_map>a.signup_btn{
+#front_page_map > p > a.signup_btn{
   color: #fff !important;
 }
 /* end of alantai */
@@ -112,6 +112,6 @@ ul#posts li hr {
 }
 @media (max-width: 767px){
   #front_page_map{
-    max-width: 260px;
+    max-width: 230px;
   }
 }
