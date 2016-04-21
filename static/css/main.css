@@ -35,7 +35,7 @@ body {
 #front_page_map{
   text-align: center;
 }
-#front_page_map.signup_btn{
+#front_page_map>a.signup_btn{
   color: #fff !important;
 }
 /* end of alantai */
