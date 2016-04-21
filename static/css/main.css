@@ -25,8 +25,7 @@ body {
 }
 /* alantai */
 .my_navbar_search{
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding: 8px;
 }
 .my_front_page{
   min-height: 400px;
@@ -69,58 +68,17 @@ form#signup-form input:focus,form#signup-form select:focus,form#signup-form text
   border: 1px solid #eee;
   border-radius: 0;
 }
-
 .widget-signup {
   text-align: left;
 }
-
-.company-social {
-  margin-left: 0;
-  padding-left: 0;
-  margin-top: 10px;
-}
-
-.company-social {
-  text-align: left;
-}
-
-.company-social li{
-    display: inline-block;
-  margin:0 !important;
-  padding:0;
-}
-
-.company-social a{
-  margin:0;
-  padding:0;
-    display: block;
-  width: 40px;
-    height: 40px;
-    line-height: 40px;
-    text-align: center;
-    background: #3bbec0;
+.btn-skin:hover,
+.btn-skin:focus,
+.btn-skin:active,
+.btn-skin.active {
   color: #fff;
-    -webkit-transition: background .3s ease-in-out;
-    transition: background .3s ease-in-out;
+  background-color: #666;
+  border-color: #666;
 }
-.company-social a i{
-  text-align: center;
-  margin:0;
-  padding:0;
-}
-.company-social .social-facebook a{background: #3873ae;}
-.company-social .social-twitter a{background: #62c6f8;}
-.company-social .social-dribble a{background: #d74980;}
-.company-social .social-deviantart a{background: #8da356;}
-.company-social .social-google a{background: #000;}
-.company-social .social-vimeo a{background: #51a6d3;}
-.company-social .social-facebook a:hover{background: #4893ce;}
-.company-social .social-twitter a:hover{background: #82e6ff;}
-.company-social .social-dribble a:hover{background: #f769a0;}
-.company-social .social-deviantart a:hover{background: #adc376;}
-.company-social .social-google a:hover{background: #333;}
-.company-social .social-vimeo a:hover{background: #71c6f3;}
-
 /* end of alantai */
 
 .container-narrow > hr {
