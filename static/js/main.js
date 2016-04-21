@@ -1,19 +1,24 @@
 /**/
 (function($) {
+  /* jq setup */
   // Closes the Responsive Menu on Menu Item Click
   $('.navbar-collapse ul li a').click(function() {
       $('.navbar-toggle:visible').click();
   });
 
+  /* ng section */
+  // boostarp ng app
   angular.element(document).ready(function(){
     angular.bootstrap(document.body, ['mainApp']);
   });
 
+  // create app
   window.main_app = window.main_app || angular.module('mainApp', [ 'ngAnimate' ], function($interpolateProvider) {
     $interpolateProvider.startSymbol('[[');
     $interpolateProvider.endSymbol(']]');
   });
 
+  // set values for whole app
   window.main_app.value('GLOBAL_VALUES',{
     EMAIL : 'service@facebooc.com',
     TITLE : 'Facebooc',
@@ -114,12 +119,9 @@
       d3_gradient : null,
       d3_data : null,
       d3_circles : null,
-      is_set_map_center_on : true,
       default_location : [23.893589, 121.083589],
       default_circles : [[23.893589, 121.083589]],
       location_ary : [],
-      tweets_list : [],
-      is_appending : false,
       init_map : function(arg_position){
         var _this = this;
         // set geo-location
