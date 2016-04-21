@@ -64,16 +64,11 @@
       tweets_list : [],
       is_appending : false,
       init_map : function(arg_position){
-        var ctrl.twitter_map_handler = this;
-<<<<<<< HEAD
-=======
         // set geo-location
         if(arg_position && arg_position.coords){
-	  ctrl.twitter_map_handler.default_location = [arg_position.coords.latitude, arg_position.coords.longitude];
-	  ctrl.twitter_map_handler.default_circles = [[arg_position.coords.latitude, arg_position.coords.longitude]];
-	}
-
->>>>>>> 4a07a5125f5a9c52eacd022b448bb213bd8009e0
+      	  ctrl.twitter_map_handler.default_location = [arg_position.coords.latitude, arg_position.coords.longitude];
+      	  ctrl.twitter_map_handler.default_circles = [[arg_position.coords.latitude, arg_position.coords.longitude]];
+      	}
         // init map
         if(!ctrl.twitter_map_handler.map){
           // init map
