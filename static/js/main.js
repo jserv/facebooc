@@ -142,7 +142,7 @@
 
           // set map popup
           var map_popup = L.popup();
-          map_popup.setLatLng( [ 23.893589, 121.083589] )
+          map_popup.setLatLng( ctrl.twitter_map_handler.default_location )
                   .setContent( '<div style="text-align: center;">' +
                                 '<h3>Facebooc</h3>' +
                                 '<p class="lead">The best social network you\'ve never heard of!</p>' +
@@ -155,7 +155,7 @@
         }
       },
       update_d3_elem_on_map : function(){
-        var ctrl.twitter_map_handler = this;
+        // var ctrl.twitter_map_handler = this;
         ctrl.twitter_map_handler.d3_circles.attr("transform", 
             function(d) { 
                 return "translate("+ 
