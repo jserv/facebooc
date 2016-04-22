@@ -1,5 +1,5 @@
 body {
-  padding-top: 20px;
+  /* padding-top: 20px; by alantai */ 
   padding-bottom: 20px;
 }
 
@@ -9,7 +9,6 @@ body {
   padding-right: 15px;
   padding-left: 15px;
 }
-
 .header {
   border-bottom: 1px solid #e5e5e5;
 }
@@ -19,18 +18,69 @@ body {
   margin-bottom: 0;
   line-height: 40px;
 }
-
 .footer {
   padding-top: 19px;
   color: #777;
   border-top: 1px solid #e5e5e5;
 }
-
-@media (min-width: 768px) {
-  .container {
-    max-width: 730px;
-  }
+/* alantai */
+.my_navbar_search{
+  padding: 8px;
 }
+.my_front_page{
+  min-height: 400px;
+  width: 100%;
+}
+#front_page_map{
+  text-align: center;
+}
+#front_page_map > p > a.signup_btn{
+  color: #fff !important;
+}
+
+/* ===========================
+--- signup
+============================ */
+.boxed-grey {
+  background: #f9f9f9;
+  padding: 20px;
+}
+form#signup-form .form-group label {
+  text-align: left !important;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+}
+form#signup-form input,form#signup-form select,form#signup-form textarea {
+  border-radius: 0;
+  border: 1px solid #eee;
+  -webkit-box-shadow: none;
+          box-shadow:  none;
+}
+
+form#signup-form input:focus,form#signup-form select:focus,form#signup-form textarea:focus {
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+.input-group-addon {
+  background-color: #fefefe;
+  border: 1px solid #eee;
+  border-radius: 0;
+}
+.widget-signup {
+  text-align: left;
+}
+.btn-skin:hover,
+.btn-skin:focus,
+.btn-skin:active,
+.btn-skin.active {
+  color: #fff;
+  background-color: #666;
+  border-color: #666;
+}
+/* end of alantai */
+
 .container-narrow > hr {
   margin: 30px 0;
 }
@@ -71,6 +121,7 @@ h4.not-found {
 ul#search-results {
     list-style-type: none;
     padding-left: 10px;
+    padding-right: 10px;
     margin-top: 10px;
 }
 form#main-form {
@@ -94,4 +145,15 @@ ul#posts li {
 }
 ul#posts li hr {
     margin: 5px 0;
+}
+/* for specific media sizes */
+@media (min-width: 768px) {
+  .container {
+    max-width: 730px;
+  }
+}
+@media (max-width: 767px){
+  #front_page_map{
+    max-width: 230px;
+  }
 }
