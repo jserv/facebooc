@@ -205,8 +205,6 @@
 
           // set map popup
           var map_popup = L.popup();
-          map_popup.setLatLng( [ 23.893589, 121.083589] )
-                  .setContent( '<div style="text-align: center;">' +
           map_popup.setLatLng( _this.default_location )
                   .setContent( '<div id="front_page_map">' +
                                 '<h3>Facebooc</h3>' +
