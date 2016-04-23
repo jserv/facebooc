@@ -58,13 +58,13 @@ h4.not-found {
   margin-bottom: 15px;
   margin-left: 10px;
 }
-.container .header .nav li {
+.container-fluid .header .nav li {
     display: none;
 }
-.container .header .nav li.visible {
+.container-fluid .header .nav li.visible {
     display: block;
 }
-.container .header .nav .form-group {
+.container-fluid .header .nav .form-group {
     margin-top: 4px;
     margin-right: 5px;
 }
