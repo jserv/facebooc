@@ -58,7 +58,6 @@ form#signup-form input,form#signup-form select,form#signup-form textarea {
   -webkit-box-shadow: none;
           box-shadow:  none;
 }
-
 form#signup-form input:focus,form#signup-form select:focus,form#signup-form textarea:focus {
   -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
           box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
@@ -147,13 +146,16 @@ ul#posts li hr {
     margin: 5px 0;
 }
 /* for specific media sizes */
-@media (min-width: 768px) {
+@media (min-width: 1200px){}
+@media (min-width: 768px) and (max-width: 1199px) {
   .container {
     max-width: 730px;
   }
 }
-@media (max-width: 767px){
+@media (min-width: 481px) and (max-width: 767px){
   #front_page_map{
     max-width: 230px;
   }
 }
+@media (max-width: 480px){}
+/* end of for specific media sizes */
