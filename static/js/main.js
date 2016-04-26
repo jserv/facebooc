@@ -12,7 +12,7 @@
     angular.bootstrap(document.body, ['mainApp']);
   });
 
-  // create app and change interpolation to prevent from conflict
+  // create app and change interpolation to avoid the conflict
   window.main_app = window.main_app || angular.module('mainApp', [ 'ngAnimate' ], function($interpolateProvider) {
     $interpolateProvider.startSymbol('[[');
     $interpolateProvider.endSymbol(']]');
@@ -116,7 +116,7 @@
       ctrl.play_beatbox();
     }
   }
-  headerController.$injector = ['$rootScope', '$scope', '$http', '$window', '$location', 'serviceGetPageInfo', 'GLOBAL_VALUES'];
+  headerController.$injector = ['$rootScope', '$scope', '$http', '$window', '$location', 'GLOBAL_VALUES'];
   window.main_app.controller('headerCtrl', headerController);
 
   // headerController
@@ -212,6 +212,7 @@
                             .attr('fill', 'url(#gradient)')
                             .on("mouseover", function(){return tooltip.style("visibility", "visible");})
                             .on("mousemove", function(d){return tooltip.html('Facebooc Location: ' + d).style("top", (d3.event.pageY - 10)+"px").style("left",(d3.event.pageX + 10)+"px");})
+                            .on("mousemove", function(d){return tooltip.html('tweet location: ' + d).style("top", (d3.event.pageY - 10)+"px").style("left",(d3.event.pageX + 10)+"px");})
                             .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
                           
           // reset view
