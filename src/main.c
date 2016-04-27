@@ -202,10 +202,11 @@ static Response *dashboard(Request *req)
 
         bbuff = bsNewLen("", strlen(post->body) + 256);
         sprintf(bbuff,
-                "<li><span class=\"act\">%s posted:</span>"
-                "<hr/>"
+                "<div class=\"postdiv\"><li>"
+		"<span class=\"act\">%s posted:</span>"
+                "<hr/><textarea class=\"postarea\" readonly>"
                 "%s"
-                "<hr/>",
+                "</textarea><hr/>",
                 account->name,
                 post->body);
         accountDel(account);
@@ -232,7 +233,7 @@ static Response *dashboard(Request *req)
     }
 
     if (res) {
-        bsLCat(&res, "</ul>");
+        bsLCat(&res, "</div></ul>");
         templateSet(template, "graph", res);
         bsDel(res);
     } else {
