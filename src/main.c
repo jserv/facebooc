@@ -90,6 +90,7 @@ static Response *dashboard(Request *);
 static Response *profile(Request *);
 static Response *post(Request *);
 static Response *like(Request *);
+static Response *dislike(Request *);
 static Response *connect(Request *);
 static Response *search(Request *);
 static Response *login(Request *);
@@ -127,6 +128,7 @@ int main(int argc, char *argv[])
     serverAddHandler(server, search);
     serverAddHandler(server, connect);
     serverAddHandler(server, like);
+    serverAddHandler(server, dislike);
     serverAddHandler(server, post);
     serverAddHandler(server, profile);
     serverAddHandler(server, dashboard);
@@ -202,17 +204,19 @@ static Response *dashboard(Request *req)
 
         bbuff = bsNewLen("", strlen(post->body) + 256);
         sprintf(bbuff,
-                "<li><span class=\"act\">%s posted:</span>"
-                "<hr/>"
+                "<div class=\"postdiv\"><li>"
+		"<span class=\"act\">%s posted:</span>"
+                "<hr/><textarea class=\"postarea\" readonly>"
                 "%s"
-                "<hr/>",
+                "</textarea><hr/>",
                 account->name,
                 post->body);
         accountDel(account);
         bsLCat(&res, bbuff);
 
         if (liked) {
-            bsLCat(&res, "Liked - ");
+            sprintf(sbuff, "<a href=\"/dislike/%d/\">Liked</a> - ", post->id);
+	    bsLCat(&res, sbuff);
         } else {
             sprintf(sbuff, "<a href=\"/like/%d/\">Like</a> - ", post->id);
             bsLCat(&res, sbuff);
@@ -232,7 +236,7 @@ static Response *dashboard(Request *req)
     }
 
     if (res) {
-        bsLCat(&res, "</ul>");
+        bsLCat(&res, "</div></ul>");
         templateSet(template, "graph", res);
         bsDel(res);
     } else {
@@ -367,6 +371,35 @@ static Response *post(Request *req)
     else if (bsGetLen(postStr) < MAX_BODY_LEN)
         postDel(postCreate(DB, req->account->id, postStr));
 
+    return responseNewRedirect("/dashboard/");
+}
+
+static Response *dislike(Request *req)
+{
+    ROUTE(req, "/dislike/");
+
+    if (!req->account) return NULL;
+
+    int   id = -1;
+    int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
+    char *idStr = bsSubstr(req->uri, idStart, -1);
+
+    sscanf(idStr, "%d", &id);
+
+    Post *post = postGetById(DB, id);
+    if (!post) goto fail;
+
+    likeDel(dislikeCreate(DB, req->account->id, post->authorId, post->id));
+
+    if (kvFindList(req->queryString, "r")) {
+        char sbuff[1024];
+        sprintf(sbuff, "/profile/%d/", post->authorId);
+        bsDel(idStr);
+        return responseNewRedirect(sbuff);
+    }
+
+fail:
+    bsDel(idStr);
     return responseNewRedirect("/dashboard/");
 }
 

@@ -95,3 +95,15 @@ ul#posts li {
 ul#posts li hr {
     margin: 5px 0;
 }
+.postdiv {  
+   max-width: 750px;
+   margin:0 auto;
+   background-color: white;
+}
+.postarea {
+   resize:none;
+   max-width:700px;
+   width:100%;
+   outline:none;
+   border:0px solid;
+}
