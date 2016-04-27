@@ -202,10 +202,10 @@ static Response *dashboard(Request *req)
 
         bbuff = bsNewLen("", strlen(post->body) + 256);
         sprintf(bbuff,
-                "<li><span class=\"act\">%s posted:</span>"
-                "<hr/>"
+                "<div class=\"postdiv\"><li>%s posted:"
+                "<hr><textarea class=\"postarea\" readonly>"
                 "%s"
-                "<hr/>",
+                "</textarea><hr>",
                 account->name,
                 post->body);
         accountDel(account);
@@ -221,7 +221,7 @@ static Response *dashboard(Request *req)
         t = post->createdAt;
         strftime(sbuff, 128, "%c GMT", gmtime(&t));
         bsLCat(&res, sbuff);
-        bsLCat(&res, "</li>");
+        bsLCat(&res, "</div></li>");
 
         bsDel(bbuff);
         postDel(post);
