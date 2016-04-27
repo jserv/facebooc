@@ -1,5 +1,4 @@
 body {
-  padding-top: 20px;
   padding-bottom: 20px;
 }
 
@@ -12,12 +11,13 @@ body {
 
 .header {
   border-bottom: 1px solid #e5e5e5;
+  padding-top: 10px;
 }
 .header h3 {
   padding-bottom: 19px;
   margin-top: 0;
   margin-bottom: 0;
-  line-height: 40px;
+  line-height: 30px;
 }
 
 .footer {
@@ -28,7 +28,8 @@ body {
 
 @media (min-width: 768px) {
   .container {
-    max-width: 730px;
+    max-width: 830px;
+    background-color: #d9d9d9;
   }
 }
 .container-narrow > hr {
@@ -58,13 +59,13 @@ h4.not-found {
   margin-bottom: 15px;
   margin-left: 10px;
 }
-.container .header .nav li {
+.header .nav li {
     display: none;
 }
-.container .header .nav li.visible {
+.header .nav li.visible {
     display: block;
 }
-.container .header .nav .form-group {
+.header .nav .form-group {
     margin-top: 4px;
     margin-right: 5px;
 }
@@ -89,9 +90,24 @@ ul#posts {
 }
 ul#posts li {
     border: 1px solid #DDD;
-    margin-bottom: 5px;
+    
     padding: 5px;
 }
 ul#posts li hr {
     margin: 5px 0;
 }
+
+.postdiv {  
+   max-width: 750px;
+   margin:0 auto;
+   background-color: white;
+}
+
+.postarea {
+   resize:none;
+   max-width:700px;
+   width:100%;
+   outline:none;
+   border:0px solid;
+}
+
