@@ -44,6 +44,31 @@ fail:
     return like;
 }
 
+Like *dislikeCreate(sqlite3 *DB, int accountId, int authorId, int postId)
+{
+    int rc, t;
+    Like *like = NULL;
+    sqlite3_stmt *statement;
+
+    t  = time(NULL);
+    rc = sqlite3_prepare_v2(
+             DB,
+             "DELETE from likes WHERE account = ? AND post = ?",
+             -1, &statement, NULL);
+
+    if (rc != SQLITE_OK) return NULL;
+    if (sqlite3_bind_int(statement, 1, accountId) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 2, postId) != SQLITE_OK) goto fail;
+
+    if (sqlite3_step(statement) == SQLITE_DONE)
+        like = likeNew(sqlite3_last_insert_rowid(DB),
+                       t, accountId, authorId, postId);
+
+fail:
+    sqlite3_finalize(statement);
+    return like;
+}
+
 bool likeLiked(sqlite3 *DB, int accountId, int postId)
 {
     int rc;

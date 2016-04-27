@@ -11,10 +11,18 @@
     <link rel="stylesheet"
           type="text/css"
           href="/static/css/main.css" />
+
+<script>
+    function esize(i){
+	var xx=i.scrollHeight;
+	i.style.height=xx+'px';
+    }
+</script>
+
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
+  <div class="header">
             <ul class="nav nav-pills pull-right">
                 <li class="visible {%when active home active%} {%when loggedIn t hidden%} ">
                     <a href="/">Home</a>
@@ -47,5 +55,7 @@
                 </li>
             </ul>
 
-            <h3 class="text-muted"><a href="/">Facebooc</a></h3>
+            <h3 class="text-muted" style="padding-left: 10%;padding-top:5px;"><a href="/">Facebooc</a></h3>
         </div>
+
+    <div class="container">   
