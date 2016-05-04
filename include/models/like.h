@@ -14,6 +14,7 @@ typedef struct Like {
 
 Like *likeNew(int, int, int, int, int);
 Like *likeCreate(sqlite3 *, int, int, int);
+Like *likeDelete(sqlite3 *, int, int, int);
 bool  likeLiked(sqlite3 *, int, int);
 void  likeDel(Like *);
 

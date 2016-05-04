@@ -90,6 +90,7 @@ static Response *dashboard(Request *);
 static Response *profile(Request *);
 static Response *post(Request *);
 static Response *like(Request *);
+static Response *unlike(Request *);
 static Response *connect(Request *);
 static Response *search(Request *);
 static Response *login(Request *);
@@ -127,6 +128,7 @@ int main(int argc, char *argv[])
     serverAddHandler(server, search);
     serverAddHandler(server, connect);
     serverAddHandler(server, like);
+    serverAddHandler(server, unlike);
     serverAddHandler(server, post);
     serverAddHandler(server, profile);
     serverAddHandler(server, dashboard);
@@ -212,7 +214,8 @@ static Response *dashboard(Request *req)
         bsLCat(&res, bbuff);
 
         if (liked) {
-            bsLCat(&res, "Liked - ");
+            sprintf(sbuff, "<a href=\"/unlike/%d/\">Liked</a> - ", post->id);
+	    bsLCat(&res, sbuff);
         } else {
             sprintf(sbuff, "<a href=\"/like/%d/\">Like</a> - ", post->id);
             bsLCat(&res, sbuff);
@@ -367,6 +370,35 @@ static Response *post(Request *req)
     else if (bsGetLen(postStr) < MAX_BODY_LEN)
         postDel(postCreate(DB, req->account->id, postStr));
 
+    return responseNewRedirect("/dashboard/");
+}
+
+static Response *unlike(Request *req)
+{
+    ROUTE(req, "/unlike/");
+
+    if (!req->account) return NULL;
+
+    int   id = -1;
+    int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
+    char *idStr = bsSubstr(req->uri, idStart, -1);
+
+    sscanf(idStr, "%d", &id);
+
+    Post *post = postGetById(DB, id);
+    if (!post) goto fail;
+
+    likeDel(likeDelete(DB, req->account->id, post->authorId, post->id));
+
+    if (kvFindList(req->queryString, "r")) {
+        char sbuff[1024];
+        sprintf(sbuff, "/profile/%d/", post->authorId);
+        bsDel(idStr);
+        return responseNewRedirect(sbuff);
+    }
+
+fail:
+    bsDel(idStr);
     return responseNewRedirect("/dashboard/");
 }
 
