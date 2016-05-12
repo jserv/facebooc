@@ -1,18 +1,42 @@
 {%include templates/header.html%}
-<div class="jumbotron">
-    <h1>Facebooc</h1>
-    <p class="lead">
+<div class="hero">
+    <h1>facebooc</h1>
+    <h2>
         The best social network you've never heard of!
-    </p>
-    <p>
-        <a class="btn btn-lg btn-success"
-           href="/signup/"
-           role="button">
-            Sign up today
+    </h2>
+    <div class="btn-group">
+        <a class="btn" href="/signup/"role="button">
+            REGISTER NOW
         </a>
-    </p>
-    <p class="small">
-        Or <a href="/login/">login</a> if you heard about Facebooc before it was cool.
+    </div>
+    <p>
+        Or <a href="/login/">LOGIN</a> if you heard about Facebooc before it was cool.
     </p>
 </div>
+
+<div class="content-wrapper">
+    <div class="section-about">
+        <h3>What is facebooc?</h3>
+        <p>
+            A proof-of-concept Facebook clone written in C. The only dependency is SQLite3.
+        </p>
+    </div>
+    <div class="section-build">
+        <h3>Prerequisites</h3>
+        <p>
+            Install SQLite development package:
+        </p>
+        <div class="codeblock">
+            sudo apt-get install libsqlite3-dev
+        </div>
+        <h3>Build and Run</h3>
+        <div class="codeblock">
+            cd facebooc</br>
+            make run
+        </div>
+        <h3>Licensing</h3>
+        <p>
+            Facebooc is freely redistributable under the two-clause BSD License. Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+        </p>
+    </div>
 {%include templates/footer.html%}

@@ -1,56 +1,15 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en-us">
 <head>
     <meta charset="utf-8" />
-     <link rel="icon" type="image/x-icon" href="https://assets-cdn.github.com/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="https://assets-cdn.github.com/favicon.ico">
 
     <title>Facebooc &raquo; {{subtitle}}</title>
 
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,700'
-          rel='stylesheet' type='text/css'>
-    <link rel="stylesheet"
-          type="text/css"
-	  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
-    <link rel="stylesheet"
-          type="text/css"
-          href="/static/css/main.css" />
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,700"
+          rel="stylesheet" type="text/css">
+    <link href="/static/css/normalize.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/main.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="header">
-            <h3 class="text-muted pull-left"><a href="/">Facebooc</a></h3>
-            <ul class="nav nav-pills pull-right">
-                <li class="visible {%when active home active%} {%when loggedIn t hidden%} ">
-                    <a href="/">Home</a>
-                </li>
-                <li class="visible {%when active login active%} {%when loggedIn t hidden%} ">
-                    <a href="/login/">Login</a>
-                </li>
-                <li class="visible {%when active signup active%} {%when loggedIn t hidden%} ">
-                    <a href="/signup/">Sign Up</a>
-                </li>
-                <li class="visible {%when active about active%} {%when loggedIn t hidden%} ">
-                    <a href="/about/">About</a>
-                </li>
-		<li class="{%when loggedIn t visible%} ">
-		    <form action="/search/" method="GET" class="form-inline">
-		        <div class="form-group">
-		    	<input type="text"
-		    	       class="form-control search"
-		    	       placeholder="Search for people..."
-		    	       name="q"
-		    	       value="{{searchQuery}}" />
-		        </div>
-		    </form>
-		</li>
-                <li class="{%when active dashboard active%}  {%when loggedIn t visible%} ">
-                    <a href="/dashboard/">Dashboard</a>
-                </li>
-                <li class="{%when loggedIn t visible%} ">
-                    <a href="/logout/">Logout</a>
-                </li>
-            </ul>
-            <div class="clearfix"></div>
-        </div>
-    </div>
-    <div class="container">
+    {%include templates/navbar.html%}

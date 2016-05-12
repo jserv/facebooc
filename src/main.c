@@ -195,7 +195,7 @@ static Response *dashboard(Request *req)
     ListCell *postCell  = postGetLatestGraph(DB, req->account->id, 0);
 
     if (postCell)
-        res = bsNew("<ul id=\"posts\">");
+        res = bsNew("<ul class=\"posts\">");
 
     while (postCell) {
         post = (Post *)postCell->value;
@@ -204,27 +204,28 @@ static Response *dashboard(Request *req)
 
         bbuff = bsNewLen("", strlen(post->body) + 256);
         sprintf(bbuff,
-                "<div class=\"postdiv\"><li>%s posted:"
-                "<hr><textarea class=\"postarea\" readonly>"
+                "<li class=\"post-item\">"
+                "<div class=\"post-author\">%s</div>"
+                "<div class=\"post-content\">"
                 "%s"
-                "</textarea><hr>",
+                "</div>",
                 account->name,
                 post->body);
         accountDel(account);
         bsLCat(&res, bbuff);
 
         if (liked) {
-            sprintf(sbuff, "<a href=\"/unlike/%d/\">Liked</a> - ", post->id);
+            sprintf(sbuff, "<a class=\"btn\" href=\"/unlike/%d/\">Liked</a> - ", post->id);
 	    bsLCat(&res, sbuff);
         } else {
-            sprintf(sbuff, "<a href=\"/like/%d/\">Like</a> - ", post->id);
+            sprintf(sbuff, "<a class=\"btn\" href=\"/like/%d/\">Like</a> - ", post->id);
             bsLCat(&res, sbuff);
         }
 
         t = post->createdAt;
         strftime(sbuff, 128, "%c GMT", gmtime(&t));
         bsLCat(&res, sbuff);
-        bsLCat(&res, "</div></li>");
+        bsLCat(&res, "</li>");
 
         bsDel(bbuff);
         postDel(post);
@@ -240,7 +241,7 @@ static Response *dashboard(Request *req)
         bsDel(res);
     } else {
         templateSet(template, "graph",
-                    "<h4 class=\"not-found\">Nothing here.</h4>");
+                    "<ul class=\"posts\"><div class=\"not-found\">Nothing here.</div></ul>");
     }
 
     templateSet(template, "active", "dashboard");
@@ -300,20 +301,20 @@ static Response *profile(Request *req)
     ListCell *postCell  = postGetLatest(DB, account->id, 0);
 
     if (postCell)
-        res = bsNew("<ul id=\"posts\">");
+        res = bsNew("<ul class=\"posts\">");
 
     while (postCell) {
         post = (Post *)postCell->value;
         liked = likeLiked(DB, req->account->id, post->id);
 
         bbuff = bsNewLen("", strlen(post->body) + 256);
-        sprintf(bbuff, "<li>%s<hr/>", post->body);
+        sprintf(bbuff, "<li class=\"post-item\"><div class=\"post-author\">%s</div>", post->body);
         bsLCat(&res, bbuff);
 
         if (liked) {
             bsLCat(&res, "Liked - ");
         } else {
-            sprintf(sbuff, "<a href=\"/like/%d/\">Like</a> - ", post->id);
+            sprintf(sbuff, "<a class=\"btn\" href=\"/like/%d/\">Like</a> - ", post->id);
             bsLCat(&res, sbuff);
         }
 
@@ -476,7 +477,7 @@ static Response *search(Request *req)
     ListCell *accountCell  = accountSearch(DB, query, 0);
 
     if (accountCell)
-        res = bsNew("<ul id=\"search-results\">");
+        res = bsNew("<ul class=\"search-results\">");
 
     while (accountCell) {
         account = (Account *)accountCell->value;
