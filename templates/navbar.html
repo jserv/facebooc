@@ -1,0 +1,18 @@
+<nav class="navbar">
+    <a class="navbar-brand pull-left" href="/">facebooc</a>
+    <ul class="navbar-list pull-right">
+        <li class="navbar-item visible {%when active login active%} {%when loggedIn t hidden%} "><a href="/login/">Login</a></li>
+        <li class="navbar-item visible {%when active signup active%} {%when loggedIn t hidden%} "><a href="/signup/">Sign Up</a></li>
+        <li class="navbar-item {%when loggedIn t visible%} ">
+		    <form action="/search/" method="GET" class="form-inline">
+		    	<input type="text"
+		    	       class="form-control search"
+		    	       placeholder="Search for people..."
+		    	       name="q"
+		    	       value="{{searchQuery}}" />
+		    </form>
+		</li>
+        <li class="navbar-item {%when active dashboard active%}  {%when loggedIn t visible%} "><a href="/dashboard/">Dashboard</a></li>
+        <li class="navbar-item {%when loggedIn t visible%} "><a href="/logout/">Logout</a></li>
+    </ul>
+</nav>

@@ -1,25 +1,24 @@
 {%include templates/header.html%}
-<div class="jumbotron">
-    <h1>Welcome back, {{accountName}}!</h1>
-    <p class="lead">
+<div class="coverboard">
+    <div class="welcome">Welcome back, {{accountName}}!</div>
+    <p>
         Here's what your friends have been up to:
     </p>
 </div>
 
-{{graph}}
-
-<hr/>
-
-<form action="/post/" method="POST" id="main-form" role="form">
+<form class="post" action="/post/" method="POST" id="main-form" role="form">
     <div class="form-group">
         <textarea class="form-control"
                   id="post"
                   name="post"
-                  rows="5"
+                  rows="3"
                   placeholder="What would you like to share?"></textarea>
     </div>
 
-    <input class="btn btn-success pull-right" type="submit" value="Post" />
+    <input class="btn btn-inline pull-right" type="submit" value="Post" />
     <div class="clearfix"></div>
 </form>
+
+{{graph}}
+
 {%include templates/footer.html%}

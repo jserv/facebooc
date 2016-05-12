@@ -1,25 +1,24 @@
 {%include templates/header.html%}
 <form action="" method="POST" id="main-form" role="form">
+    <div class="title">Login</div>
     <div class="form-group">
-        <label for="username"
-               class="control-label">Username: </label>
+        <label for="username" class="control-label">Username</label>
         <input type="text"
                class="form-control"
                id="username"
                name="username"
-               value="{{formUsername}}" />
-        <p class="bg-danger">{{usernameError}}</p>
+               value="{{formUsername}}"/>
+        <div class="alert">{{usernameError}}</div>
     </div>
-
     <div class="form-group">
-        <label for="password">Password: </label>
+        <label for="password">Password</label>
         <input type="password"
                class="form-control"
                id="password"
-               name="password" />
-        <p class="bg-danger">{{passwordError}}</p>
+               name="password"/>
+        <div class="alert">{{passwordError}}</div>
     </div>
 
-    <input class="btn btn-default" type="submit" />
+    <input class="btn" type="submit" value="Login"/>
 </form>
 {%include templates/footer.html%}
