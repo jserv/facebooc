@@ -1,14 +1,30 @@
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/select.h>
-#include <sys/types.h>
-#include <time.h>
-#include <unistd.h>
+#ifndef _WIN32
+# include <arpa/inet.h>
+# include <netinet/in.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <sys/socket.h>
+# include <sys/stat.h>
+# include <sys/select.h>
+# include <sys/types.h>
+# include <time.h>
+# include <unistd.h>
+typedef int sockopt_t;
+#else
+# define FD_SETSIZE 4096
+# include <ws2tcpip.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <sys/stat.h>
+# include <time.h>
+# include <unistd.h>
+# undef DELETE
+# undef close
+# define close(x) closesocket(x)
+typedef char sockopt_t;
+#endif
 
 #include "bs.h"
 #include "server.h"
@@ -56,6 +72,10 @@ void serverDel(Server *server)
 {
     if (server->handlers) listDel(server->handlers);
     free(server);
+
+#ifdef _WIN32
+    WSACleanup();
+#endif
 }
 
 void serverAddHandler(Server *server, Handler handler)
@@ -90,7 +110,7 @@ static Response *staticHandler(Request *req)
 
     fseek(file, 0, SEEK_END);
     len = ftell(file);
-    sprintf(lens, "%ld", len);
+    sprintf(lens, "%ld", (long int) len);
     rewind(file);
 
     // SET BODY
@@ -141,7 +161,7 @@ static inline int makeSocket(unsigned int port)
     }
 
     {
-        int optval = 1; /* prevent from address being taken */
+        sockopt_t optval = 1; /* prevent from address being taken */
         setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
     }
 
@@ -167,7 +187,7 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
     int  nread;
     char buff[20480];
 
-    if ((nread = read(fd, buff, sizeof(buff))) < 0) {
+    if ((nread = recv(fd, buff, sizeof(buff), 0)) < 0) {
         fprintf(stderr, "error: read failed\n");
     } else if (nread > 0) {
         buff[nread] = '\0';
@@ -175,7 +195,7 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
         Request *req = requestNew(buff);
 
         if (!req) {
-            write(fd, "HTTP/1.0 400 Bad Request\r\n\r\nBad Request", 39);
+            send(fd, "HTTP/1.0 400 Bad Request\r\n\r\nBad Request", 39, 0);
             LOG_400(addr);
         } else {
             ListCell *handler  = server->handlers;
@@ -187,7 +207,7 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
             }
 
             if (!response) {
-                write(fd, "HTTP/1.0 404 Not Found\r\n\r\nNot Found!", 36);
+                send(fd, "HTTP/1.0 404 Not Found\r\n\r\nNot Found!", 36, 0);
                 LOG_REQUEST(addr, METHODS[req->method], req->path, 404);
             } else {
                 LOG_REQUEST(addr, METHODS[req->method], req->path,
@@ -208,6 +228,11 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
 
 void serverServe(Server *server)
 {
+#ifdef _WIN32
+    WSADATA wsaData;
+    WSAStartup(2 , &wsaData);
+#endif
+
     int sock = makeSocket(server->port);
     int newSock;
 

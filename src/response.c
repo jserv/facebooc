@@ -124,13 +124,13 @@ void responseWrite(Response *response, int fd)
 
     // OUTPUT
     while (buffer) {
-        write(fd, buffer->value, strlen(buffer->value));
+        send(fd, buffer->value, strlen(buffer->value), 0);
 
         buffer = buffer->next;
     }
 
-    write(fd, "\r\n", 2);
+    send(fd, "\r\n", 2, 0);
 
     if (response->body)
-        write(fd, response->body, bsGetLen(response->body));
+        send(fd, response->body, bsGetLen(response->body), 0);
 }
