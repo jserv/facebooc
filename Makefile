@@ -1,5 +1,14 @@
-CFLAGS = -O2 -g -std=c99 -Wall -D_POSIX_SOURCE -I include
+CFLAGS = -O2 -g -std=c99 -Wall -I include
 LDFLAGS = -lsqlite3
+
+UNAME_S = $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+	CFLAGS += -D_POSIX_C_SOURCE
+endif
+ifeq ($(UNAME_S),Darwin)
+	CFLAGS += -D_POSIX_C_SOURCE=199506L
+endif
+
 
 OUT = bin
 EXEC = $(OUT)/facebooc
