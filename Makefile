@@ -2,12 +2,11 @@ CFLAGS = -O2 -g -std=c99 -Wall -I include
 LDFLAGS = -lsqlite3
 
 UNAME_S = $(shell uname -s)
-ifeq ($(UNAME_S),Linux)
-	CFLAGS += -D_POSIX_C_SOURCE
-endif
-ifeq ($(UNAME_S),Darwin)
-	CFLAGS += -D_POSIX_C_SOURCE=199506L
-endif
+
+# strtok_r is provided by POSIX.1c-1995 and POSIX.1i-1995, however, with
+# the POSIX_C_SOURCE=1 on Mac OS X is corresponding to the version of
+# 1988 which is too old (defined in sys/cdefs.h)
+CFLAGS += -D_POSIX_C_SOURCE=199506L
 
 
 OUT = bin
