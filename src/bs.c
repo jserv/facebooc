@@ -152,8 +152,9 @@ void bsSetLen(char *bs, uint32_t len)
 
 uint32_t bsGetLen(char *bs)
 {
-    return (((char) * (bs + 0 - BS_HEADER_LEN) & 0xFF) << 24) |
+    return bs ?
+           (((char) * (bs + 0 - BS_HEADER_LEN) & 0xFF) << 24) |
            (((char) * (bs + 1 - BS_HEADER_LEN) & 0xFF) << 16) |
            (((char) * (bs + 2 - BS_HEADER_LEN) & 0xFF) <<  8) |
-           (((char) * (bs + 3 - BS_HEADER_LEN) & 0xFF));
+           (((char) * (bs + 3 - BS_HEADER_LEN) & 0xFF)) : 0;
 }
