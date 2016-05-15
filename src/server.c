@@ -9,10 +9,13 @@
 # include <sys/select.h>
 # include <sys/types.h>
 # include <time.h>
+# include <fcntl.h>
 # include <unistd.h>
+# include <errno.h>
 typedef int sockopt_t;
 #else
 # define FD_SETSIZE 4096
+# include <fcntl.h>
 # include <ws2tcpip.h>
 # include <stdio.h>
 # include <stdlib.h>
@@ -20,6 +23,7 @@ typedef int sockopt_t;
 # include <sys/stat.h>
 # include <time.h>
 # include <unistd.h>
+# include <errno.h>
 # undef DELETE
 # undef close
 # define close(x) closesocket(x)
@@ -64,6 +68,7 @@ Server *serverNew(unsigned int port)
 {
     Server *server = malloc(sizeof(Server));
     server->port = port;
+    server->epollfd = epoll_create1(0);
     server->handlers = NULL;
     return server;
 }
@@ -182,7 +187,34 @@ static inline int makeSocket(unsigned int port)
     return sock;
 }
 
-static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sockaddr_in *addr)
+static void setFdNonblocking(int fd)
+{
+    int fsflags = fcntl(fd, F_GETFL);
+    fsflags |= O_NONBLOCK;
+    if (fcntl(fd, F_SETFL, fsflags) == -1)
+        perror("fcntl");
+}
+
+static void serverAddFd(int epollfd, int fd, int in, int oneshot)
+{
+    struct epoll_event event;
+    event.data.fd = fd;
+    event.events = EPOLLET | EPOLLRDHUP;
+    event.events |= in ? EPOLLIN : EPOLLOUT;
+    if (oneshot)
+        event.events |= EPOLLONESHOT;
+    if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &event) == -1)
+        perror("epoll_ctl");
+    setFdNonblocking(fd);
+}
+
+static void serverDelFd(int epollfd, int fd)
+{
+    if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, NULL) == -1)
+        perror("epoll_ctl");
+}
+
+static inline void handle(Server *server, int fd, struct sockaddr_in *addr)
 {
     int  nread;
     char buff[20480];
@@ -220,10 +252,8 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
             requestDel(req);
         }
     }
-
+    serverDelFd(server->epollfd, fd);
     close(fd);
-
-    FD_CLR(fd, activeFDs);
 }
 
 void serverServe(Server *server)
@@ -232,45 +262,36 @@ void serverServe(Server *server)
     WSADATA wsaData;
     WSAStartup(2 , &wsaData);
 #endif
-
-    int sock = makeSocket(server->port);
-    int newSock;
-
-    socklen_t size;
-
-    fd_set activeFDs;
-    fd_set readFDs;
-
+    int sock, newSock, tmpfd, nfds;
     struct sockaddr_in addr;
+    struct epoll_event * events = (struct epoll_event *)malloc(sizeof(struct epoll_event) * 64);
+    struct epoll_event event;
 
-    FD_ZERO(&activeFDs);
-    FD_SET(sock, &activeFDs);
+    sock = makeSocket(server->port);
+    serverAddFd(server->epollfd, sock, 1, 0);
+    socklen_t size;
 
     fprintf(stdout, "Listening on port %d.\n\n", server->port);
 
     for (;;) {
-        readFDs = activeFDs;
-
-        if (select(FD_SETSIZE, &readFDs, NULL, NULL, NULL) < 0) {
-            fprintf(stderr, "error: failed to select\n");
-            exit(1);
-        }
-
-        for (int fd = 0; fd < FD_SETSIZE; ++fd) {
-            if (FD_ISSET(fd, &readFDs)) {
-                if (fd == sock) {
-                    size    = sizeof(addr);
-                    newSock = accept(sock, (struct sockaddr *) &addr, &size);
-
-                    if (newSock < 0) {
+        nfds = epoll_wait(server->epollfd, events, 64, -1);
+        for (int i = 0; i < nfds; ++i) {
+            event = events[i];
+            tmpfd = event.data.fd;
+            if (tmpfd == sock) {
+                size = sizeof(addr);
+                while ((newSock = accept(sock, (struct sockaddr *) &addr, &size)) > 0) {
+                    serverAddFd(server->epollfd, newSock, 1, 1);
+                }
+                if (newSock == -1) {
+                    if (errno != EAGAIN && errno != ECONNABORTED && errno != EPROTO && errno != EINTR) {
                         fprintf(stderr, "error: failed to accept connection\n");
                         exit(1);
                     }
-
-                    FD_SET(newSock, &activeFDs);
-                } else {
-                    handle(server, fd, &activeFDs, &addr);
                 }
+            }
+            else {
+                handle(server, tmpfd, &addr);
             }
         }
     }
