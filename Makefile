@@ -1,6 +1,10 @@
 CFLAGS = -O2 -g -std=c99 -Wall -I include
 LDFLAGS = -lsqlite3
 
+ifeq ($(OS),Windows_NT)
+	LDFLAGS += -lws2_32
+endif
+
 UNAME_S = $(shell uname -s)
 
 # strtok_r is provided by POSIX.1c-1995 and POSIX.1i-1995, however, with
