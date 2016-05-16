@@ -9,29 +9,28 @@ static inline char *urldecode(char *segment)
 {
     char *cc   = segment;
     char *bs   = bsNew("");
-    char cb[3] = "\0\0\0";
-    char c[2]  = "\0\0";
+    char escCode[3] = "\0\0\0";
+    char escChar[2] = "\0\0";
 
     while (*cc != '\0') {
-        if (*cc == '+') *cc = ' ';
-        if (*cc == '%') {
-            *cc = '\0';
+        switch (*cc) {
+            case '+': 
+                *cc = ' ';
+                break;
+            case '%': 
+                *cc++ = '\0';
+                bsLCat(&bs, segment);
+                escCode[0] = *cc++;
+                escCode[1] = *cc++;
+                escChar[0] = (char) strtol(escCode, NULL, 16);
 
-            bsLCat(&bs, segment);
+                segment = cc;
 
-            cb[0] = *(cc + 1);
-            cb[1] = *(cc + 2);
-            c[0]  = (char) strtol(cb, NULL, 16);
-
-            cc     += 2;
-            segment = cc + 1;
-
-            bsLCat(&bs, c);
+                bsLCat(&bs, escChar);
+                break;
         }
-
         cc++;
     }
-
     bsLCat(&bs, segment);
 
     return bs;
