@@ -235,43 +235,40 @@ void serverServe(Server *server)
 
     int sock = makeSocket(server->port);
     int newSock;
+    int nfds = sock + 1;
 
-    socklen_t size;
+    struct sockaddr_in addr;
+    socklen_t size = sizeof(addr);
 
     fd_set activeFDs;
     fd_set readFDs;
-
-    struct sockaddr_in addr;
 
     FD_ZERO(&activeFDs);
     FD_SET(sock, &activeFDs);
 
     fprintf(stdout, "Listening on port %d.\n\n", server->port);
-
     for (;;) {
         readFDs = activeFDs;
 
-        if (select(FD_SETSIZE, &readFDs, NULL, NULL, NULL) < 0) {
+        if (select(nfds, &readFDs, NULL, NULL, NULL) < 0) {
             fprintf(stderr, "error: failed to select\n");
             exit(1);
         }
 
-        for (int fd = 0; fd < FD_SETSIZE; ++fd) {
-            if (FD_ISSET(fd, &readFDs)) {
-                if (fd == sock) {
-                    size    = sizeof(addr);
-                    newSock = accept(sock, (struct sockaddr *) &addr, &size);
+        if (FD_ISSET(sock, &readFDs)) {
+            newSock = accept(sock, (struct sockaddr *) &addr, &size);
 
-                    if (newSock < 0) {
-                        fprintf(stderr, "error: failed to accept connection\n");
-                        exit(1);
-                    }
-
-                    FD_SET(newSock, &activeFDs);
-                } else {
-                    handle(server, fd, &activeFDs, &addr);
-                }
+            if (newSock < 0) {
+                fprintf(stderr, "error: failed to accept connection\n");
+                exit(1);
             }
+
+            if (newSock >= nfds) nfds = newSock + 1;
+            FD_SET(newSock, &activeFDs);
+        }
+
+        for (int fd = sock + 1; fd < nfds; ++fd) {
+            if (FD_ISSET(fd, &readFDs)) handle(server, fd, &activeFDs, &addr);
         }
     }
 }
