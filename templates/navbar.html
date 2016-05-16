@@ -16,3 +16,27 @@
         <li class="navbar-item {%when loggedIn t visible%} "><a href="/logout/">Logout</a></li>
     </ul>
 </nav>
+
+<div class="hamburger">
+    <input type="checkbox" class="toggle" />
+
+    <span></span>
+    <span></span>
+    <span></span>
+
+    <ul class="hamburger-list">
+        <li class="hamburger-item visible {%when active login active%} {%when loggedIn t hidden%} "><a href="/login/">Login</a></li>
+        <li class="hamburger-item visible {%when active signup active%} {%when loggedIn t hidden%} "><a href="/signup/">Sign Up</a></li>
+        <li class="hamburger-item {%when loggedIn t visible%} ">
+            <form action="/search/" method="GET" class="form-inline">
+                <input type="text"
+                       class="form-control search"
+                       placeholder="Search for people..."
+                       name="q"
+                       value="{{searchQuery}}" />
+            </form>
+        </li>
+        <li class="hamburger-item {%when active dashboard active%}  {%when loggedIn t visible%} "><a href="/dashboard/">Dashboard</a></li>
+        <li class="hamburger-item {%when loggedIn t visible%} "><a href="/logout/">Logout</a></li>
+    </ul>
+</div>
