@@ -119,21 +119,21 @@ int main(int argc, char *argv[])
         }
     }
     Server *server = serverNew(server_port);
-    serverAddHandler(server, notFound);
-    serverAddStaticHandler(server);
-    serverAddHandler(server, about);
-    serverAddHandler(server, signup);
-    serverAddHandler(server, logout);
-    serverAddHandler(server, login);
-    serverAddHandler(server, search);
-    serverAddHandler(server, connect);
-    serverAddHandler(server, like);
-    serverAddHandler(server, unlike);
-    serverAddHandler(server, post);
-    serverAddHandler(server, profile);
-    serverAddHandler(server, dashboard);
-    serverAddHandler(server, home);
-    serverAddHandler(server, session);
+    serverAddRoute(server, NONE, NULL, notFound);
+    serverAddStaticRoute(server, NORMAL, "/static/");
+    serverAddRoute(server, EXACT, "/about/", about);
+    serverAddRoute(server, EXACT, "/signup/", signup);
+    serverAddRoute(server, EXACT, "/logout/", logout);
+    serverAddRoute(server, EXACT, "/login/", login);
+    serverAddRoute(server, EXACT, "/search/", search);
+    serverAddRoute(server, NORMAL, "/connect/", connect);
+    serverAddRoute(server, NORMAL, "/like/", like);
+    serverAddRoute(server, NORMAL, "/unlike/", unlike);
+    serverAddRoute(server, EXACT, "/post/", post);
+    serverAddRoute(server, NORMAL, "/profile/", profile);
+    serverAddRoute(server, EXACT, "/dashboard/", dashboard);
+    serverAddRoute(server, EXACT, "/", home);
+    serverAddRoute(server, NONE, NULL, session);
     serverServe(server);
 
     return 0;
@@ -158,8 +158,6 @@ static Response *session(Request *req)
 
 static Response *home(Request *req)
 {
-    EXACT_ROUTE(req, "/");
-
     if (req->account)
         return responseNewRedirect("/dashboard/");
 
@@ -175,8 +173,6 @@ static Response *home(Request *req)
 
 static Response *dashboard(Request *req)
 {
-    EXACT_ROUTE(req, "/dashboard/");
-
     if (!req->account)
         return responseNewRedirect("/login/");
 
@@ -256,8 +252,6 @@ static Response *dashboard(Request *req)
 
 static Response *profile(Request *req)
 {
-    ROUTE(req, "/profile/");
-
     if (!req->account) return NULL;
 
     int   id = -1;
@@ -360,8 +354,6 @@ static Response *profile(Request *req)
 
 static Response *post(Request *req)
 {
-    EXACT_ROUTE(req, "/post/");
-
     if (req->method != POST) return NULL;
 
     char *postStr = kvFindList(req->postBody, "post");
@@ -376,8 +368,6 @@ static Response *post(Request *req)
 
 static Response *unlike(Request *req)
 {
-    ROUTE(req, "/unlike/");
-
     if (!req->account) return NULL;
 
     int   id = -1;
@@ -405,8 +395,6 @@ fail:
 
 static Response *like(Request *req)
 {
-    ROUTE(req, "/like/");
-
     if (!req->account) return NULL;
 
     int   id = -1;
@@ -434,7 +422,6 @@ fail:
 
 static Response *connect(Request *req)
 {
-    ROUTE(req, "/connect/");
     if (!req->account) return NULL;
 
     int   id = -1;
@@ -460,8 +447,6 @@ fail:
 
 static Response *search(Request *req)
 {
-    EXACT_ROUTE(req, "/search/");
-
     if (!req->account)
         return responseNewRedirect("/login/");
 
@@ -521,8 +506,6 @@ static Response *search(Request *req)
 
 static Response *login(Request *req)
 {
-    EXACT_ROUTE(req, "/login/");
-
     if (req->account)
         return responseNewRedirect("/dashboard/");
 
@@ -571,7 +554,6 @@ static Response *login(Request *req)
 
 static Response *logout(Request *req)
 {
-    EXACT_ROUTE(req, "/logout/");
     if (!req->account)
         return responseNewRedirect("/");
 
@@ -582,8 +564,6 @@ static Response *logout(Request *req)
 
 static Response *signup(Request *req)
 {
-    EXACT_ROUTE(req, "/signup/");
-
     if (req->account)
         return responseNewRedirect("/dashboard/");
 
@@ -672,8 +652,6 @@ static Response *signup(Request *req)
 
 static Response *about(Request *req)
 {
-    EXACT_ROUTE(req, "/about/");
-
     Response *response = responseNew();
     Template *template = templateNew("templates/about.html");
     templateSet(template, "active", "about");

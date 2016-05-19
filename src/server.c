@@ -64,13 +64,13 @@ Server *serverNew(unsigned int port)
 {
     Server *server = malloc(sizeof(Server));
     server->port = port;
-    server->handlers = NULL;
+    server->routes = NULL;
     return server;
 }
 
 void serverDel(Server *server)
 {
-    if (server->handlers) listDel(server->handlers);
+    if (server->routes) listDel(server->routes);
     free(server);
 
 #ifdef _WIN32
@@ -78,10 +78,14 @@ void serverDel(Server *server)
 #endif
 }
 
-void serverAddHandler(Server *server, Handler handler)
+Route *serverAddRoute(Server *server, ROUTE_MATCH match, const char *path, Handler handler)
 {
-    HandlerP handlerP = &handler;
-    server->handlers = listCons(handlerP, sizeof(HandlerP), server->handlers);
+    Route * route = routeNew(handler);
+    routeAddPath(route, match, path);
+
+    server->routes = listCons(route, sizeof(Route), server->routes);
+
+    return (Route *)(server->routes->value);
 }
 
 static Response *staticHandler(Request *req)
@@ -144,9 +148,9 @@ static Response *staticHandler(Request *req)
     return response;
 }
 
-void serverAddStaticHandler(Server *server)
+void serverAddStaticRoute(Server *server, ROUTE_MATCH match, const char * path)
 {
-    serverAddHandler(server, staticHandler);
+    serverAddRoute(server, match, path, staticHandler);
 }
 
 static inline int makeSocket(unsigned int port)
@@ -198,12 +202,12 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
             send(fd, "HTTP/1.0 400 Bad Request\r\n\r\nBad Request", 39, 0);
             LOG_400(addr);
         } else {
-            ListCell *handler  = server->handlers;
+            ListCell *route  = server->routes;
             Response *response = NULL;
 
-            while (handler && !response) {
-                response = (*(HandlerP)handler->value)(req);
-                handler  = handler->next;
+            while (route && !response) {
+                response = routeHandle((Route *)(route->value), req);
+                route  = route->next;
             }
 
             if (!response) {
