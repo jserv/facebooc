@@ -15,7 +15,7 @@ static inline char *urldecode(char *segment)
     while (*cc != '\0') {
         switch (*cc) {
             case '+': 
-                *cc = ' ';
+                *cc++ = ' ';
                 break;
             case '%': 
                 *cc++ = '\0';
@@ -28,8 +28,9 @@ static inline char *urldecode(char *segment)
 
                 bsLCat(&bs, escChar);
                 break;
+            default:
+                cc++;
         }
-        cc++;
     }
     bsLCat(&bs, segment);
 
