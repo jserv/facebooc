@@ -14,7 +14,7 @@ typedef struct Server {
 typedef Response *(*Handler)(Request *);
 typedef Response *(**HandlerP)(Request *);
 
-Server *serverNew(unsigned int);
+Server *serverNew(uint16_t);
 void    serverDel(Server *);
 void    serverAddHandler(Server *, Handler);
 void    serverAddStaticHandler(Server *);
