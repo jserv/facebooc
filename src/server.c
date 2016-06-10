@@ -60,7 +60,7 @@ char *METHODS[8] = {
     "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"
 };
 
-Server *serverNew(unsigned int port)
+Server *serverNew(uint16_t port)
 {
     Server *server = malloc(sizeof(Server));
     server->port = port;
