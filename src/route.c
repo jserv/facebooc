@@ -44,4 +44,3 @@ void routeAddPath(Route *route, ROUTE_MATCH match, const char *path)
     route->path = path;
     route->match = match;
 }
-
