@@ -150,6 +150,29 @@ void bsSetLen(char *bs, uint32_t len)
     *(bs + len) = '\0';
 }
 
+char *bsNewline2BR(char* bs)
+{
+    char *copy = bsNew(bs);
+    char *res  = bsNew("");
+
+    char *c = copy;
+    char *p = copy;
+
+    while (*c != '\0') {
+        if (*c == '\n') {
+            *c = '\0';
+            bsLCat(&res, p);
+            bsLCat(&res, "<br>");
+            p = c + 1;
+        }
+        ++c;
+    }
+
+    bsLCat(&res, p);
+    bsDel(copy);
+    return res;
+}
+
 uint32_t bsGetLen(char *bs)
 {
     return bs ?
