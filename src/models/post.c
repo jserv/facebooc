@@ -30,7 +30,7 @@ Post *postCreate(sqlite3 *DB, int authorId, char *body)
 
     if (rc != SQLITE_OK) return NULL;
 
-    char *escapedBody = bsEscape(body);
+    char *escapedBody = bsNl2Br(bsEscape(body));
 
     if (sqlite3_bind_int(statement, 1, t) != SQLITE_OK) goto fail;
     if (sqlite3_bind_int(statement, 2, authorId) != SQLITE_OK) goto fail;
