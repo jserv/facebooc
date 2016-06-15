@@ -69,7 +69,7 @@ Post *postGetById(sqlite3 *DB, int id)
     post = postNew(sqlite3_column_int(statement, 0),
                    sqlite3_column_int(statement, 1),
                    sqlite3_column_int(statement, 2),
-                   (char *)sqlite3_column_text(statement, 3));
+                   bsNewline2BR((char *)sqlite3_column_text(statement, 3)));
 
 fail:
     sqlite3_finalize(statement);
@@ -104,7 +104,7 @@ ListCell *postGetLatest(sqlite3 *DB, int accountId, int page)
         post = postNew(sqlite3_column_int(statement, 0),
                        sqlite3_column_int(statement, 1),
                        sqlite3_column_int(statement, 2),
-                       (char *)sqlite3_column_text(statement, 3));
+                       bsNewline2BR((char *)sqlite3_column_text(statement, 3)));
         posts = listCons(post, sizeof(Post), posts);
     }
 
@@ -147,7 +147,7 @@ ListCell *postGetLatestGraph(sqlite3 *DB, int accountId, int page)
         post = postNew(sqlite3_column_int(statement, 0),
                        sqlite3_column_int(statement, 1),
                        sqlite3_column_int(statement, 2),
-                       (char *)sqlite3_column_text(statement, 3));
+                       bsNewline2BR((char *)sqlite3_column_text(statement, 3)));
         posts = listCons(post, sizeof(Post), posts);
     }
 
