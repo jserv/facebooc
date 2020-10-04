@@ -1,4 +1,4 @@
-# Facebooc
+# Facebook
 
 Proof-of-concept Facebook clone in C.
 The only dependency is SQLite3.
@@ -11,12 +11,13 @@ sudo apt-get install libsqlite3-dev
 
 # Build and Run
 ```bash
-cd facebooc
+cd facebook
 make run
 ```
 
 Licensing
 ---------
-`Facebooc` is freely redistributable under the two-clause BSD License.
+`Facebook` is freely redistributable under the two-clause BSD License.
 Use of this source code is governed by a BSD-style license that can be found
 in the `LICENSE` file.
+
