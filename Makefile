@@ -28,7 +28,8 @@ OBJS = \
 	src/models/connection.o \
 	src/models/session.o \
 	src/models/post.o \
-	src/server.o
+	src/server.o \
+	src/route.o
 
 deps := $(OBJS:%.o=%.o.d)
 
