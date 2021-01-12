@@ -8,18 +8,22 @@
 # include <sys/stat.h>
 # include <sys/select.h>
 # include <sys/types.h>
+# include <fcntl.h>
 # include <time.h>
 # include <unistd.h>
+# include <errno.h>
 typedef int sockopt_t;
 #else
 # define FD_SETSIZE 4096
 # include <ws2tcpip.h>
+# include <fcntl.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <sys/stat.h>
 # include <time.h>
 # include <unistd.h>
+# include <errno.h>
 # undef DELETE
 # undef close
 # define close(x) closesocket(x)
@@ -64,6 +68,7 @@ Server *serverNew(uint16_t port)
 {
     Server *server = malloc(sizeof(Server));
     server->port = port;
+    server->epollfd = epoll_create1(0);
     server->handlers = NULL;
     return server;
 }
@@ -182,7 +187,32 @@ static inline int makeSocket(unsigned int port)
     return sock;
 }
 
-static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sockaddr_in *addr)
+static void setFdNonblocking(int fd)
+{
+    if (fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK) < 0)
+	perror("fcntl");
+}
+
+static void serverAddFd(int epollfd, int fd, int in, int oneshot)
+{
+    struct epoll_event event;
+    event.data.fd = fd;
+    event.events = EPOLLET | EPOLLRDHUP;
+    event.events |= in ? EPOLLIN : EPOLLOUT;
+    if (oneshot)
+        event.events |= EPOLLONESHOT;
+    if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &event) < 0)
+	perror("epoll_ctl");
+    setFdNonblocking(fd);
+}
+
+static void serverDelFd(Server *server, int fd)
+{
+    if (epoll_ctl(server->epollfd, EPOLL_CTL_DEL, fd, NULL) < 0)
+        perror("epoll_ctl");
+}
+
+static inline void handle(Server *server, int fd, struct sockaddr_in *addr)
 {
     int  nread;
     char buff[20480];
@@ -220,10 +250,8 @@ static inline void handle(Server *server, int fd, fd_set *activeFDs, struct sock
             requestDel(req);
         }
     }
-
+    serverDelFd(server, fd);
     close(fd);
-
-    FD_CLR(fd, activeFDs);
 }
 
 void serverServe(Server *server)
@@ -234,41 +262,36 @@ void serverServe(Server *server)
 #endif
 
     int sock = makeSocket(server->port);
-    int newSock;
-    int nfds = sock + 1;
-
+    int newSock, nfds, tmpfd;
     struct sockaddr_in addr;
-    socklen_t size = sizeof(addr);
+    struct epoll_event* events = (struct epoll_event*)malloc(sizeof(struct epoll_event) * 64);
+    struct epoll_event event;
+    socklen_t size;
 
-    fd_set activeFDs;
-    fd_set readFDs;
-
-    FD_ZERO(&activeFDs);
-    FD_SET(sock, &activeFDs);
+    serverAddFd(server->epollfd, sock, 1,0);
 
     fprintf(stdout, "Listening on port %d.\n\n", server->port);
+
     for (;;) {
-        readFDs = activeFDs;
-
-        if (select(nfds, &readFDs, NULL, NULL, NULL) < 0) {
-            fprintf(stderr, "error: failed to select\n");
-            exit(1);
-        }
-
-        if (FD_ISSET(sock, &readFDs)) {
-            newSock = accept(sock, (struct sockaddr *) &addr, &size);
-
-            if (newSock < 0) {
-                fprintf(stderr, "error: failed to accept connection\n");
-                exit(1);
-            }
-
-            if (newSock >= nfds) nfds = newSock + 1;
-            FD_SET(newSock, &activeFDs);
-        }
-
-        for (int fd = sock + 1; fd < nfds; ++fd) {
-            if (FD_ISSET(fd, &readFDs)) handle(server, fd, &activeFDs, &addr);
-        }
+	nfds = epoll_wait(server->epollfd, events, 64, -1);
+	for (int i = 0; i < nfds; ++i) {
+	    event = events[i];
+	    tmpfd = event.data.fd;
+	    if (tmpfd == sock) {
+	        size = sizeof(addr);
+	        while ((newSock = accept(sock, (struct sockaddr *) &addr, &size)) > 0) {
+	            serverAddFd(server->epollfd, newSock, 1, 1);
+		}
+		if (newSock == -1) {
+                    if (errno != EAGAIN && errno != ECONNABORTED && errno != EPROTO && errno != EINTR) {
+                        fprintf(stderr, "error: failed to accept connection\n");
+                        exit(1);
+		    }
+		}
+	    }
+            else {
+	        handle(server, tmpfd, &addr);
+	    }
+	}
     }
 }
