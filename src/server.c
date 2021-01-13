@@ -206,6 +206,15 @@ static void serverAddFd(int epollfd, int fd, int in, int oneshot)
     setFdNonblocking(fd);
 }
 
+static void resetOneShot(int epollfd, int fd)
+{
+    struct epoll_event event;
+    event.data.fd = fd;
+    event.events = EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLONESHOT;
+    if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &event) < 0)
+	perror("epoll_ctl");
+}
+
 static void serverDelFd(Server *server, int fd)
 {
     if (epoll_ctl(server->epollfd, EPOLL_CTL_DEL, fd, NULL) < 0)
@@ -218,7 +227,12 @@ static inline void handle(Server *server, int fd, struct sockaddr_in *addr)
     char buff[20480];
 
     if ((nread = recv(fd, buff, sizeof(buff), 0)) < 0) {
-        fprintf(stderr, "error: read failed\n");
+	if (errno == EAGAIN) {
+	    resetOneShot(server->epollfd, fd);
+	}		
+	else {
+	    fprintf(stderr, "error: read failed\n");
+	}
     } else if (nread > 0) {
         buff[nread] = '\0';
 
