@@ -1,7 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <sys/epoll.h>
 #include "list.h"
 #include "request.h"
 #include "response.h"

@@ -64,11 +64,21 @@ char *METHODS[8] = {
     "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"
 };
 
+#if defined(__linux__)
+#include <sys/epoll.h>
+#elif defined(__APPLE__)
+#include <sys/event.h>
+#endif
+
 Server *serverNew(uint16_t port)
 {
     Server *server = malloc(sizeof(Server));
     server->port = port;
+#if defined(__linux__)
     server->epollfd = epoll_create1(0);
+#elif defined(__APPLE__)
+    server->epollfd = kqueue();
+#endif
     server->handlers = NULL;
     return server;
 }
@@ -195,6 +205,7 @@ static void setFdNonblocking(int fd)
 
 static void serverAddFd(int epollfd, int fd, int in, int oneshot)
 {
+#if defined(__linux__)
     struct epoll_event event;
     event.data.fd = fd;
     event.events = EPOLLET | EPOLLRDHUP;
@@ -202,23 +213,52 @@ static void serverAddFd(int epollfd, int fd, int in, int oneshot)
     if (oneshot)
         event.events |= EPOLLONESHOT;
     if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &event) < 0)
-	perror("epoll_ctl");
+	    perror("epoll_ctl");
+#elif defined(__APPLE__)
+    struct kevent event;
+    event.ident = fd;
+    event.flags = EV_ADD | EV_ENABLE | EV_CLEAR;
+    if (oneshot)
+        event.flags |= EV_ONESHOT;
+    EV_SET(&event, fd, EVFILT_READ, event.flags, 0, 0, NULL);
+    if(kevent(epollfd, &event, 1, NULL, 0, NULL) < 0) {
+        perror("kevent");
+    }
+#endif
     setFdNonblocking(fd);
 }
 
 static void resetOneShot(int epollfd, int fd)
 {
+#if defined(__linux__)
     struct epoll_event event;
     event.data.fd = fd;
     event.events = EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLONESHOT;
     if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &event) < 0)
-	perror("epoll_ctl");
+	    perror("epoll_ctl");
+#elif defined(__APPLE__)
+    struct kevent event;
+    event.ident = fd;
+    event.flags = EV_ADD | EV_ENABLE | EV_CLEAR | EV_ONESHOT;
+    EV_SET(&event, fd, EVFILT_READ, event.flags, 0, 0, NULL);
+    if(kevent(epollfd, &event, 1, NULL, 0, NULL) < 0) {
+        perror("kevent");
+    }
+#endif
 }
 
 static void serverDelFd(Server *server, int fd)
 {
+#if defined(__linux__)
     if (epoll_ctl(server->epollfd, EPOLL_CTL_DEL, fd, NULL) < 0)
         perror("epoll_ctl");
+#elif defined(__APPLE__)
+    struct kevent event;
+    EV_SET(&event, fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+    if(kevent(server->epollfd, &event, 1, NULL, 0, NULL) != -1) {
+        perror("kevent");
+    }
+#endif
 }
 
 static inline void handle(Server *server, int fd, struct sockaddr_in *addr)
@@ -227,12 +267,12 @@ static inline void handle(Server *server, int fd, struct sockaddr_in *addr)
     char buff[20480];
 
     if ((nread = recv(fd, buff, sizeof(buff), 0)) < 0) {
-	if (errno == EAGAIN) {
-	    resetOneShot(server->epollfd, fd);
-	}		
-	else {
-	    fprintf(stderr, "error: read failed\n");
-	}
+	    if (errno == EAGAIN) {
+	        resetOneShot(server->epollfd, fd);
+	    }		
+	    else {
+	        fprintf(stderr, "error: read failed\n");
+	    }
     } else if (nread > 0) {
         buff[nread] = '\0';
 
@@ -278,8 +318,14 @@ void serverServe(Server *server)
     int sock = makeSocket(server->port);
     int newSock, nfds, tmpfd;
     struct sockaddr_in addr;
+#if defined(__linux__)
     struct epoll_event* events = (struct epoll_event*)malloc(sizeof(struct epoll_event) * 64);
     struct epoll_event event;
+#elif defined(__APPLE__)
+    struct kevent* events = (struct kevent*)malloc(sizeof(struct kevent) * 64);
+    struct kevent event;
+#endif
+    
     socklen_t size;
 
     serverAddFd(server->epollfd, sock, 1,0);
@@ -287,25 +333,33 @@ void serverServe(Server *server)
     fprintf(stdout, "Listening on port %d.\n\n", server->port);
 
     for (;;) {
-	nfds = epoll_wait(server->epollfd, events, 64, -1);
-	for (int i = 0; i < nfds; ++i) {
-	    event = events[i];
-	    tmpfd = event.data.fd;
-	    if (tmpfd == sock) {
-	        size = sizeof(addr);
-	        while ((newSock = accept(sock, (struct sockaddr *) &addr, &size)) > 0) {
-	            serverAddFd(server->epollfd, newSock, 1, 1);
-		}
-		if (newSock == -1) {
-                    if (errno != EAGAIN && errno != ECONNABORTED && errno != EPROTO && errno != EINTR) {
-                        fprintf(stderr, "error: failed to accept connection\n");
-                        exit(1);
-		    }
-		}
+	#if defined(__linux__)
+        nfds = epoll_wait(server->epollfd, events, 64, -1);
+    #elif defined(__APPLE__)
+        nfds = kevent(server->epollfd, NULL, 0, events, 64, NULL);
+    #endif
+	    for (int i = 0; i < nfds; ++i) {
+            event = events[i];
+        #if defined(__linux__)
+	        tmpfd = event.data.fd;
+        #elif defined(__APPLE__)
+            tmpfd = (int)event.ident;
+        #endif
+	        if (tmpfd == sock) {
+	            size = sizeof(addr);
+	            while ((newSock = accept(sock, (struct sockaddr *) &addr, &size)) > 0) {
+	                serverAddFd(server->epollfd, newSock, 1, 1);
+	    	    }
+                if (newSock == -1) {
+                            if (errno != EAGAIN && errno != ECONNABORTED && errno != EPROTO && errno != EINTR) {
+                                fprintf(stderr, "error: failed to accept connection\n");
+                                exit(1);
+                    }
+                }
+	        }
+                else {
+	            handle(server, tmpfd, &addr);
+	        }
 	    }
-            else {
-	        handle(server, tmpfd, &addr);
-	    }
-	}
     }
 }
