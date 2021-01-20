@@ -1,13 +1,14 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <stdint.h>
 #include "list.h"
 #include "request.h"
 #include "response.h"
 
 typedef struct Server {
     unsigned int port;
-
+    uintptr_t priv;
     ListCell *handlers;
 } Server;
 

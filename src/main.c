@@ -188,6 +188,7 @@ static Response *dashboard(Request *req)
     char *bbuff = NULL;
     time_t t;
     bool liked;
+    struct tm *info;
 
     Account *account = NULL;
     Post *post = NULL;
@@ -223,7 +224,9 @@ static Response *dashboard(Request *req)
         }
 
         t = post->createdAt;
-        strftime(sbuff, 128, "%c GMT", gmtime(&t));
+        info = gmtime(&t);
+        info->tm_hour = info->tm_hour + 8;
+        strftime(sbuff, 128, "%c GMT+8", info);
         bsLCat(&res, sbuff);
         bsLCat(&res, "</li>");
 
