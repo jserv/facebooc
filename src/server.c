@@ -202,7 +202,7 @@ static inline int makeSocket(unsigned int port)
 static void setFdNonblocking(int fd)
 {
     if (fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK) < 0)
-	perror("fcntl");
+        perror("fcntl");
 }
 
 static void serverAddFd(int epollfd, int fd, int in, int oneshot)
@@ -215,7 +215,7 @@ static void serverAddFd(int epollfd, int fd, int in, int oneshot)
     if (oneshot)
         event.events |= EPOLLONESHOT;
     if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &event) < 0)
-	    perror("epoll_ctl");
+        perror("epoll_ctl");
 #elif defined(__APPLE__)
     struct kevent event;
     event.ident = fd;
@@ -237,7 +237,7 @@ static void resetOneShot(int epollfd, int fd)
     event.data.fd = fd;
     event.events = EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLONESHOT;
     if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &event) < 0)
-	    perror("epoll_ctl");
+        perror("epoll_ctl");
 #elif defined(__APPLE__)
     struct kevent event;
     event.ident = fd;
