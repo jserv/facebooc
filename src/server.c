@@ -68,6 +68,8 @@ char *METHODS[8] = {
 #include <sys/epoll.h>
 #elif defined(__APPLE__)
 #include <sys/event.h>
+#else
+#error Unsupported platform
 #endif
 
 Server *serverNew(uint16_t port)
@@ -221,7 +223,7 @@ static void serverAddFd(int epollfd, int fd, int in, int oneshot)
     if (oneshot)
         event.flags |= EV_ONESHOT;
     EV_SET(&event, fd, EVFILT_READ, event.flags, 0, 0, NULL);
-    if(kevent(epollfd, &event, 1, NULL, 0, NULL) < 0) {
+    if (kevent(epollfd, &event, 1, NULL, 0, NULL) < 0) {
         perror("kevent");
     }
 #endif
@@ -241,7 +243,7 @@ static void resetOneShot(int epollfd, int fd)
     event.ident = fd;
     event.flags = EV_ADD | EV_ENABLE | EV_CLEAR | EV_ONESHOT;
     EV_SET(&event, fd, EVFILT_READ, event.flags, 0, 0, NULL);
-    if(kevent(epollfd, &event, 1, NULL, 0, NULL) < 0) {
+    if (kevent(epollfd, &event, 1, NULL, 0, NULL) < 0) {
         perror("kevent");
     }
 #endif
@@ -255,7 +257,7 @@ static void serverDelFd(Server *server, int fd)
 #elif defined(__APPLE__)
     struct kevent event;
     EV_SET(&event, fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-    if(kevent(server->priv, &event, 1, NULL, 0, NULL) != -1) {
+    if (kevent(server->priv, &event, 1, NULL, 0, NULL) != -1) {
         perror("kevent");
     }
 #endif
