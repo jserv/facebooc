@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <time.h>
 #include <unistd.h>
-#include <sys/socket.h>
 
 #include "bs.h"
 #include "kv.h"
@@ -10,22 +10,34 @@
 
 char *STATUSES[5][25] = {
     {"Continue", "Switching Protocols"},
-    {"OK", "Created", "Accepted", "Non-Authoritative Information",
-     "No Content", "Reset Content", "Partial Content"},
+    {"OK", "Created", "Accepted", "Non-Authoritative Information", "No Content",
+     "Reset Content", "Partial Content"},
     {"Multiple Choices", "Moved Permanently", "Found", "See Other",
      "Not Modified", "Use Proxy", "Switch Proxy", "Temporary Redirect",
      "Permanent Redirect"},
-    {"Bad Request", "Unauthorized", "Payment Required", "Forbidden",
-     "Not Found", "Method Not Allowed", "Not Acceptable",
-     "Proxy Authentication Required", "Request Timeout", "Conflict",
-     "Gone", "Length Required", "Precondition Failed",
-     "Request Entity Too Large", "Request-URI Too Long",
-     "Unsupported Media Type", "Requested Range Not Satisfiable",
-     "Expectation Failed", "I'm A Teapot", "Authentication Timeout",
+    {"Bad Request",
+     "Unauthorized",
+     "Payment Required",
+     "Forbidden",
+     "Not Found",
+     "Method Not Allowed",
+     "Not Acceptable",
+     "Proxy Authentication Required",
+     "Request Timeout",
+     "Conflict",
+     "Gone",
+     "Length Required",
+     "Precondition Failed",
+     "Request Entity Too Large",
+     "Request-URI Too Long",
+     "Unsupported Media Type",
+     "Requested Range Not Satisfiable",
+     "Expectation Failed",
+     "I'm A Teapot",
+     "Authentication Timeout",
      "Enhance Your Calm"},
     {"Internal Server Error", "Not Implemneted", "Bad Gateway",
-     "Service Unavailable", "Gateway Timeout",
-     "HTTP Version Not Supported"},
+     "Service Unavailable", "Gateway Timeout", "HTTP Version Not Supported"},
 };
 
 Response *responseNew()
@@ -57,8 +69,12 @@ void responseSetBody(Response *response, char *body)
     response->body = body;
 }
 
-void responseAddCookie(Response *response, char *key, char *value,
-                       char *domain, char *path, int duration)
+void responseAddCookie(Response *response,
+                       char *key,
+                       char *value,
+                       char *domain,
+                       char *path,
+                       int duration)
 {
     char cbuff[512];
     char sbuff[100];
@@ -84,14 +100,16 @@ void responseAddCookie(Response *response, char *key, char *value,
 
 void responseAddHeader(Response *response, char *key, char *value)
 {
-    response->headers = listCons(kvNew(key, value), sizeof(KV),
-                                 response->headers);
+    response->headers =
+        listCons(kvNew(key, value), sizeof(KV), response->headers);
 }
 
 void responseDel(Response *response)
 {
-    if (response->headers) kvDelList(response->headers);
-    if (response->body) bsDel(response->body);
+    if (response->headers)
+        kvDelList(response->headers);
+    if (response->body)
+        bsDel(response->body);
 
     free(response);
 }
@@ -107,18 +125,16 @@ void responseWrite(Response *response, int fd)
     header = response->headers;
 
     while (header) {
-        sprintf(sbuffer, "%s: %s\r\n",
-                ((KV *)header->value)->key,
-                ((KV *)header->value)->value);
+        sprintf(sbuffer, "%s: %s\r\n", ((KV *) header->value)->key,
+                ((KV *) header->value)->value);
 
-        buffer = listCons(sbuffer,
-                          sizeof(char) * (strlen(sbuffer) + 1), buffer);
+        buffer =
+            listCons(sbuffer, sizeof(char) * (strlen(sbuffer) + 1), buffer);
         header = header->next;
     }
 
     // STATUS
-    sprintf(sbuffer, "HTTP/1.0 %d %s\r\n",
-            response->status,
+    sprintf(sbuffer, "HTTP/1.0 %d %s\r\n", response->status,
             STATUSES[response->status / 100 - 1][response->status % 100]);
 
     buffer = listCons(sbuffer, sizeof(char) * (strlen(sbuffer) + 1), buffer);

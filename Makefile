@@ -1,4 +1,4 @@
-CFLAGS = -O2 -g -std=c99 -Wall -I include
+CFLAGS = -O3 -std=c11 -Wall -Wextra -I include
 LDFLAGS = -lsqlite3
 
 ifeq ($(OS),Windows_NT)

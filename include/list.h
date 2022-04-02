@@ -4,9 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef enum IterationResult {
-    BREAK, DONE
-} IterationResult;
+typedef enum IterationResult { BREAK, DONE } IterationResult;
 
 typedef bool (*ListIterator)(void *);
 
@@ -17,9 +15,9 @@ typedef struct Cell {
     size_t size;
 } ListCell;
 
-ListCell        *listCons(void *, size_t, ListCell *);
-ListCell        *listReverse(ListCell *);
-void             listDel(ListCell *);
-IterationResult  listForEach(ListCell *, ListIterator);
+ListCell *listCons(void *, size_t, ListCell *);
+ListCell *listReverse(ListCell *);
+void listDel(ListCell *);
+IterationResult listForEach(ListCell *, ListIterator);
 
 #endif

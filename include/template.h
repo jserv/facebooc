@@ -10,8 +10,8 @@ typedef struct Template {
 } Template;
 
 Template *templateNew(char *);
-void      templateDel(Template *);
-void      templateSet(Template *, char *, char *);
-char     *templateRender(Template *);
+void templateDel(Template *);
+void templateSet(Template *, char *, char *);
+char *templateRender(Template *);
 
 #endif

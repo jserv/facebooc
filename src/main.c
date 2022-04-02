@@ -15,13 +15,15 @@
 #include "models/post.h"
 #include "models/session.h"
 
-Server  *server = NULL;
+Server *server = NULL;
 sqlite3 *DB = NULL;
 
 static void sig(int signum)
 {
-    if (server) serverDel(server);
-    if (DB) sqlite3_close(DB);
+    if (server)
+        serverDel(server);
+    if (DB)
+        sqlite3_close(DB);
 
     fprintf(stdout, "\n[%d] Bye!\n", signum);
     exit(0);
@@ -45,43 +47,48 @@ static void initDB()
         exit(1);
     }
 
-    createDB("CREATE TABLE IF NOT EXISTS accounts ("
-             "  id        INTEGER PRIMARY KEY ASC"
-             ", createdAt INTEGER"
-             ", name      TEXT"
-             ", username  TEXT"
-             ", email     TEXT UNIQUE"
-             ", password  TEXT"
-             ")");
+    createDB(
+        "CREATE TABLE IF NOT EXISTS accounts ("
+        "  id        INTEGER PRIMARY KEY ASC"
+        ", createdAt INTEGER"
+        ", name      TEXT"
+        ", username  TEXT"
+        ", email     TEXT UNIQUE"
+        ", password  TEXT"
+        ")");
 
-    createDB("CREATE TABLE IF NOT EXISTS sessions ("
-             "  id        INTEGER PRIMARY KEY ASC"
-             ", createdAt INTEGER"
-             ", account   INTEGER"
-             ", session   TEXT"
-             ")");
+    createDB(
+        "CREATE TABLE IF NOT EXISTS sessions ("
+        "  id        INTEGER PRIMARY KEY ASC"
+        ", createdAt INTEGER"
+        ", account   INTEGER"
+        ", session   TEXT"
+        ")");
 
-    createDB("CREATE TABLE IF NOT EXISTS connections ("
-             "  id        INTEGER PRIMARY KEY ASC"
-             ", createdAt INTEGER"
-             ", account1  INTEGER"
-             ", account2  INTEGER"
-             ")");
+    createDB(
+        "CREATE TABLE IF NOT EXISTS connections ("
+        "  id        INTEGER PRIMARY KEY ASC"
+        ", createdAt INTEGER"
+        ", account1  INTEGER"
+        ", account2  INTEGER"
+        ")");
 
-    createDB("CREATE TABLE IF NOT EXISTS posts ("
-             "  id        INTEGER PRIMARY KEY ASC"
-             ", createdAt INTEGER"
-             ", author    INTEGER"
-             ", body      TEXT"
-             ")");
+    createDB(
+        "CREATE TABLE IF NOT EXISTS posts ("
+        "  id        INTEGER PRIMARY KEY ASC"
+        ", createdAt INTEGER"
+        ", author    INTEGER"
+        ", body      TEXT"
+        ")");
 
-    createDB("CREATE TABLE IF NOT EXISTS likes ("
-             "  id        INTEGER PRIMARY KEY ASC"
-             ", createdAt INTEGER"
-             ", account   INTEGER"
-             ", author    INTEGER"
-             ", post      INTEGER"
-             ")");
+    createDB(
+        "CREATE TABLE IF NOT EXISTS likes ("
+        "  id        INTEGER PRIMARY KEY ASC"
+        ", createdAt INTEGER"
+        ", account   INTEGER"
+        ", author    INTEGER"
+        ", post      INTEGER"
+        ")");
 }
 
 static Response *session(Request *);
@@ -101,8 +108,7 @@ static Response *notFound(Request *);
 
 int main(int argc, char *argv[])
 {
-    if (signal(SIGINT,  sig) == SIG_ERR ||
-        signal(SIGTERM, sig) == SIG_ERR) {
+    if (signal(SIGINT, sig) == SIG_ERR || signal(SIGTERM, sig) == SIG_ERR) {
         fprintf(stderr, "error: failed to bind signal handler\n");
         return 1;
     }
@@ -113,8 +119,10 @@ int main(int argc, char *argv[])
 
     uint16_t server_port = 8080;
     if (argc > 1) {
-        if (sscanf(argv[1], "%u", &server_port) == 0 || server_port > 65535) {
-            fprintf(stderr, "error: invalid command line argument, using default port 8080.\n");
+        if (sscanf(argv[1], "%hu", &server_port) == 0) {
+            fprintf(stderr,
+                    "error: invalid command line argument, using default port "
+                    "8080.\n");
             server_port = 8080;
         }
     }
@@ -141,10 +149,11 @@ int main(int argc, char *argv[])
 
 /* handlers */
 
-#define invalid(k, v) {          \
-    templateSet(template, k, v); \
-    valid = false;               \
-}
+#define invalid(k, v)                \
+    {                                \
+        templateSet(template, k, v); \
+        valid = false;               \
+    }
 
 static Response *session(Request *req)
 {
@@ -193,13 +202,13 @@ static Response *dashboard(Request *req)
     Account *account = NULL;
     Post *post = NULL;
     ListCell *postPCell = NULL;
-    ListCell *postCell  = postGetLatestGraph(DB, req->account->id, 0);
+    ListCell *postCell = postGetLatestGraph(DB, req->account->id, 0);
 
     if (postCell)
         res = bsNew("<ul class=\"posts\">");
 
     while (postCell) {
-        post = (Post *)postCell->value;
+        post = (Post *) postCell->value;
         account = accountGetById(DB, post->authorId);
         liked = likeLiked(DB, req->account->id, post->id);
 
@@ -210,16 +219,17 @@ static Response *dashboard(Request *req)
                 "<div class=\"post-content\">"
                 "%s"
                 "</div>",
-                account->name,
-                post->body);
+                account->name, post->body);
         accountDel(account);
         bsLCat(&res, bbuff);
 
         if (liked) {
-            sprintf(sbuff, "<a class=\"btn\" href=\"/unlike/%d/\">Liked</a> - ", post->id);
-	    bsLCat(&res, sbuff);
+            sprintf(sbuff, "<a class=\"btn\" href=\"/unlike/%d/\">Liked</a> - ",
+                    post->id);
+            bsLCat(&res, sbuff);
         } else {
-            sprintf(sbuff, "<a class=\"btn\" href=\"/like/%d/\">Like</a> - ", post->id);
+            sprintf(sbuff, "<a class=\"btn\" href=\"/like/%d/\">Like</a> - ",
+                    post->id);
             bsLCat(&res, sbuff);
         }
 
@@ -233,7 +243,7 @@ static Response *dashboard(Request *req)
         bsDel(bbuff);
         postDel(post);
         postPCell = postCell;
-        postCell  = postCell->next;
+        postCell = postCell->next;
 
         free(postPCell);
     }
@@ -244,7 +254,8 @@ static Response *dashboard(Request *req)
         bsDel(res);
     } else {
         templateSet(template, "graph",
-                    "<ul class=\"posts\"><div class=\"not-found\">Nothing here.</div></ul>");
+                    "<ul class=\"posts\"><div class=\"not-found\">Nothing "
+                    "here.</div></ul>");
     }
 
     templateSet(template, "active", "dashboard");
@@ -261,26 +272,27 @@ static Response *profile(Request *req)
 {
     ROUTE(req, "/profile/");
 
-    if (!req->account) return NULL;
+    if (!req->account)
+        return NULL;
 
-    int   id = -1;
-    int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
+    int id = -1;
+    int idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
     char *idStr = bsSubstr(req->uri, idStart, -1);
 
     sscanf(idStr, "%d", &id);
 
     Account *account = accountGetById(DB, id);
 
-    if (!account) return NULL;
+    if (!account)
+        return NULL;
 
     if (account->id == req->account->id)
         return responseNewRedirect("/dashboard/");
 
     Response *response = responseNew();
     Template *template = templateNew("templates/profile.html");
-    Connection *connection = connectionGetByAccountIds(DB,
-                                                       req->account->id,
-                                                       account->id);
+    Connection *connection =
+        connectionGetByAccountIds(DB, req->account->id, account->id);
     char connectStr[512];
 
     if (connection) {
@@ -289,8 +301,7 @@ static Response *profile(Request *req)
         sprintf(connectStr,
                 "You and %s are not connected."
                 " <a href=\"/connect/%d/\">Click here</a> to connect!",
-                account->name,
-                account->id);
+                account->name, account->id);
     }
 
     char *res = NULL;
@@ -301,23 +312,26 @@ static Response *profile(Request *req)
 
     Post *post = NULL;
     ListCell *postPCell = NULL;
-    ListCell *postCell  = postGetLatest(DB, account->id, 0);
+    ListCell *postCell = postGetLatest(DB, account->id, 0);
 
     if (postCell)
         res = bsNew("<ul class=\"posts\">");
 
     while (postCell) {
-        post = (Post *)postCell->value;
+        post = (Post *) postCell->value;
         liked = likeLiked(DB, req->account->id, post->id);
 
         bbuff = bsNewLen("", strlen(post->body) + 256);
-        sprintf(bbuff, "<li class=\"post-item\"><div class=\"post-author\">%s</div>", post->body);
+        sprintf(bbuff,
+                "<li class=\"post-item\"><div class=\"post-author\">%s</div>",
+                post->body);
         bsLCat(&res, bbuff);
 
         if (liked) {
             bsLCat(&res, "Liked - ");
         } else {
-            sprintf(sbuff, "<a class=\"btn\" href=\"/like/%d/\">Like</a> - ", post->id);
+            sprintf(sbuff, "<a class=\"btn\" href=\"/like/%d/\">Like</a> - ",
+                    post->id);
             bsLCat(&res, sbuff);
         }
 
@@ -329,7 +343,7 @@ static Response *profile(Request *req)
         bsDel(bbuff);
         postDel(post);
         postPCell = postCell;
-        postCell  = postCell->next;
+        postCell = postCell->next;
 
         free(postPCell);
     }
@@ -365,7 +379,8 @@ static Response *post(Request *req)
 {
     EXACT_ROUTE(req, "/post/");
 
-    if (req->method != POST) return NULL;
+    if (req->method != POST)
+        return NULL;
 
     char *postStr = kvFindList(req->postBody, "post");
 
@@ -381,16 +396,18 @@ static Response *unlike(Request *req)
 {
     ROUTE(req, "/unlike/");
 
-    if (!req->account) return NULL;
+    if (!req->account)
+        return NULL;
 
-    int   id = -1;
-    int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
+    int id = -1;
+    int idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
     char *idStr = bsSubstr(req->uri, idStart, -1);
 
     sscanf(idStr, "%d", &id);
 
     Post *post = postGetById(DB, id);
-    if (!post) goto fail;
+    if (!post)
+        goto fail;
 
     likeDel(likeDelete(DB, req->account->id, post->authorId, post->id));
 
@@ -410,16 +427,18 @@ static Response *like(Request *req)
 {
     ROUTE(req, "/like/");
 
-    if (!req->account) return NULL;
+    if (!req->account)
+        return NULL;
 
-    int   id = -1;
-    int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
+    int id = -1;
+    int idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
     char *idStr = bsSubstr(req->uri, idStart, -1);
 
     sscanf(idStr, "%d", &id);
 
     Post *post = postGetById(DB, id);
-    if (!post) goto fail;
+    if (!post)
+        goto fail;
 
     likeDel(likeCreate(DB, req->account->id, post->authorId, post->id));
 
@@ -438,16 +457,18 @@ fail:
 static Response *connect(Request *req)
 {
     ROUTE(req, "/connect/");
-    if (!req->account) return NULL;
+    if (!req->account)
+        return NULL;
 
-    int   id = -1;
-    int   idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
+    int id = -1;
+    int idStart = strchr(req->uri + 1, '/') + 1 - req->uri;
     char *idStr = bsSubstr(req->uri, idStart, -1);
 
     sscanf(idStr, "%d", &id);
 
     Account *account = accountGetById(DB, id);
-    if (!account) goto fail;
+    if (!account)
+        goto fail;
 
     connectionDel(connectionCreate(DB, req->account->id, account->id));
 
@@ -470,20 +491,21 @@ static Response *search(Request *req)
 
     char *query = kvFindList(req->queryString, "q");
 
-    if (!query) return NULL;
+    if (!query)
+        return NULL;
 
     char *res = NULL;
-    char  sbuff[1024];
+    char sbuff[1024];
 
     Account *account = NULL;
     ListCell *accountPCell = NULL;
-    ListCell *accountCell  = accountSearch(DB, query, 0);
+    ListCell *accountCell = accountSearch(DB, query, 0);
 
     if (accountCell)
         res = bsNew("<ul class=\"search-results\">");
 
     while (accountCell) {
-        account = (Account *)accountCell->value;
+        account = (Account *) accountCell->value;
 
         sprintf(sbuff,
                 "<li><a href=\"/profile/%d/\">%s</a> (<span>%s</span>)</li>\n",
@@ -492,7 +514,7 @@ static Response *search(Request *req)
 
         accountDel(account);
         accountPCell = accountCell;
-        accountCell  = accountCell->next;
+        accountCell = accountCell->next;
 
         free(accountPCell);
     }
@@ -555,8 +577,8 @@ static Response *login(Request *req)
             Session *session = sessionCreate(DB, username, password);
             if (session) {
                 responseSetStatus(response, FOUND);
-                responseAddCookie(response, "sid", session->sessionId,
-                                  NULL, NULL, 3600 * 24 * 30);
+                responseAddCookie(response, "sid", session->sessionId, NULL,
+                                  NULL, 3600 * 24 * 30);
                 responseAddHeader(response, "Location", "/dashboard/");
                 templateDel(template);
                 sessionDel(session);
@@ -652,8 +674,8 @@ static Response *signup(Request *req)
         }
 
         if (valid) {
-            Account *account = accountCreate(DB, name,
-                                             email, username, password);
+            Account *account =
+                accountCreate(DB, name, email, username, password);
 
             if (account) {
                 responseSetStatus(response, FOUND);
