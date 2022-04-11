@@ -3,3 +3,4 @@
 *.a
 bin/*
 db.sqlite3
+.vscode/
