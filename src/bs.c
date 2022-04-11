@@ -68,12 +68,12 @@ char *bsSubstr(char *orig, uint32_t beginning, int32_t end)
 
 char *bsRandom(uint32_t len, char *suffix)
 {
-    char table[62] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
-                      'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
-                      'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
-                      'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-                      'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
-                      'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+    static const char table[62] = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
+        'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+        'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C',
+        'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 
     char *bs = malloc(sizeof(char) * (BS_HEADER_LEN + len + 1));
     assert(bs);
@@ -120,7 +120,7 @@ char *bsEscape(char *bs)
 
 void bsLCat(char **orig, char *s)
 {
-    size_t lenO = bsGetLen(*orig);
+    const size_t lenO = bsGetLen(*orig);
     size_t lenS = strlen(s);
     size_t len = lenO + lenS;
 
@@ -147,7 +147,7 @@ void bsSetLen(char *bs, uint32_t len)
     *(bs + len) = '\0';
 }
 
-char *bsNewline2BR(char *bs)
+char *bsNewline2BR(const char *bs)
 {
     char *copy = bsNew(bs);
     char *res = bsNew("");
@@ -170,7 +170,7 @@ char *bsNewline2BR(char *bs)
     return res;
 }
 
-uint32_t bsGetLen(char *bs)
+uint32_t bsGetLen(const char *bs)
 {
     return bs ? (((char) *(bs + 0 - BS_HEADER_LEN) & 0xFF) << 24) |
                     (((char) *(bs + 1 - BS_HEADER_LEN) & 0xFF) << 16) |

@@ -32,13 +32,7 @@ void templateSet(Template *template, char *key, char *value)
 
 char *templateRender(Template *template)
 {
-    Template *inc;
     FILE *file = fopen(template->filename, "r");
-    char *res = bsNew("");
-    char *pos, *buff, *incBs, *val;
-    char *segment;
-    bool rep = false;
-    size_t len;
 
     if (!file) {
         fprintf(stderr, "error: template '%s' not found\n", template->filename);
@@ -46,21 +40,25 @@ char *templateRender(Template *template)
     }
 
     fseek(file, 0, SEEK_END);
-    len = ftell(file);
+    size_t len = ftell(file);
     rewind(file);
 
-    buff = malloc(sizeof(char) * (len + 2));
+    // For cross platform or we can use mmap
+    char *buff = malloc(sizeof(char) * (len + 2));
     (void) !fread(buff + 1, sizeof(char), len, file);
     fclose(file);
 
     buff[0] = ' ';
     buff[len + 1] = '\0';
 
+    char *res = bsNew("");
+    char *pos = NULL;
     // VARIABLES
-    segment = strtok_r(buff, "{\0", &pos);
+    char *segment = strtok_r(buff, "{\0", &pos);
     assert(segment);
     bsLCat(&res, segment + 1);
 
+    bool rep = false;
     for (;;) {
         segment = strtok_r(NULL, "}\0", &pos);
 
@@ -70,7 +68,7 @@ char *templateRender(Template *template)
         if (*segment == '{') {
             rep = true;
             segment += 1;
-            val = kvFindList(template->context, segment);
+            char *val = kvFindList(template->context, segment);
             if (val)
                 bsLCat(&res, val);
         } else if (*segment == '%') {
@@ -80,22 +78,20 @@ char *templateRender(Template *template)
                 segment += 8;
                 segment[strlen(segment) - 1] = '\0';
 
-                inc = templateNew(segment);
+                Template *inc = templateNew(segment);
                 inc->context = template->context;
-                incBs = templateRender(inc);
+                char *incBs = templateRender(inc);
 
                 bsLCat(&res, incBs);
                 bsDel(incBs);
                 free(inc);
             } else if (!strncmp(segment, "when", 4)) {
-                char *spc;
-
                 segment += 5;
-                spc = strchr(segment, ' ');
+                char *spc = strchr(segment, ' ');
                 *spc = '\0';
-                incBs = kvFindList(template->context, segment);
+                char *incBs = kvFindList(template->context, segment);
 
-                if (incBs) {
+                if (incBs) {  // Found
                     segment = spc + 1;
                     spc = strchr(segment, ' ');
                     *spc = '\0';
@@ -134,6 +130,5 @@ char *templateRender(Template *template)
     }
 
     free(buff);
-
     return res;
 }

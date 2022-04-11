@@ -37,14 +37,14 @@ void requestDel(Request *);
 
 #define EXACT_ROUTE(req, routeString)                         \
     {                                                         \
-        char *route = routeString "\0";                       \
+        const char *route = routeString "\0";                 \
         if (strncmp(req->uri, route, strlen(route) + 1) != 0) \
             return NULL;                                      \
     }
 
 #define ROUTE(req, routeString)                           \
     {                                                     \
-        char *route = routeString;                        \
+        const char *route = routeString;                  \
         if (strncmp(req->uri, route, strlen(route)) != 0) \
             return NULL;                                  \
     }

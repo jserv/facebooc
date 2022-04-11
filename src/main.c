@@ -118,14 +118,14 @@ int main(int argc, char *argv[])
     initDB();
 
     uint16_t server_port = 8080;
-    if (argc > 1) {
-        if (sscanf(argv[1], "%hu", &server_port) == 0) {
-            fprintf(stderr,
-                    "error: invalid command line argument, using default port "
-                    "8080.\n");
-            server_port = 8080;
-        }
+
+    if (argc > 1 && sscanf(argv[1], "%hu", &server_port) == 0) {
+        fprintf(stderr,
+                "error: invalid command line argument, using default port "
+                "8080.\n");
+        server_port = 8080;
     }
+
     Server *server = serverNew(server_port);
     serverAddHandler(server, notFound);
     serverAddStaticHandler(server);

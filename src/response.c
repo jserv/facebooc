@@ -8,7 +8,7 @@
 #include "kv.h"
 #include "response.h"
 
-char *STATUSES[5][25] = {
+const char *STATUSES[5][25] = {
     {"Continue", "Switching Protocols"},
     {"OK", "Created", "Accepted", "Non-Authoritative Information", "No Content",
      "Reset Content", "Partial Content"},
@@ -36,7 +36,7 @@ char *STATUSES[5][25] = {
      "I'm A Teapot",
      "Authentication Timeout",
      "Enhance Your Calm"},
-    {"Internal Server Error", "Not Implemneted", "Bad Gateway",
+    {"Internal Server Error", "Not Implemented", "Bad Gateway",
      "Service Unavailable", "Gateway Timeout", "HTTP Version Not Supported"},
 };
 

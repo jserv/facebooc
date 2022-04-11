@@ -94,17 +94,17 @@ void serverAddHandler(Server *server, Handler handler)
 
 static Response *staticHandler(Request *req)
 {
+    // Check is begin with "/static/"
     ROUTE(req, "/static/");
 
     // EXIT ON SHENANIGANS
     if (strstr(req->uri, "../"))
         return NULL;
 
-    char *filename = req->uri + 1;
+    const char *filename = req->uri + 1;
 
     // EXIT ON DIRS
     struct stat sbuff;
-
     if (stat(filename, &sbuff) < 0 || S_ISDIR(sbuff.st_mode))
         return NULL;
 
@@ -114,19 +114,16 @@ static Response *staticHandler(Request *req)
         return NULL;
 
     // GET LENGTH
-    char *buff;
     char lens[25];
-    size_t len;
-
     fseek(file, 0, SEEK_END);
-    len = ftell(file);
+    size_t len = ftell(file);
     sprintf(lens, "%ld", (long int) len);
     rewind(file);
 
     // SET BODY
     Response *response = responseNew();
 
-    buff = malloc(sizeof(char) * len);
+    char *buff = malloc(sizeof(char) * len);
     (void) !fread(buff, sizeof(char), len, file);
     responseSetBody(response, bsNewLen(buff, len));
     fclose(file);
@@ -169,23 +166,19 @@ void serverAddStaticHandler(Server *server)
 
 static inline int makeSocket(unsigned int port)
 {
-    int sock = socket(PF_INET, SOCK_STREAM, 0);
-
-    struct sockaddr_in addr;
+    const int sock = socket(PF_INET, SOCK_STREAM, 0);
 
     if (sock < 0) {
         fprintf(stderr, "error: failed to create socket\n");
         exit(1);
     }
 
-    {
-        sockopt_t optval = 1; /* prevent from address being taken */
-        setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-    }
+    sockopt_t optval = 1; /* prevent from address being taken */
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    const struct sockaddr_in addr = {.sin_family = AF_INET,
+                                     .sin_port = htons(port),
+                                     .sin_addr.s_addr = htons(INADDR_ANY)};
 
     if (bind(sock, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
         fprintf(stderr, "error: failed to bind socket to 0.0.0.0:%d\n", port);
@@ -330,8 +323,6 @@ void serverServe(Server *server)
     struct kevent event;
 #endif
 
-    socklen_t size;
-
     serverAddFd(server->priv, sock, 1, 0);
 
     fprintf(stdout, "Listening on port %d.\n\n", server->port);
@@ -350,7 +341,7 @@ void serverServe(Server *server)
             tmpfd = (int) event.ident;
 #endif
             if (tmpfd == sock) {
-                size = sizeof(addr);
+                socklen_t size = sizeof(addr);
                 while ((newSock = accept(sock, (struct sockaddr *) &addr,
                                          &size)) > 0) {
                     serverAddFd(server->priv, newSock, 1, 1);
