@@ -1,6 +1,6 @@
 #include <assert.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "bs.h"
 
@@ -33,7 +33,7 @@ char *bsCat(char *bs1, char *bs2)
 {
     size_t len1 = bsGetLen(bs1);
     size_t len2 = bsGetLen(bs2);
-    size_t len  = len1 + len2;
+    size_t len = len1 + len2;
 
     char *bs = malloc(sizeof(char) * (BS_HEADER_LEN + len + 1));
     assert(bs);
@@ -49,11 +49,10 @@ char *bsCat(char *bs1, char *bs2)
 
 char *bsSubstr(char *orig, uint32_t beginning, int32_t end)
 {
-    size_t len    = bsGetLen(orig);
-    size_t newLen = (end <= 0) ? len - beginning + end :
-                                 end - beginning;
+    size_t len = bsGetLen(orig);
+    size_t newLen = (end <= 0) ? len - beginning + end : end - beginning;
 
-    assert(newLen >  0);
+    assert(newLen > 0);
     assert(newLen <= len);
 
     char *bs = malloc(sizeof(char) * (BS_HEADER_LEN + newLen + 1));
@@ -69,14 +68,13 @@ char *bsSubstr(char *orig, uint32_t beginning, int32_t end)
 
 char *bsRandom(uint32_t len, char *suffix)
 {
-    char table[62] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-                      'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-                      'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D',
-                      'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-                      'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-                      'Y', 'Z'
-                     };
+    char table[62] = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
+        'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+        'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C',
+        'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    };
 
     char *bs = malloc(sizeof(char) * (BS_HEADER_LEN + len + 1));
     assert(bs);
@@ -96,7 +94,7 @@ char *bsRandom(uint32_t len, char *suffix)
 char *bsEscape(char *bs)
 {
     char *copy = bsNew(bs);
-    char *res  = bsNew("");
+    char *res = bsNew("");
 
     char *c = copy;
     char *p = copy;
@@ -125,7 +123,7 @@ void bsLCat(char **orig, char *s)
 {
     size_t lenO = bsGetLen(*orig);
     size_t lenS = strlen(s);
-    size_t len  = lenO + lenS;
+    size_t len = lenO + lenS;
 
     *orig = (char *) realloc(*orig - BS_HEADER_LEN,
                              sizeof(char) * (BS_HEADER_LEN + len + 1));
@@ -145,15 +143,15 @@ void bsSetLen(char *bs, uint32_t len)
 {
     *(bs + 0 - BS_HEADER_LEN) = len >> 24 & 0xFF;
     *(bs + 1 - BS_HEADER_LEN) = len >> 16 & 0xFF;
-    *(bs + 2 - BS_HEADER_LEN) = len >>  8 & 0xFF;
-    *(bs + 3 - BS_HEADER_LEN) = len       & 0xFF;
+    *(bs + 2 - BS_HEADER_LEN) = len >> 8 & 0xFF;
+    *(bs + 3 - BS_HEADER_LEN) = len & 0xFF;
     *(bs + len) = '\0';
 }
 
-char *bsNewline2BR(char* bs)
+char *bsNewline2BR(char *bs)
 {
     char *copy = bsNew(bs);
-    char *res  = bsNew("");
+    char *res = bsNew("");
 
     char *c = copy;
     char *p = copy;
@@ -175,9 +173,9 @@ char *bsNewline2BR(char* bs)
 
 uint32_t bsGetLen(char *bs)
 {
-    return bs ?
-           (((char) * (bs + 0 - BS_HEADER_LEN) & 0xFF) << 24) |
-           (((char) * (bs + 1 - BS_HEADER_LEN) & 0xFF) << 16) |
-           (((char) * (bs + 2 - BS_HEADER_LEN) & 0xFF) <<  8) |
-           (((char) * (bs + 3 - BS_HEADER_LEN) & 0xFF)) : 0;
+    return bs ? (((char) *(bs + 0 - BS_HEADER_LEN) & 0xFF) << 24) |
+                    (((char) *(bs + 1 - BS_HEADER_LEN) & 0xFF) << 16) |
+                    (((char) *(bs + 2 - BS_HEADER_LEN) & 0xFF) << 8) |
+                    (((char) *(bs + 3 - BS_HEADER_LEN) & 0xFF))
+              : 0;
 }

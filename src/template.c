@@ -18,30 +18,30 @@ Template *templateNew(char *filename)
 
 void templateDel(Template *template)
 {
-    if (template->context) kvDelList(template->context);
+    if (template->context)
+        kvDelList(template->context);
 
     free(template);
 }
 
 void templateSet(Template *template, char *key, char *value)
 {
-    template->context = listCons(kvNew(key, value), sizeof(KV),
-                                 template->context);
+    template->context =
+        listCons(kvNew(key, value), sizeof(KV), template->context);
 }
 
 char *templateRender(Template *template)
 {
     Template *inc;
     FILE *file = fopen(template->filename, "r");
-    char *res  = bsNew("");
+    char *res = bsNew("");
     char *pos, *buff, *incBs, *val;
     char *segment;
-    bool  rep = false;
+    bool rep = false;
     size_t len;
 
     if (!file) {
-        fprintf(stderr,
-                "error: template '%s' not found\n", template->filename);
+        fprintf(stderr, "error: template '%s' not found\n", template->filename);
         exit(1);
     }
 
@@ -53,7 +53,7 @@ char *templateRender(Template *template)
     fread(buff + 1, sizeof(char), len, file);
     fclose(file);
 
-    buff[0]       =  ' ';
+    buff[0] = ' ';
     buff[len + 1] = '\0';
 
     // VARIABLES
@@ -64,7 +64,8 @@ char *templateRender(Template *template)
     for (;;) {
         segment = strtok_r(NULL, "}\0", &pos);
 
-        if (!segment) break;
+        if (!segment)
+            break;
 
         if (*segment == '{') {
             rep = true;
@@ -79,9 +80,9 @@ char *templateRender(Template *template)
                 segment += 8;
                 segment[strlen(segment) - 1] = '\0';
 
-                inc          = templateNew(segment);
+                inc = templateNew(segment);
                 inc->context = template->context;
-                incBs        = templateRender(inc);
+                incBs = templateRender(inc);
 
                 bsLCat(&res, incBs);
                 bsDel(incBs);
@@ -90,14 +91,14 @@ char *templateRender(Template *template)
                 char *spc;
 
                 segment += 5;
-                spc      = strchr(segment, ' ');
-                *spc     = '\0';
-                incBs    = kvFindList(template->context, segment);
+                spc = strchr(segment, ' ');
+                *spc = '\0';
+                incBs = kvFindList(template->context, segment);
 
                 if (incBs) {
                     segment = spc + 1;
-                    spc     = strchr(segment, ' ');
-                    *spc    = '\0';
+                    spc = strchr(segment, ' ');
+                    *spc = '\0';
 
                     if (!strcmp(incBs, segment)) {
                         segment = spc + 1;
@@ -107,9 +108,8 @@ char *templateRender(Template *template)
                     }
                 }
             } else {
-                fprintf(stderr,
-                        "error: unknown exp {%%%s} in '%s'\n",
-                        segment, template->filename);
+                fprintf(stderr, "error: unknown exp {%%%s} in '%s'\n", segment,
+                        template->filename);
                 exit(1);
             }
         } else {
@@ -120,10 +120,11 @@ char *templateRender(Template *template)
 
         segment = strtok_r(NULL, "{\0", &pos);
 
-        if (!segment) break;
+        if (!segment)
+            break;
 
         if (rep) {
-            rep      = false;
+            rep = false;
             segment += 1;
         } else {
             bsLCat(&res, "}");

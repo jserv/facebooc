@@ -1,67 +1,58 @@
 #ifndef _WIN32
-# include <arpa/inet.h>
-# include <netinet/in.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <string.h>
-# include <sys/socket.h>
-# include <sys/stat.h>
-# include <sys/select.h>
-# include <sys/types.h>
-# include <fcntl.h>
-# include <time.h>
-# include <unistd.h>
-# include <errno.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 typedef int sockopt_t;
 #else
-# define FD_SETSIZE 4096
-# include <ws2tcpip.h>
-# include <fcntl.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <string.h>
-# include <sys/stat.h>
-# include <time.h>
-# include <unistd.h>
-# include <errno.h>
-# undef DELETE
-# undef close
-# define close(x) closesocket(x)
+#define FD_SETSIZE 4096
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
+#include <ws2tcpip.h>
+#undef DELETE
+#undef close
+#define close(x) closesocket(x)
 typedef char sockopt_t;
 #endif
 
 #include "bs.h"
 #include "server.h"
 
-#define GET_TIME                                  \
-    time_t t = time(NULL);                        \
-    char timebuff[100];                           \
-    strftime(timebuff, sizeof(timebuff),          \
-             "%c", localtime(&t));
+#define GET_TIME           \
+    time_t t = time(NULL); \
+    char timebuff[100];    \
+    strftime(timebuff, sizeof(timebuff), "%c", localtime(&t));
 
-#define LOG_400(addr)                             \
-    do {                                          \
-        GET_TIME;                                 \
-        fprintf(stdout,                           \
-                "%s %s 400\n",                    \
-                timebuff,                         \
-                inet_ntoa(addr->sin_addr));       \
+#define LOG_400(addr)                                                        \
+    do {                                                                     \
+        GET_TIME;                                                            \
+        fprintf(stdout, "%s %s 400\n", timebuff, inet_ntoa(addr->sin_addr)); \
     } while (0)
 
-#define LOG_REQUEST(addr, method, path, status)   \
-    do {                                          \
-        GET_TIME;                                 \
-        fprintf(stdout,                           \
-                "%s %s %s %s %d\n",               \
-                timebuff,                         \
-                inet_ntoa(addr->sin_addr),        \
-                method,                           \
-                path,                             \
-                status);                          \
+#define LOG_REQUEST(addr, method, path, status)                   \
+    do {                                                          \
+        GET_TIME;                                                 \
+        fprintf(stdout, "%s %s %s %s %d\n", timebuff,             \
+                inet_ntoa(addr->sin_addr), method, path, status); \
     } while (0)
 
 char *METHODS[8] = {
-    "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"
+    "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT",
 };
 
 #if defined(__linux__)
@@ -87,7 +78,8 @@ Server *serverNew(uint16_t port)
 
 void serverDel(Server *server)
 {
-    if (server->handlers) listDel(server->handlers);
+    if (server->handlers)
+        listDel(server->handlers);
     free(server);
 
 #ifdef _WIN32
@@ -106,7 +98,8 @@ static Response *staticHandler(Request *req)
     ROUTE(req, "/static/");
 
     // EXIT ON SHENANIGANS
-    if (strstr(req->uri, "../")) return NULL;
+    if (strstr(req->uri, "../"))
+        return NULL;
 
     char *filename = req->uri + 1;
 
@@ -118,11 +111,12 @@ static Response *staticHandler(Request *req)
 
     // EXIT ON NOT FOUND
     FILE *file = fopen(filename, "r");
-    if (!file) return NULL;
+    if (!file)
+        return NULL;
 
     // GET LENGTH
     char *buff;
-    char  lens[25];
+    char lens[25];
     size_t len;
 
     fseek(file, 0, SEEK_END);
@@ -144,14 +138,22 @@ static Response *staticHandler(Request *req)
 
     len = bsGetLen(req->uri);
 
-    if (!strncmp(req->uri + len - 4, "html", 4)) mimeType = "text/html";
-    else if (!strncmp(req->uri + len - 4, "json", 4)) mimeType = "application/json";
-    else if (!strncmp(req->uri + len - 4, "jpeg", 4)) mimeType = "image/jpeg";
-    else if (!strncmp(req->uri + len - 3,  "jpg", 3)) mimeType = "image/jpeg";
-    else if (!strncmp(req->uri + len - 3,  "gif", 3)) mimeType = "image/gif";
-    else if (!strncmp(req->uri + len - 3,  "png", 3)) mimeType = "image/png";
-    else if (!strncmp(req->uri + len - 3,  "css", 3)) mimeType = "text/css";
-    else if (!strncmp(req->uri + len - 2,   "js", 2)) mimeType = "application/javascript";
+    if (!strncmp(req->uri + len - 4, "html", 4))
+        mimeType = "text/html";
+    else if (!strncmp(req->uri + len - 4, "json", 4))
+        mimeType = "application/json";
+    else if (!strncmp(req->uri + len - 4, "jpeg", 4))
+        mimeType = "image/jpeg";
+    else if (!strncmp(req->uri + len - 3, "jpg", 3))
+        mimeType = "image/jpeg";
+    else if (!strncmp(req->uri + len - 3, "gif", 3))
+        mimeType = "image/gif";
+    else if (!strncmp(req->uri + len - 3, "png", 3))
+        mimeType = "image/png";
+    else if (!strncmp(req->uri + len - 3, "css", 3))
+        mimeType = "text/css";
+    else if (!strncmp(req->uri + len - 2, "js", 2))
+        mimeType = "application/javascript";
 
     // RESPOND
     responseSetStatus(response, OK);
@@ -182,8 +184,8 @@ static inline int makeSocket(unsigned int port)
         setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
     }
 
-    addr.sin_family      = AF_INET;
-    addr.sin_port        = htons(port);
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(sock, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
@@ -265,16 +267,15 @@ static void serverDelFd(Server *server, int fd)
 
 static inline void handle(Server *server, int fd, struct sockaddr_in *addr)
 {
-    int  nread;
+    int nread;
     char buff[20480];
 
     if ((nread = recv(fd, buff, sizeof(buff), 0)) < 0) {
-	    if (errno == EAGAIN) {
-	        resetOneShot(server->priv, fd);
-	    }		
-	    else {
-	        fprintf(stderr, "error: read failed\n");
-	    }
+        if (errno == EAGAIN) {
+            resetOneShot(server->priv, fd);
+        } else {
+            fprintf(stderr, "error: read failed\n");
+        }
     } else if (nread > 0) {
         buff[nread] = '\0';
 
@@ -284,12 +285,12 @@ static inline void handle(Server *server, int fd, struct sockaddr_in *addr)
             send(fd, "HTTP/1.0 400 Bad Request\r\n\r\nBad Request", 39, 0);
             LOG_400(addr);
         } else {
-            ListCell *handler  = server->handlers;
+            ListCell *handler = server->handlers;
             Response *response = NULL;
 
             while (handler && !response) {
-                response = (*(HandlerP)handler->value)(req);
-                handler  = handler->next;
+                response = (*(HandlerP) handler->value)(req);
+                handler = handler->next;
             }
 
             if (!response) {
@@ -314,53 +315,57 @@ void serverServe(Server *server)
 {
 #ifdef _WIN32
     WSADATA wsaData;
-    WSAStartup(2 , &wsaData);
+    WSAStartup(2, &wsaData);
 #endif
 
     int sock = makeSocket(server->port);
     int newSock, nfds, tmpfd;
     struct sockaddr_in addr;
 #if defined(__linux__)
-    struct epoll_event* events = (struct epoll_event*)malloc(sizeof(struct epoll_event) * 64);
+    struct epoll_event *events =
+        (struct epoll_event *) malloc(sizeof(struct epoll_event) * 64);
     struct epoll_event event;
 #elif defined(__APPLE__)
-    struct kevent* events = (struct kevent*)malloc(sizeof(struct kevent) * 64);
+    struct kevent *events =
+        (struct kevent *) malloc(sizeof(struct kevent) * 64);
     struct kevent event;
 #endif
-    
+
     socklen_t size;
 
-    serverAddFd(server->priv, sock, 1,0);
+    serverAddFd(server->priv, sock, 1, 0);
 
     fprintf(stdout, "Listening on port %d.\n\n", server->port);
 
     for (;;) {
-    #if defined(__linux__)
+#if defined(__linux__)
         nfds = epoll_wait(server->priv, events, 64, -1);
-    #elif defined(__APPLE__)
+#elif defined(__APPLE__)
         nfds = kevent(server->priv, NULL, 0, events, 64, NULL);
-    #endif
-	for (int i = 0; i < nfds; ++i) {
+#endif
+        for (int i = 0; i < nfds; ++i) {
             event = events[i];
-        #if defined(__linux__)
-	    tmpfd = event.data.fd;
-        #elif defined(__APPLE__)
-            tmpfd = (int)event.ident;
-        #endif
-	    if (tmpfd == sock) {
-	        size = sizeof(addr);
-	        while ((newSock = accept(sock, (struct sockaddr *) &addr, &size)) > 0) {
-	            serverAddFd(server->priv, newSock, 1, 1);
-	    	}
-		if (newSock == -1) {
-                    if (errno != EAGAIN && errno != ECONNABORTED && errno != EPROTO && errno != EINTR) {
+#if defined(__linux__)
+            tmpfd = event.data.fd;
+#elif defined(__APPLE__)
+            tmpfd = (int) event.ident;
+#endif
+            if (tmpfd == sock) {
+                size = sizeof(addr);
+                while ((newSock = accept(sock, (struct sockaddr *) &addr,
+                                         &size)) > 0) {
+                    serverAddFd(server->priv, newSock, 1, 1);
+                }
+                if (newSock == -1) {
+                    if (errno != EAGAIN && errno != ECONNABORTED &&
+                        errno != EPROTO && errno != EINTR) {
                         fprintf(stderr, "error: failed to accept connection\n");
                         exit(1);
                     }
                 }
-	    } else {
-	        handle(server, tmpfd, &addr);
-	    }
-	}
+            } else {
+                handle(server, tmpfd, &addr);
+            }
+        }
     }
 }

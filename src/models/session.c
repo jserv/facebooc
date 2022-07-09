@@ -35,7 +35,7 @@ Session *sessionGetBySId(sqlite3 *DB, char *sid)
         session = sessionNew(sqlite3_column_int(statement, 0),
                              sqlite3_column_int(statement, 1),
                              sqlite3_column_int(statement, 2),
-                             (char *)sqlite3_column_text(statement, 3));
+                             (char *) sqlite3_column_text(statement, 3));
     }
 
 fail:
@@ -77,9 +77,12 @@ Session *sessionCreate(sqlite3 *DB, char *username, char *password)
         goto fail;
     }
 
-    if (sqlite3_bind_int(statement, 1, time(NULL)) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_int(statement, 2, aid) != SQLITE_OK) goto fail;
-    if (sqlite3_bind_text(statement, 3, sid, -1, NULL) != SQLITE_OK) goto fail;
+    if (sqlite3_bind_int(statement, 1, time(NULL)) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_bind_int(statement, 2, aid) != SQLITE_OK)
+        goto fail;
+    if (sqlite3_bind_text(statement, 3, sid, -1, NULL) != SQLITE_OK)
+        goto fail;
     if (sqlite3_step(statement) != SQLITE_DONE)
         goto fail;
 
