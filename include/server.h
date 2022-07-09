@@ -16,9 +16,9 @@ typedef Response *(*Handler)(Request *);
 typedef Response *(**HandlerP)(Request *);
 
 Server *serverNew(uint16_t);
-void    serverDel(Server *);
-void    serverAddHandler(Server *, Handler);
-void    serverAddStaticHandler(Server *);
-void    serverServe(Server *);
+void serverDel(Server *);
+void serverAddHandler(Server *, Handler);
+void serverAddStaticHandler(Server *);
+void serverServe(Server *);
 
 #endif

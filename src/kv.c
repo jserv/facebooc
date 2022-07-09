@@ -24,8 +24,8 @@ void kvDel(KV *kv)
 static bool kvDelEach(void *kv)
 {
     if (kv) {
-        bsDel(((KV *)kv)->key);
-        bsDel(((KV *)kv)->value);
+        bsDel(((KV *) kv)->key);
+        bsDel(((KV *) kv)->value);
     }
 
     return true;
@@ -39,9 +39,7 @@ void kvDelList(ListCell *list)
 
 static bool kvPrintEach(void *kv)
 {
-    fprintf(stdout, "%s: %s\n",
-            ((KV *)kv)->key,
-            ((KV *)kv)->value);
+    fprintf(stdout, "%s: %s\n", ((KV *) kv)->key, ((KV *) kv)->value);
 
     return true;
 }
@@ -54,8 +52,8 @@ void kvPrintList(ListCell *list)
 char *kvFindList(ListCell *cell, char *key)
 {
     while (cell) {
-        if (!strcmp(((KV *)cell->value)->key, key))
-            return ((KV *)cell->value)->value;
+        if (!strcmp(((KV *) cell->value)->key, key))
+            return ((KV *) cell->value)->value;
         cell = cell->next;
     }
 

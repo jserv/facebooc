@@ -6,9 +6,9 @@ ListCell *listCons(void *value, size_t size, ListCell *next)
 {
     ListCell *cell = malloc(sizeof(ListCell));
 
-    cell->next  = next;
+    cell->next = next;
     cell->value = malloc(size);
-    cell->size  = size;
+    cell->size = size;
 
     memcpy(cell->value, value, size);
 
@@ -30,7 +30,8 @@ ListCell *listReverse(ListCell *cell)
 
 void listDel(ListCell *cell)
 {
-    if (!cell) return;
+    if (!cell)
+        return;
     do {
         ListCell *next = cell->next;
         free(cell->value);
@@ -41,11 +42,12 @@ void listDel(ListCell *cell)
 
 IterationResult listForEach(ListCell *cell, ListIterator iterator)
 {
-    if (!cell) return DONE;
+    if (!cell)
+        return DONE;
 
     bool res;
     do {
-        res  = iterator(cell->value);
+        res = iterator(cell->value);
         cell = cell->next;
     } while (cell && res);
 

@@ -15,11 +15,11 @@ typedef struct Post {
     char *body;
 } Post;
 
-Post     *postNew(int, int, int, char *);
-Post     *postCreate(sqlite3 *, int, char *);
-Post     *postGetById(sqlite3 *, int);
+Post *postNew(int, int, int, char *);
+Post *postCreate(sqlite3 *, int, char *);
+Post *postGetById(sqlite3 *, int);
 ListCell *postGetLatest(sqlite3 *, int, int);
 ListCell *postGetLatestGraph(sqlite3 *, int, int);
-void      postDel(Post *);
+void postDel(Post *);
 
 #endif
