@@ -117,7 +117,7 @@ static Response *staticHandler(Request *req)
     // GET LENGTH
     char *buff;
     char lens[25];
-    size_t len;
+    size_t len, readLen;
 
     fseek(file, 0, SEEK_END);
     len = ftell(file);
@@ -128,7 +128,13 @@ static Response *staticHandler(Request *req)
     Response *response = responseNew();
 
     buff = malloc(sizeof(char) * len);
-    fread(buff, sizeof(char), len, file);
+    readLen = fread(buff, sizeof(char), len, file);
+    if (readLen != len) {
+        fclose(file);
+        free(buff);
+        responseDel(response);
+        return NULL;
+    }
     responseSetBody(response, bsNewLen(buff, len));
     fclose(file);
     free(buff);

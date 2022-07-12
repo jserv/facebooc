@@ -38,7 +38,7 @@ char *templateRender(Template *template)
     char *pos, *buff, *incBs, *val;
     char *segment;
     bool rep = false;
-    size_t len;
+    size_t len, readLen;
 
     if (!file) {
         fprintf(stderr, "error: template '%s' not found\n", template->filename);
@@ -50,7 +50,14 @@ char *templateRender(Template *template)
     rewind(file);
 
     buff = malloc(sizeof(char) * (len + 2));
-    fread(buff + 1, sizeof(char), len, file);
+    readLen = fread(buff + 1, sizeof(char), len, file);
+    if (readLen != len) {
+        if (feof(file))
+            fprintf(stderr, "error: unexpected end of file in template '%s'\n", template->filename);
+        else
+            fprintf(stderr, "error: failed to read template '%s'\n", template->filename);
+        exit(1);
+    }
     fclose(file);
 
     buff[0] = ' ';
