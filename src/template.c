@@ -50,7 +50,7 @@ char *templateRender(Template *template)
     rewind(file);
 
     buff = malloc(sizeof(char) * (len + 2));
-    fread(buff + 1, sizeof(char), len, file);
+    (void) !fread(buff + 1, sizeof(char), len, file);
     fclose(file);
 
     buff[0] = ' ';
