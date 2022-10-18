@@ -224,7 +224,9 @@ static Response *dashboard(Request *req)
         bsLCat(&res, bbuff);
 
         if (liked) {
-            sprintf(sbuff, "<a class=\"btn\" href=\"/unlike/%d/\">Liked</a> - ",
+            sprintf(sbuff,
+                    "<a class=\"btn\" href=\"/unlike/%d/\"><span "
+                    "class=emoji>&#x1F44D;</span>Liked</a> - ",
                     post->id);
             bsLCat(&res, sbuff);
         } else {
