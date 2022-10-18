@@ -634,6 +634,10 @@ form.form-inline .form-control {
     color: #999;
 }
 
+.emoji {
+    font-family: Segoe UI Emoji, Segoe UI Symbol, Quivira, Symbola;
+}
+
 /* search results */
 .search-results {
     margin: 3em auto 2em auto;
