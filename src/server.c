@@ -225,6 +225,7 @@ static void serverAddFd(int epollfd, int fd, int in, int oneshot)
     if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &event) < 0)
         perror("epoll_ctl");
 #elif defined(__APPLE__)
+    (void) in;
     struct kevent event;
     event.ident = fd;
     event.flags = EV_ADD | EV_ENABLE | EV_CLEAR;
