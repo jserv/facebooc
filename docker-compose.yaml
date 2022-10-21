@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  local:
+    restart: always
+    build: .
+    ports:
+      - "8080:8080"
+    tty: true
+    stdin_open: true
+      
+  prod:
+    # image: your registry 
+    build: .
+    ports:
+      - "8080:8080"
+    tty: true
+    stdin_open: true
+    restart: always
+
