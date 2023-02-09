@@ -4,10 +4,16 @@ Proof-of-concept Facebook clone in C.
 The only dependency is SQLite3.
 
 # Prerequisites
-Install SQLite development package:
+Install SQLite development package: </br>
+#Debian
 ```bash
 sudo apt-get install libsqlite3-dev
 ```
+#EL
+```bash
+sudo dnf install sqlite-devel sqlite
+```
+
 
 # Build and Run
 ```bash
