@@ -25,12 +25,12 @@ compile:
   tags:
     - docker
   image:
-    name: harbor.lab.com/library/make:v1.1
+    name: hashicorp/packer:latest
     entrypoint:
       - '/usr/bin/env'
-      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'
+      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/sbin'
   script:
-    - make all
+    - packer version
   artifacts:
     paths:
     - bin/facebooc
