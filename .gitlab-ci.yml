@@ -15,9 +15,9 @@ stages:
 #- template: Auto-DevOps.gitlab-ci.yml
 
 
-default:
-  before_script:
-    - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
+#default:
+#  before_script:
+#    - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
 
 
 compile:
@@ -56,6 +56,7 @@ upload to registry:
   tags:
     - lab
   script:
+    - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
     - docker push "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:${CI_COMMIT_TAG}"
 
 
