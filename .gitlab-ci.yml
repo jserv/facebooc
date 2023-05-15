@@ -23,14 +23,14 @@ default:
 compile:
   stage: build
   tags:
-    - docker
+    - docker-02
   image:
-    name: hashicorp/packer:latest
+    name: harbor.lab.com/library/make:v1.1
     entrypoint:
       - '/usr/bin/env'
-      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/sbin'
+      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'
   script:
-    - packer version
+    - make all
   artifacts:
     paths:
     - bin/facebooc
