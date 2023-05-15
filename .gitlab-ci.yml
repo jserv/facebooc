@@ -25,7 +25,7 @@ compile:
   tags:
     - docker
   image:
-    name: harbor.lab.com/library/make:v1
+    name: harbor.lab.com/library/make:v1.1
     entrypoint:
       - '/usr/bin/env'
       - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'
