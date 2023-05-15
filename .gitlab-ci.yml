@@ -26,8 +26,10 @@ compile:
     - docker
   image:
     name: harbor.lab.com/library/make:v1
+    entrypoint:
+      - '/usr/bin/env'
+      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'
   script:
-    - pwd
     - make all
   artifacts:
     paths:
@@ -44,7 +46,7 @@ image build:
     - lab
   script:
     - pwd; ls
-    - docker image build -t "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:${CI_COMMIT_TAG}" -f fb.Dockerfile
+    - docker image build -t "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:${CI_COMMIT_TAG}" -f fb.Dockerfile .
   dependencies:
     - compile
 
