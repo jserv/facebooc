@@ -27,7 +27,7 @@ build-image:
 #    - mkdir -p .docker; echo "{\"auths\":{\"${HARBOR_HOST}\":{\"auth\":\"$(echo -n ${HARBOR_USERNAME}:${HARBOR_PASSWORD} | base64)\"}}}" > .docker/config.json
 #    - docker tag hello-world:latest harbor.lab.com/library/hello_cicd:test
 #    - docker push "${HARBOR_HOST}/${HARBOR_PROJECT}/hello_cicd:test"
-    - docker build -t "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:${CI_COMMIT_TAG}" .
+    - docker image build -t "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:${CI_COMMIT_TAG}" .
     - docker push "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:${CI_COMMIT_TAG}"
 
 run:
