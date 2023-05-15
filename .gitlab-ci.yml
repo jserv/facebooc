@@ -49,6 +49,9 @@ image build:
     - docker image build -t "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:${CI_COMMIT_TAG}" -f fb.Dockerfile .
   dependencies:
     - compile
+  needs:
+    - job: compile
+      artifacts: true
 
 
 upload to registry:
