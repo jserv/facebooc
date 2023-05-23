@@ -60,7 +60,7 @@ upload to registry:
     - lab
   script:
     - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
-    - docker push "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:outro #${CI_COMMIT_TAG}"
+    - docker push "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:outro" #${CI_COMMIT_TAG}"
 
 
 deploy:
