@@ -71,7 +71,7 @@ deploy:
     - kubectl config get-contexts
 #    - kubectl config use-context kind-demo
 #    - kubectl get no
-    - kubectl config use-context manuh/facebooc/.gitlab/agents:config
+    - kubectl config use-context manuh/facebooc/.gitlab:config
     - kubectl get no
 
 
