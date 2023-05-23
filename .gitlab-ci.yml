@@ -68,11 +68,11 @@ deploy:
 #    name: bitnami/kubectl:latest
 #    entrypoint: ['']
   script:
-#    - kubectl config get-contexts
-    - kubectl config use-context kind-demo
+    - kubectl config get-contexts
+#    - kubectl config use-context kind-demo
+#    - kubectl get no
+    - kubectl config use-context manuh/facebooc/.gitlab/agents:config
     - kubectl get no
-#    - kubectl config use-context manuh/facebooc:config
-
 
 
 #build-image:
