@@ -69,7 +69,7 @@ deploy:
 #    entrypoint: ['']
   script:
 #    - kubectl config get-contexts
-    - kubectl use-context kind-demo
+    - kubectl config use-context kind-demo
     - kubectl get no
 #    - kubectl config use-context manuh/facebooc:config
 
