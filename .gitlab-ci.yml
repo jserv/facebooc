@@ -64,9 +64,9 @@ stages:
 
 
 deploy:
-#  image:
-#    name: bitnami/kubectl:latest
-#    entrypoint: ['']
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
   script:
     - echo $KUBECONFIG
     - kubectl config get-contexts
