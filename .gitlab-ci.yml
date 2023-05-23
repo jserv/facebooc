@@ -64,13 +64,13 @@ upload to registry:
 
 
 deploy:
-  image:
-    name: bitnami/kubectl:latest
-    entrypoint: ['']
+#  image:
+#    name: bitnami/kubectl:latest
+#    entrypoint: ['']
   script:
     - kubectl config get-contexts
     - kubectl get no
-    - kubectl config use-context manuh/facebooc:config
+#    - kubectl config use-context manuh/facebooc:config
 
 
 
