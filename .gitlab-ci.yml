@@ -73,7 +73,7 @@ deploy:
     - echo $KUBECONFIG
     - kubectl config get-contexts
 #    - kubectl config use-context kind-demo
-    - kubectl config use-context manuh/facebooc:config
+    - kubectl config use-context manuh/facebooc:joker
     - cat $KUBECONFIG
     - kubectl config view
     - kubectl get namespaces
