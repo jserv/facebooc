@@ -71,7 +71,6 @@ deploy:
     - echo $KUBECONFIG
     - kubectl config get-contexts
 #    - kubectl config use-context kind-demo
-#    - kubectl get no
     - kubectl config use-context manuh/facebooc:config
     - cat $KUBECONFIG
     - kubectl config view
