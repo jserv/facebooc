@@ -40,18 +40,18 @@ compile:
 
 
 
-image build:
-  stage: build
-  tags:
-    - lab
-  script:
-    - pwd; ls
-    - docker image build -t "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:${CI_COMMIT_TAG}" -f fb.Dockerfile .
-  dependencies:
-    - compile
-  needs:
-    - job: compile
-      artifacts: true
+#image build:
+#  stage: build
+#  tags:
+#    - lab
+#  script:
+#    - pwd; ls
+#    - docker image build -t "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:${CI_COMMIT_TAG}" -f fb.Dockerfile .
+#  dependencies:
+#    - compile
+#  needs:
+#    - job: compile
+#      artifacts: true
 
 
 upload to registry:
@@ -60,7 +60,17 @@ upload to registry:
     - lab
   script:
     - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
-    - docker push "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:${CI_COMMIT_TAG}"
+    - docker push "${HARBOR_HOST}/${HARBOR_PROJECT}/fb:outro #${CI_COMMIT_TAG}"
+
+
+deploy:
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  script:
+    - kubectl config get-contexts
+    - kubectl config use-context .gitlab/agents:config
+    - kubectl get no
 
 
 #build-image:
