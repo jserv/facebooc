@@ -69,7 +69,7 @@ deploy:
     entrypoint: ['']
   script:
     - kubectl config get-contexts
-    - kubectl config use-context .gitlab/agents:config
+    - kubectl config use-context manuh/facebooc:config
     - kubectl get no
 
 
