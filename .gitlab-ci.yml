@@ -20,23 +20,23 @@ stages:
 #    - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
 
 
-compile:
-  stage: build
-  tags:
-    - docker-02
-  image:
-    name: harbor.lab.com/library/make:v1.1
-    entrypoint:
-      - '/usr/bin/env'
-      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'
-  script:
-    - make all
-  artifacts:
-    paths:
-    - bin/facebooc
-    untracked: true
-    when: on_success
-    expire_in: "7 days"
+#compile:
+#  stage: build
+#  tags:
+#    - docker-02
+#  image:
+#    name: harbor.lab.com/library/make:v1.1
+#    entrypoint:
+#      - '/usr/bin/env'
+#      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin'
+#  script:
+#    - make all
+#  artifacts:
+#    paths:
+#    - bin/facebooc
+#    untracked: true
+#    when: on_success
+#    expire_in: "7 days"
 
 
 
@@ -54,13 +54,13 @@ compile:
 #      artifacts: true
 
 
-upload to registry:
-  stage: test
-  tags:
-    - lab
-  script:
-    - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
-    - docker push "${HARBOR_HOST}/${HARBOR_PROJECT}"/fb:33 #${CI_COMMIT_TAG}"
+#upload to registry:
+#  stage: test
+#  tags:
+#    - lab
+#  script:
+#    - docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_HOST
+#    - docker push "${HARBOR_HOST}/${HARBOR_PROJECT}"/fb:33 #${CI_COMMIT_TAG}"
 
 
 deploy:
