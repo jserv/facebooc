@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: fb
+  name: fb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fb
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: fb
+    spec:
+      containers:
+      - image: nhiuana/fb:v5
+        name: fb
+        resources: {}
+status: {}
