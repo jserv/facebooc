@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: fb
+  name: fb
+spec:
+  ports:
+  - name: "noventa"
+    port: 9091
+    protocol: TCP
+    targetPort: 9091
+  selector:
+    app: fb
+  type: LoadBalancer 
+status:
+  loadBalancer: {}
