@@ -9,8 +9,8 @@ static inline char *urldecode(char *segment)
 {
     char *cc = segment;
     char *bs = bsNew("");
-    char escCode[3] = "\0\0\0";
-    char escChar[2] = "\0\0";
+    char escCode[3] = {0};
+    char escChar[2] = {0};
 
     while (*cc != '\0') {
         switch (*cc) {
